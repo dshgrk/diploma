@@ -1,0 +1,14 @@
+#!/bin/sh
+
+remote="${GIT_AUTO_PUSH_REMOTE:-origin}"
+branch="$(git symbolic-ref --quiet --short HEAD 2>/dev/null)" || exit 0
+
+echo "[auto-push] Pushing ${branch} to ${remote}..."
+
+if git push "$remote" "$branch"; then
+  echo "[auto-push] Done."
+else
+  echo "[auto-push] Push failed. Commit is saved locally."
+fi
+
+exit 0

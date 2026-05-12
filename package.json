@@ -10,6 +10,8 @@
     "start": "node server/index.js",
     "test": "vitest run",
     "test:watch": "vitest",
+    "git:auto-push:install": "git config core.hooksPath .githooks",
+    "git:auto-push:disable": "git config --unset core.hooksPath",
     "assets:generate-free": "node scripts/generate-free-mvp-images.js",
     "assets:rasterize": "node scripts/rasterize-assets.js",
     "db:migrate": "knex --knexfile knexfile.cjs migrate:latest",
