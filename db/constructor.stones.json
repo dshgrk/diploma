@@ -1,0 +1,100 @@
+{
+  "items": [
+    {
+      "id": 1,
+      "code": "none",
+      "name_uk": "Без каменю",
+      "name_en": "No stone",
+      "asset_id": null,
+      "default_scale_x": 1,
+      "default_scale_y": 1,
+      "default_layer_mode": "above",
+      "is_active": true,
+      "sort_order": 1
+    },
+    {
+      "id": 2,
+      "code": "pearl",
+      "name_uk": "Перлина",
+      "name_en": "Pearl",
+      "asset_id": 7,
+      "default_scale_x": 1,
+      "default_scale_y": 1,
+      "default_layer_mode": "above",
+      "is_active": true,
+      "sort_order": 2
+    },
+    {
+      "id": 3,
+      "code": "onyx",
+      "name_uk": "Онікс",
+      "name_en": "Onyx",
+      "asset_id": 8,
+      "default_scale_x": 1,
+      "default_scale_y": 1,
+      "default_layer_mode": "above",
+      "is_active": true,
+      "sort_order": 3
+    },
+    {
+      "id": 4,
+      "code": "rose_quartz",
+      "name_uk": "Рожевий кварц",
+      "name_en": "Rose quartz",
+      "asset_id": 9,
+      "default_scale_x": 1,
+      "default_scale_y": 1,
+      "default_layer_mode": "above",
+      "is_active": true,
+      "sort_order": 4
+    },
+    {
+      "id": 5,
+      "code": "garnet",
+      "name_uk": "Гранат",
+      "name_en": "Garnet",
+      "asset_id": 10,
+      "default_scale_x": 1,
+      "default_scale_y": 1,
+      "default_layer_mode": "above",
+      "is_active": true,
+      "sort_order": 5
+    },
+    {
+      "id": 6,
+      "code": "opal",
+      "name_uk": "Опал",
+      "name_en": "Opal",
+      "asset_id": 11,
+      "default_scale_x": 1,
+      "default_scale_y": 1,
+      "default_layer_mode": "above",
+      "is_active": true,
+      "sort_order": 6
+    },
+    {
+      "id": 7,
+      "code": "heart_charm",
+      "name_uk": "Шарм серце",
+      "name_en": "Heart charm",
+      "asset_id": 12,
+      "default_scale_x": 0.88,
+      "default_scale_y": 0.88,
+      "default_layer_mode": "above",
+      "is_active": true,
+      "sort_order": 7
+    },
+    {
+      "id": 8,
+      "code": "diamond",
+      "name_uk": "Діамант",
+      "name_en": "Diamond",
+      "asset_id": 13,
+      "default_scale_x": 1,
+      "default_scale_y": 1,
+      "default_layer_mode": "above",
+      "is_active": true,
+      "sort_order": 8
+    }
+  ]
+}

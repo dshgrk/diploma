@@ -1,0 +1,363 @@
+import { createRequire } from "module";
+import { beforeAll, beforeEach, describe, expect, test } from "vitest";
+import request from "supertest";
+
+const require = createRequire(import.meta.url);
+const { db } = require("../../server/db/knex");
+const { createApp } = require("../../server/app");
+const { ORDER_STATUSES } = require("../../server/constants/order-statuses");
+const { updateAdminOrderStatus } = require("../../server/modules/admin-orders/admin-orders.service");
+const { listAdminOrders } = require("../../server/modules/admin-orders/admin-orders.service");
+const { applyCartPromoCode, getOrCreateActiveCart } = require("../../server/modules/cart/cart.service");
+const { createCheckoutOrder } = require("../../server/modules/checkout/checkout.service");
+const { confirmMockPayment } = require("../../server/modules/payments/payments.service");
+
+const MIGRATIONS_DIRECTORY = "./db/migrations";
+const SEEDS_DIRECTORY = "./db/seeds";
+const CHECKOUT_PAYLOAD = {
+  customer_name: "Test Customer",
+  email: "client@aurora.local",
+  phone: "+380000000002",
+  delivery_method: "nova_poshta",
+  delivery_address: "Kyiv, branch 1",
+  accepted_offer: true,
+  accepted_return_policy: true
+};
+const CLIENT_USER = {
+  id: 2,
+  role: "client"
+};
+
+async function resetDatabase() {
+  if (db.client.config.client === "sqlite3") {
+    await db.raw("PRAGMA foreign_keys = OFF");
+    const tables = await db
+      .select("name")
+      .from("sqlite_master")
+      .where("type", "table")
+      .whereNotIn("name", ["sqlite_sequence"]);
+
+    for (const table of tables) {
+      await db.schema.dropTableIfExists(table.name);
+    }
+
+    await db.raw("PRAGMA foreign_keys = ON");
+    return;
+  }
+
+  await db.migrate.rollback({ directory: MIGRATIONS_DIRECTORY }, true);
+}
+
+describe("cart and checkout integrity", () => {
+  beforeAll(async () => {
+    await resetDatabase();
+    await db.migrate.latest({ directory: MIGRATIONS_DIRECTORY });
+  });
+
+  beforeEach(async () => {
+    await db.seed.run({ directory: SEEDS_DIRECTORY });
+  });
+
+  test("reuses the same active cart for the user", async () => {
+    const firstCart = await getOrCreateActiveCart(2);
+    const secondCart = await getOrCreateActiveCart(2);
+
+    expect(secondCart.id).toBe(firstCart.id);
+
+    const activeCarts = await db("carts").where({ user_id: 2, status: "active" });
+    expect(activeCarts).toHaveLength(1);
+    expect(activeCarts[0].active_cart_key).toBe("active:2");
+  });
+
+  test("creates only one order when checkout is requested twice", async () => {
+    const results = await Promise.allSettled([
+      createCheckoutOrder(2, CHECKOUT_PAYLOAD),
+      createCheckoutOrder(2, CHECKOUT_PAYLOAD)
+    ]);
+
+    const fulfilled = results.filter((result) => result.status === "fulfilled");
+    const rejected = results.filter((result) => result.status === "rejected");
+
+    expect(fulfilled).toHaveLength(1);
+    expect(rejected).toHaveLength(1);
+    expect(rejected[0].reason.code).toBe("EMPTY_CART");
+
+    const userOrders = await db("orders").where({ user_id: 2 });
+    const activeCarts = await db("carts").where({ user_id: 2, status: "active" });
+    const checkedOutCarts = await db("carts").where({ user_id: 2, status: "checked_out" });
+
+    expect(userOrders).toHaveLength(3);
+    expect(activeCarts).toHaveLength(1);
+    expect(checkedOutCarts).toHaveLength(1);
+    expect(activeCarts[0].active_cart_key).toBe("active:2");
+    expect(checkedOutCarts[0].active_cart_key).toBeNull();
+  });
+
+  test("payment confirmation is idempotent", async () => {
+    const checkoutResult = await createCheckoutOrder(2, CHECKOUT_PAYLOAD);
+
+    const results = await Promise.allSettled([
+      confirmMockPayment(CLIENT_USER, {
+        order_id: checkoutResult.order_id,
+        payment_token: checkoutResult.payment_token
+      }),
+      confirmMockPayment(CLIENT_USER, {
+        order_id: checkoutResult.order_id,
+        payment_token: checkoutResult.payment_token
+      })
+    ]);
+
+    const fulfilled = results.filter((result) => result.status === "fulfilled");
+
+    expect(fulfilled).toHaveLength(2);
+    expect(fulfilled[0].value.payment_status).toBe("succeeded");
+    expect(fulfilled[1].value.payment_status).toBe("succeeded");
+
+    const order = await db("orders").where({ id: checkoutResult.order_id }).first();
+    const payment = await db("payments").where({ order_id: checkoutResult.order_id }).first();
+    const history = await db("order_status_history").where({ order_id: checkoutResult.order_id });
+    const notifications = await db("notification_logs").where({ order_id: checkoutResult.order_id });
+
+    expect(order.status).toBe(ORDER_STATUSES.CONFIRMED);
+    expect(payment.status).toBe("succeeded");
+    expect(history).toHaveLength(2);
+    expect(notifications).toHaveLength(2);
+  });
+
+  test("admin cannot skip directly to completed", async () => {
+    const checkoutResult = await createCheckoutOrder(2, CHECKOUT_PAYLOAD);
+    await confirmMockPayment(CLIENT_USER, {
+      order_id: checkoutResult.order_id,
+      payment_token: checkoutResult.payment_token
+    });
+
+    await expect(updateAdminOrderStatus(1, checkoutResult.order_id, ORDER_STATUSES.COMPLETED)).rejects.toMatchObject({
+      code: "INVALID_STATUS_TRANSITION"
+    });
+
+    const order = await db("orders").where({ id: checkoutResult.order_id }).first();
+    expect(order.status).toBe(ORDER_STATUSES.CONFIRMED);
+  });
+
+  test("admin rollback requires a comment and cannot skip backward", async () => {
+    await expect(updateAdminOrderStatus(1, 2, ORDER_STATUSES.CONFIRMED)).rejects.toMatchObject({
+      code: "COMMENT_REQUIRED"
+    });
+
+    await expect(updateAdminOrderStatus(1, 2, ORDER_STATUSES.CREATED_PENDING_PAYMENT, "Too far back")).rejects.toMatchObject({
+      code: "INVALID_STATUS_TRANSITION"
+    });
+
+    const updatedOrder = await updateAdminOrderStatus(1, 2, ORDER_STATUSES.CONFIRMED, "Returning to confirmation");
+    expect(updatedOrder.status).toBe(ORDER_STATUSES.CONFIRMED);
+  });
+
+  test("promo redemption is recorded once and updates counters", async () => {
+    await applyCartPromoCode(2, "WELCOME10");
+
+    const checkoutResult = await createCheckoutOrder(2, CHECKOUT_PAYLOAD);
+    const order = await db("orders").where({ id: checkoutResult.order_id }).first();
+    const promoCode = await db("promo_codes").where({ code: "WELCOME10" }).first();
+    const redemptions = await db("promo_code_redemptions").where({ order_id: checkoutResult.order_id });
+    const userUsage = await db("promo_code_user_usage").where({ promo_code_id: promoCode.id, user_id: 2 }).first();
+
+    expect(order.promo_code_snapshot).toBe("WELCOME10");
+    expect(Number(order.discount_amount)).toBeGreaterThan(0);
+    expect(promoCode.redemption_count).toBe(1);
+    expect(redemptions).toHaveLength(1);
+    expect(userUsage.redemption_count).toBe(1);
+  });
+
+  test("per-user promo limit is enforced after first redemption", async () => {
+    await applyCartPromoCode(2, "WELCOME10");
+    await createCheckoutOrder(2, CHECKOUT_PAYLOAD);
+
+    const newCart = await getOrCreateActiveCart(2);
+    await db("cart_items").insert({
+      cart_id: newCart.id,
+      item_type: "ready_product",
+      product_id: 2,
+      title_snapshot: "Test product",
+      unit_price: 999,
+      quantity: 1
+    });
+
+    const error = await applyCartPromoCode(2, "WELCOME10").catch((caughtError) => caughtError);
+    expect(error.code).toBe("PROMO_CODE_USER_LIMIT");
+  });
+
+  test("database rejects inconsistent cart item shape", async () => {
+    const cart = await getOrCreateActiveCart(2);
+
+    await expect(
+      db("cart_items").insert({
+        cart_id: cart.id,
+        item_type: "ready_product",
+        product_id: null,
+        jewelry_type_id: 1,
+        configuration_json: JSON.stringify({ invalid: true }),
+        title_snapshot: "Broken item",
+        unit_price: 100,
+        quantity: 1
+      })
+    ).rejects.toThrow();
+  });
+
+  test("checkout uses account email when payload email is omitted", async () => {
+    const result = await createCheckoutOrder(2, {
+      ...CHECKOUT_PAYLOAD,
+      email: ""
+    });
+
+    const order = await db("orders").where({ id: result.order_id }).first();
+    expect(order.email).toBe("client@aurora.local");
+  });
+
+  test("database rejects inconsistent order totals", async () => {
+    await expect(
+      db("orders").insert({
+        order_number: "ORD-TEST-CONSTRAINT",
+        user_id: 2,
+        status: ORDER_STATUSES.CREATED_PENDING_PAYMENT,
+        customer_name: "Constraint Test",
+        email: "client@aurora.local",
+        phone: "+380000000002",
+        delivery_method: "nova_poshta",
+        delivery_address: "Kyiv, branch 1",
+        subtotal_amount: 1000,
+        discount_amount: 50,
+        total_amount: 990,
+        currency: "UAH"
+      })
+    ).rejects.toThrow();
+  });
+
+  test("admin dashboard returns filtered orders with summary", async () => {
+    await createCheckoutOrder(2, CHECKOUT_PAYLOAD);
+
+    const dashboard = await listAdminOrders({
+      status: ORDER_STATUSES.CREATED_PENDING_PAYMENT,
+      payment_state: "unpaid",
+      search: "TEST CUSTOMER"
+    });
+
+    expect(dashboard.orders).toHaveLength(1);
+    expect(dashboard.orders[0].status).toBe(ORDER_STATUSES.CREATED_PENDING_PAYMENT);
+    expect(dashboard.orders[0].payment_state).toBe("unpaid");
+    expect(dashboard.summary.total_orders).toBe(1);
+    expect(dashboard.summary.awaiting_payment).toBe(1);
+    expect(dashboard.summary.unpaid_orders).toBe(1);
+  });
+
+  test("catalog filters return matching demo products", async () => {
+    const app = createApp();
+
+    const ringResponse = await request(app).get("/api/catalog/products").query({
+      type: "Ring",
+      ringSize: "17",
+      ringType: "Fashion"
+    });
+    const braceletResponse = await request(app).get("/api/catalog/products").query({
+      type: "Bracelet",
+      braceletLength: "18 cm"
+    });
+    const detailResponse = await request(app).get("/api/catalog/products/quiet-pearl-ring");
+
+    expect(ringResponse.status).toBe(200);
+    expect(ringResponse.body.data.map((product) => product.slug)).toEqual(["quiet-pearl-ring"]);
+    expect(braceletResponse.status).toBe(200);
+    expect(braceletResponse.body.data.map((product) => product.slug)).toEqual(["moon-bracelet"]);
+    expect(detailResponse.status).toBe(200);
+    expect(detailResponse.body.data.filters).toMatchObject({
+      type: "Ring",
+      metal: "Rose Gold",
+      stoneType: "Emerald",
+      ringSize: "17",
+      ringType: "Fashion"
+    });
+  });
+
+  test("constructor price counts every selected stone slot server-side", async () => {
+    const app = createApp();
+
+    const response = await request(app).post("/api/constructor/price").send({
+      jewelry_type_id: 1,
+      configuration: {
+        variant_id: 101,
+        material: "silver",
+        size: "16",
+        stone_slots: {
+          center: "pearl",
+          left: "onyx",
+          right: "garnet"
+        }
+      }
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.price).toBe(1700);
+  });
+
+  test("constructor price rejects invalid stone slot ids", async () => {
+    const app = createApp();
+
+    const response = await request(app).post("/api/constructor/price").send({
+      jewelry_type_id: 1,
+      configuration: {
+        variant_id: 101,
+        material: "silver",
+        size: "16",
+        stone_slots: {
+          center: "pearl",
+          shoulder: "onyx"
+        }
+      }
+    });
+
+    expect(response.status).toBe(422);
+    expect(response.body.error.code).toBe("INVALID_CONFIGURATION_VALUE");
+    expect(response.body.error.details.invalid_slots).toEqual(["shoulder"]);
+  });
+
+  test("account endpoint requires auth", async () => {
+    const app = createApp();
+    const response = await request(app).get("/api/account");
+
+    expect(response.status).toBe(401);
+    expect(response.body.success).toBe(false);
+  });
+
+  test("account endpoint returns profile, current order and completed history", async () => {
+    const app = createApp();
+    const agent = request.agent(app);
+
+    const checkoutResult = await createCheckoutOrder(2, CHECKOUT_PAYLOAD);
+    await confirmMockPayment(CLIENT_USER, {
+      order_id: checkoutResult.order_id,
+      payment_token: checkoutResult.payment_token
+    });
+    await updateAdminOrderStatus(1, checkoutResult.order_id, ORDER_STATUSES.IN_PROGRESS);
+    await updateAdminOrderStatus(1, checkoutResult.order_id, ORDER_STATUSES.COMPLETED);
+
+    const loginResponse = await agent.post("/api/auth/login").send({
+      email: "client@aurora.local",
+      password: "password123"
+    });
+
+    expect(loginResponse.status).toBe(200);
+
+    const response = await agent.get("/api/account");
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.data.user.email).toBe("client@aurora.local");
+    expect(response.body.data.user.phone).toBeTruthy();
+    expect(response.body.data.current_order).toBeTruthy();
+    expect(response.body.data.current_order.status).not.toBe(ORDER_STATUSES.COMPLETED);
+    expect(response.body.data.current_order.items.length).toBeGreaterThan(0);
+    expect(Array.isArray(response.body.data.completed_orders)).toBe(true);
+    expect(response.body.data.completed_orders.length).toBeGreaterThan(0);
+    expect(response.body.data.completed_orders[0].status).toBe(ORDER_STATUSES.COMPLETED);
+    expect(response.body.data.completed_orders[0].items.length).toBeGreaterThan(0);
+  });
+});

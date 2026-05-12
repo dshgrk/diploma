@@ -1,0 +1,625 @@
+{
+  "items": [
+    {
+      "id": 101,
+      "type_id": 1,
+      "code": "ring-trinity",
+      "name_uk": "Каблучка Trinity",
+      "name_en": "Trinity Ring",
+      "group": "ring",
+      "subtype": "trinity",
+      "base_asset_id": 1,
+      "is_active": true,
+      "sort_order": 1
+    },
+    {
+      "id": 201,
+      "type_id": 2,
+      "code": "bracelet-orbit",
+      "name_uk": "Браслет Orbit",
+      "name_en": "Orbit Bracelet",
+      "group": "bracelet",
+      "subtype": "orbit",
+      "base_asset_id": 2,
+      "is_active": true,
+      "sort_order": 1
+    },
+    {
+      "id": 301,
+      "type_id": 3,
+      "code": "pendant-heart",
+      "name_uk": "Підвіска Серце",
+      "name_en": "Heart Pendant",
+      "group": "pendant",
+      "subtype": "heart",
+      "base_asset_id": 3,
+      "is_active": true,
+      "sort_order": 1
+    },
+    {
+      "id": 302,
+      "type_id": 3,
+      "code": "pendant-moon",
+      "name_uk": "Підвіска Місяць",
+      "name_en": "Moon Pendant",
+      "group": "pendant",
+      "subtype": "moon",
+      "base_asset_id": 4,
+      "is_active": true,
+      "sort_order": 2
+    },
+    {
+      "id": 303,
+      "type_id": 3,
+      "code": "pendant-drop",
+      "name_uk": "Підвіска Крапля",
+      "name_en": "Drop Pendant",
+      "group": "pendant",
+      "subtype": "drop",
+      "base_asset_id": 5,
+      "is_active": true,
+      "sort_order": 3
+    },
+    {
+      "id": 401,
+      "type_id": 4,
+      "code": "earrings-drop",
+      "name_uk": "Сережки Drop",
+      "name_en": "Drop Earrings",
+      "group": "earrings",
+      "subtype": "drop",
+      "base_asset_id": 6,
+      "is_active": true,
+      "sort_order": 1
+    }
+  ],
+  "slots": [
+    {
+      "id": 1001,
+      "variant_id": 101,
+      "code": "center",
+      "label_uk": "Центр",
+      "label_en": "Center",
+      "sort_order": 1,
+      "x": 49.871662846241236,
+      "y": 48.02990366135724,
+      "scale_x": 1.53,
+      "scale_y": 1.55,
+      "diameter": 18,
+      "layer_mode": "below",
+      "is_active": true
+    },
+    {
+      "id": 1002,
+      "variant_id": 101,
+      "code": "left",
+      "label_uk": "Ліворуч",
+      "label_en": "Left",
+      "sort_order": 2,
+      "x": 24.1542930885273,
+      "y": 47.14143630968527,
+      "scale_x": 1.14,
+      "scale_y": 1.45,
+      "diameter": 12,
+      "layer_mode": "below",
+      "is_active": true
+    },
+    {
+      "id": 1003,
+      "variant_id": 101,
+      "code": "right",
+      "label_uk": "Праворуч",
+      "label_en": "Right",
+      "sort_order": 3,
+      "x": 74.72854690693028,
+      "y": 47.12853827391843,
+      "scale_x": 1.14,
+      "scale_y": 1.45,
+      "diameter": 12,
+      "layer_mode": "below",
+      "is_active": true
+    },
+    {
+      "id": 2001,
+      "variant_id": 201,
+      "code": "slot-1",
+      "label_uk": "Камінь 1",
+      "label_en": "Stone 1",
+      "sort_order": 1,
+      "x": 49.54949020270944,
+      "y": 21.996341061021848,
+      "scale_x": 0.94,
+      "scale_y": 0.94,
+      "diameter": 11,
+      "layer_mode": "below",
+      "is_active": true
+    },
+    {
+      "id": 2002,
+      "variant_id": 201,
+      "code": "slot-2",
+      "label_uk": "Камінь 2",
+      "label_en": "Stone 2",
+      "sort_order": 2,
+      "x": 80.91144111104431,
+      "y": 37.1430289184152,
+      "scale_x": 0.94,
+      "scale_y": 0.94,
+      "diameter": 11,
+      "layer_mode": "below",
+      "is_active": true
+    },
+    {
+      "id": 2003,
+      "variant_id": 201,
+      "code": "slot-3",
+      "label_uk": "Камінь 3",
+      "label_en": "Stone 3",
+      "sort_order": 3,
+      "x": 80.71905248602175,
+      "y": 61.191607046233386,
+      "scale_x": 0.94,
+      "scale_y": 0.94,
+      "diameter": 11,
+      "layer_mode": "below",
+      "is_active": true
+    },
+    {
+      "id": 2004,
+      "variant_id": 201,
+      "code": "slot-4",
+      "label_uk": "Камінь 4",
+      "label_en": "Stone 4",
+      "sort_order": 4,
+      "x": 49.74448385739193,
+      "y": 76.0055311729694,
+      "scale_x": 0.94,
+      "scale_y": 0.94,
+      "diameter": 11,
+      "layer_mode": "below",
+      "is_active": true
+    },
+    {
+      "id": 2005,
+      "variant_id": 201,
+      "code": "slot-5",
+      "label_uk": "Камінь 5",
+      "label_en": "Stone 5",
+      "sort_order": 5,
+      "x": 19.347081103829737,
+      "y": 61.383995671255946,
+      "scale_x": 0.94,
+      "scale_y": 0.94,
+      "diameter": 11,
+      "layer_mode": "below",
+      "is_active": true
+    },
+    {
+      "id": 2006,
+      "variant_id": 201,
+      "code": "slot-6",
+      "label_uk": "Камінь 6",
+      "label_en": "Stone 6",
+      "sort_order": 6,
+      "x": 18.962303853784647,
+      "y": 36.95064029339265,
+      "scale_x": 0.94,
+      "scale_y": 0.94,
+      "diameter": 11,
+      "layer_mode": "below",
+      "is_active": true
+    },
+    {
+      "id": 3001,
+      "variant_id": 301,
+      "code": "pendant",
+      "label_uk": "Кулон",
+      "label_en": "Pendant",
+      "sort_order": 1,
+      "x": 50.11789160778224,
+      "y": 59.29958288271232,
+      "scale_x": 0.87,
+      "scale_y": 0.9,
+      "diameter": 16,
+      "layer_mode": "below",
+      "is_active": true
+    },
+    {
+      "id": 3002,
+      "variant_id": 302,
+      "code": "pendant",
+      "label_uk": "Кулон",
+      "label_en": "Pendant",
+      "sort_order": 1,
+      "x": 55.128738053552496,
+      "y": 64.07156771914003,
+      "scale_x": 1,
+      "scale_y": 1,
+      "diameter": 16,
+      "layer_mode": "below",
+      "is_active": true
+    },
+    {
+      "id": 3003,
+      "variant_id": 303,
+      "code": "pendant",
+      "label_uk": "Кулон",
+      "label_en": "Pendant",
+      "sort_order": 1,
+      "x": 49.74187805963507,
+      "y": 71.44002029090679,
+      "scale_x": 1,
+      "scale_y": 1,
+      "diameter": 16,
+      "layer_mode": "below",
+      "is_active": true
+    },
+    {
+      "id": 4001,
+      "variant_id": 401,
+      "code": "left",
+      "label_uk": "Ліва",
+      "label_en": "Left",
+      "sort_order": 1,
+      "x": 32.01802992098339,
+      "y": 68.3495131515307,
+      "scale_x": 1.45,
+      "scale_y": 1.45,
+      "diameter": 15,
+      "layer_mode": "below",
+      "is_active": true
+    },
+    {
+      "id": 4002,
+      "variant_id": 401,
+      "code": "right",
+      "label_uk": "Права",
+      "label_en": "Right",
+      "sort_order": 2,
+      "x": 67.80166452017193,
+      "y": 68.3495131515307,
+      "scale_x": 1.45,
+      "scale_y": 1.45,
+      "diameter": 15,
+      "layer_mode": "below",
+      "is_active": true
+    },
+    {
+      "id": 4003,
+      "variant_id": 101,
+      "code": "center-copy",
+      "label_uk": "Центр копія",
+      "label_en": "Center copy",
+      "sort_order": 4,
+      "x": 39.160545928725845,
+      "y": 18.86042134161879,
+      "scale_x": 1.49,
+      "scale_y": 1.58,
+      "diameter": 18,
+      "layer_mode": "below",
+      "is_active": false
+    }
+  ],
+  "variant_stones": [
+    {
+      "variant_id": 101,
+      "stone_id": 1,
+      "price_delta": 0,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 1
+    },
+    {
+      "variant_id": 101,
+      "stone_id": 2,
+      "price_delta": 180,
+      "is_default": true,
+      "is_enabled": true,
+      "sort_order": 2
+    },
+    {
+      "variant_id": 101,
+      "stone_id": 3,
+      "price_delta": 160,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 3
+    },
+    {
+      "variant_id": 101,
+      "stone_id": 4,
+      "price_delta": 210,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 4
+    },
+    {
+      "variant_id": 101,
+      "stone_id": 5,
+      "price_delta": 260,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 5
+    },
+    {
+      "variant_id": 101,
+      "stone_id": 8,
+      "price_delta": 320,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 6
+    },
+    {
+      "variant_id": 101,
+      "stone_id": 6,
+      "price_delta": 0,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 6
+    },
+    {
+      "variant_id": 201,
+      "stone_id": 1,
+      "price_delta": 0,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 1
+    },
+    {
+      "variant_id": 201,
+      "stone_id": 2,
+      "price_delta": 180,
+      "is_default": true,
+      "is_enabled": true,
+      "sort_order": 2
+    },
+    {
+      "variant_id": 201,
+      "stone_id": 3,
+      "price_delta": 160,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 3
+    },
+    {
+      "variant_id": 201,
+      "stone_id": 4,
+      "price_delta": 210,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 4
+    },
+    {
+      "variant_id": 201,
+      "stone_id": 5,
+      "price_delta": 260,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 5
+    },
+    {
+      "variant_id": 201,
+      "stone_id": 7,
+      "price_delta": 140,
+      "is_default": false,
+      "is_enabled": false,
+      "sort_order": 6
+    },
+    {
+      "variant_id": 201,
+      "stone_id": 6,
+      "price_delta": 0,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 6
+    },
+    {
+      "variant_id": 201,
+      "stone_id": 8,
+      "price_delta": 320,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 7
+    },
+    {
+      "variant_id": 301,
+      "stone_id": 1,
+      "price_delta": 0,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 1
+    },
+    {
+      "variant_id": 301,
+      "stone_id": 2,
+      "price_delta": 180,
+      "is_default": true,
+      "is_enabled": true,
+      "sort_order": 2
+    },
+    {
+      "variant_id": 301,
+      "stone_id": 3,
+      "price_delta": 160,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 3
+    },
+    {
+      "variant_id": 301,
+      "stone_id": 4,
+      "price_delta": 210,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 4
+    },
+    {
+      "variant_id": 301,
+      "stone_id": 5,
+      "price_delta": 260,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 5
+    },
+    {
+      "variant_id": 301,
+      "stone_id": 8,
+      "price_delta": 320,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 6
+    },
+    {
+      "variant_id": 302,
+      "stone_id": 1,
+      "price_delta": 0,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 1
+    },
+    {
+      "variant_id": 302,
+      "stone_id": 2,
+      "price_delta": 180,
+      "is_default": true,
+      "is_enabled": true,
+      "sort_order": 2
+    },
+    {
+      "variant_id": 302,
+      "stone_id": 3,
+      "price_delta": 160,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 3
+    },
+    {
+      "variant_id": 302,
+      "stone_id": 4,
+      "price_delta": 210,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 4
+    },
+    {
+      "variant_id": 302,
+      "stone_id": 5,
+      "price_delta": 260,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 5
+    },
+    {
+      "variant_id": 302,
+      "stone_id": 8,
+      "price_delta": 320,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 6
+    },
+    {
+      "variant_id": 303,
+      "stone_id": 1,
+      "price_delta": 0,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 1
+    },
+    {
+      "variant_id": 303,
+      "stone_id": 2,
+      "price_delta": 180,
+      "is_default": true,
+      "is_enabled": true,
+      "sort_order": 2
+    },
+    {
+      "variant_id": 303,
+      "stone_id": 3,
+      "price_delta": 160,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 3
+    },
+    {
+      "variant_id": 303,
+      "stone_id": 4,
+      "price_delta": 210,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 4
+    },
+    {
+      "variant_id": 303,
+      "stone_id": 5,
+      "price_delta": 260,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 5
+    },
+    {
+      "variant_id": 303,
+      "stone_id": 8,
+      "price_delta": 320,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 6
+    },
+    {
+      "variant_id": 303,
+      "stone_id": 6,
+      "price_delta": 0,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 6
+    },
+    {
+      "variant_id": 401,
+      "stone_id": 1,
+      "price_delta": 0,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 1
+    },
+    {
+      "variant_id": 401,
+      "stone_id": 2,
+      "price_delta": 180,
+      "is_default": true,
+      "is_enabled": true,
+      "sort_order": 2
+    },
+    {
+      "variant_id": 401,
+      "stone_id": 3,
+      "price_delta": 160,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 3
+    },
+    {
+      "variant_id": 401,
+      "stone_id": 4,
+      "price_delta": 210,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 4
+    },
+    {
+      "variant_id": 401,
+      "stone_id": 5,
+      "price_delta": 260,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 5
+    },
+    {
+      "variant_id": 401,
+      "stone_id": 8,
+      "price_delta": 320,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 6
+    }
+  ]
+}

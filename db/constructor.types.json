@@ -1,0 +1,265 @@
+{
+  "items": [
+    {
+      "id": 1,
+      "code": "ring",
+      "name_uk": "Каблучка",
+      "name_en": "Ring",
+      "base_price": 1100,
+      "is_active": true,
+      "sort_order": 1,
+      "materials": [
+        {
+          "code": "silver",
+          "name_uk": "Срібло 925",
+          "name_en": "Silver 925",
+          "price_delta": 0,
+          "tone": "#b7bec8",
+          "is_active": true,
+          "sort_order": 1
+        },
+        {
+          "code": "gold_plated",
+          "name_uk": "Позолота",
+          "name_en": "Gold plated",
+          "price_delta": 320,
+          "tone": "#cfab67",
+          "is_active": true,
+          "sort_order": 2
+        },
+        {
+          "code": "solid_gold",
+          "name_uk": "Золото 585",
+          "name_en": "Solid gold 585",
+          "price_delta": 1250,
+          "tone": "#b8914f",
+          "is_active": true,
+          "sort_order": 3
+        }
+      ],
+      "size_options": [
+        {
+          "code": "16",
+          "label_uk": "16",
+          "label_en": "16",
+          "price_delta": 0,
+          "is_default": true,
+          "is_active": true,
+          "sort_order": 1
+        },
+        {
+          "code": "17",
+          "label_uk": "17",
+          "label_en": "17",
+          "price_delta": 0,
+          "is_active": true,
+          "sort_order": 2
+        },
+        {
+          "code": "18",
+          "label_uk": "18",
+          "label_en": "18",
+          "price_delta": 40,
+          "is_active": true,
+          "sort_order": 3
+        },
+        {
+          "code": "19",
+          "label_uk": "19",
+          "label_en": "19",
+          "price_delta": 70,
+          "is_active": true,
+          "sort_order": 4
+        }
+      ],
+      "engraving": {
+        "enabled": true,
+        "max_length": 24,
+        "price_delta": 50,
+        "placeholder_uk": "Ініціали, дата або одне тихе слово",
+        "placeholder_en": "Initials, date or one quiet word"
+      }
+    },
+    {
+      "id": 2,
+      "code": "bracelet",
+      "name_uk": "Браслет",
+      "name_en": "Bracelet",
+      "base_price": 850,
+      "is_active": true,
+      "sort_order": 2,
+      "materials": [
+        {
+          "code": "jewelry_steel",
+          "name_uk": "Ювелірна сталь",
+          "name_en": "Jewelry steel",
+          "price_delta": -120,
+          "tone": "#8d98a4",
+          "is_active": true,
+          "sort_order": 1
+        },
+        {
+          "code": "silver",
+          "name_uk": "Срібло 925",
+          "name_en": "Silver 925",
+          "price_delta": 0,
+          "tone": "#b7bec8",
+          "is_active": true,
+          "sort_order": 2
+        },
+        {
+          "code": "gold_plated",
+          "name_uk": "Позолота",
+          "name_en": "Gold plated",
+          "price_delta": 320,
+          "tone": "#cfab67",
+          "is_active": true,
+          "sort_order": 3
+        },
+        {
+          "code": "solid_gold",
+          "name_uk": "Золото 585",
+          "name_en": "Solid gold 585",
+          "price_delta": 1250,
+          "tone": "#b8914f",
+          "is_active": true,
+          "sort_order": 4
+        }
+      ],
+      "size_options": [
+        {
+          "code": "16",
+          "label_uk": "16 см",
+          "label_en": "16 cm",
+          "price_delta": 0,
+          "is_default": true,
+          "is_active": true,
+          "sort_order": 1
+        },
+        {
+          "code": "17",
+          "label_uk": "17 см",
+          "label_en": "17 cm",
+          "price_delta": 30,
+          "is_active": true,
+          "sort_order": 2
+        },
+        {
+          "code": "18",
+          "label_uk": "18 см",
+          "label_en": "18 cm",
+          "price_delta": 50,
+          "is_active": true,
+          "sort_order": 3
+        },
+        {
+          "code": "19",
+          "label_uk": "19 см",
+          "label_en": "19 cm",
+          "price_delta": 70,
+          "is_active": true,
+          "sort_order": 4
+        }
+      ],
+      "engraving": {
+        "enabled": true,
+        "max_length": 24,
+        "price_delta": 50,
+        "placeholder_uk": "Ініціали, дата або одне тихе слово",
+        "placeholder_en": "Initials, date or one quiet word"
+      }
+    },
+    {
+      "id": 3,
+      "code": "pendant",
+      "name_uk": "Підвіска",
+      "name_en": "Pendant",
+      "base_price": 950,
+      "is_active": true,
+      "sort_order": 3,
+      "materials": [
+        {
+          "code": "silver",
+          "name_uk": "Срібло 925",
+          "name_en": "Silver 925",
+          "price_delta": 0,
+          "tone": "#b7bec8",
+          "is_active": true,
+          "sort_order": 1
+        },
+        {
+          "code": "gold_plated",
+          "name_uk": "Позолота",
+          "name_en": "Gold plated",
+          "price_delta": 320,
+          "tone": "#cfab67",
+          "is_active": true,
+          "sort_order": 2
+        },
+        {
+          "code": "solid_gold",
+          "name_uk": "Золото 585",
+          "name_en": "Solid gold 585",
+          "price_delta": 1250,
+          "tone": "#b8914f",
+          "is_active": true,
+          "sort_order": 3
+        }
+      ],
+      "size_options": [],
+      "engraving": {
+        "enabled": true,
+        "max_length": 24,
+        "price_delta": 50,
+        "placeholder_uk": "Ініціали, дата або одне тихе слово",
+        "placeholder_en": "Initials, date or one quiet word"
+      }
+    },
+    {
+      "id": 4,
+      "code": "earrings",
+      "name_uk": "Сережки",
+      "name_en": "Earrings",
+      "base_price": 980,
+      "is_active": true,
+      "sort_order": 4,
+      "materials": [
+        {
+          "code": "silver",
+          "name_uk": "Срібло 925",
+          "name_en": "Silver 925",
+          "price_delta": 0,
+          "tone": "#b7bec8",
+          "is_active": true,
+          "sort_order": 1
+        },
+        {
+          "code": "gold_plated",
+          "name_uk": "Позолота",
+          "name_en": "Gold plated",
+          "price_delta": 320,
+          "tone": "#cfab67",
+          "is_active": true,
+          "sort_order": 2
+        },
+        {
+          "code": "solid_gold",
+          "name_uk": "Золото 585",
+          "name_en": "Solid gold 585",
+          "price_delta": 1250,
+          "tone": "#b8914f",
+          "is_active": true,
+          "sort_order": 3
+        }
+      ],
+      "size_options": [],
+      "engraving": {
+        "enabled": false,
+        "max_length": 0,
+        "price_delta": 0,
+        "placeholder_uk": "",
+        "placeholder_en": ""
+      }
+    }
+  ]
+}

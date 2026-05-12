@@ -1,0 +1,19 @@
+{
+  "provider": "Pollinations AI free no-key image endpoint",
+  "provider_url": "https://image.pollinations.ai/prompt",
+  "generated_at": "2026-04-17T09:03:17.613Z",
+  "assets": [
+    {
+      "filename": "product-heart.png",
+      "prompt": "premium handmade silver heart pendant necklace, artisan jewelry catalog product photo, soft warm beige studio background, elegant chain, centered composition, realistic metal reflections, luxury ecommerce image, no text, no logo, no watermark",
+      "seed": 642101,
+      "source_url": "https://image.pollinations.ai/prompt/premium%20handmade%20silver%20heart%20pendant%20necklace%2C%20artisan%20jewelry%20catalog%20product%20photo%2C%20soft%20warm%20beige%20studio%20background%2C%20elegant%20chain%2C%20centered%20composition%2C%20realistic%20metal%20reflections%2C%20luxury%20ecommerce%20image%2C%20no%20text%2C%20no%20logo%2C%20no%20watermark?width=1200&height=1200&model=flux&seed=642101&nologo=true&enhance=true&safe=true"
+    },
+    {
+      "filename": "product-moon.png",
+      "prompt": "premium handmade moon charm bracelet, artisan jewelry catalog product photo, soft warm beige studio background, delicate chain bracelet, centered composition, realistic metal reflections, luxury ecommerce image, no text, no logo, no watermark",
+      "seed": 642102,
+      "source_url": "https://image.pollinations.ai/prompt/premium%20handmade%20moon%20charm%20bracelet%2C%20artisan%20jewelry%20catalog%20product%20photo%2C%20soft%20warm%20beige%20studio%20background%2C%20delicate%20chain%20bracelet%2C%20centered%20composition%2C%20realistic%20metal%20reflections%2C%20luxury%20ecommerce%20image%2C%20no%20text%2C%20no%20logo%2C%20no%20watermark?width=1200&height=1200&model=flux&seed=642102&nologo=true&enhance=true&safe=true"
+    }
+  ]
+}

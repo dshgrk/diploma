@@ -1,0 +1,164 @@
+{
+  "items": [
+    {
+      "id": 1,
+      "kind": "jewelry-base",
+      "path": "/assets/generated/ring.png",
+      "width": 0,
+      "height": 0,
+      "label": "Ring base",
+      "tags": [
+        "ring"
+      ],
+      "created_at": "seed"
+    },
+    {
+      "id": 2,
+      "kind": "jewelry-base",
+      "path": "/assets/generated/bracelet.png",
+      "width": 0,
+      "height": 0,
+      "label": "Bracelet base",
+      "tags": [
+        "bracelet"
+      ],
+      "created_at": "seed"
+    },
+    {
+      "id": 3,
+      "kind": "jewelry-base",
+      "path": "/assets/generated/pendant1.png",
+      "width": 0,
+      "height": 0,
+      "label": "Pendant heart",
+      "tags": [
+        "pendant",
+        "heart"
+      ],
+      "created_at": "seed"
+    },
+    {
+      "id": 4,
+      "kind": "jewelry-base",
+      "path": "/assets/generated/pendant2.png",
+      "width": 0,
+      "height": 0,
+      "label": "Pendant moon",
+      "tags": [
+        "pendant",
+        "moon"
+      ],
+      "created_at": "seed"
+    },
+    {
+      "id": 5,
+      "kind": "jewelry-base",
+      "path": "/assets/generated/pendant3.png",
+      "width": 0,
+      "height": 0,
+      "label": "Pendant drop",
+      "tags": [
+        "pendant",
+        "drop"
+      ],
+      "created_at": "seed"
+    },
+    {
+      "id": 6,
+      "kind": "jewelry-base",
+      "path": "/assets/generated/earrings.png",
+      "width": 0,
+      "height": 0,
+      "label": "Earrings base",
+      "tags": [
+        "earrings"
+      ],
+      "created_at": "seed"
+    },
+    {
+      "id": 7,
+      "kind": "stone",
+      "path": "/assets/generated/pearl.png",
+      "width": 0,
+      "height": 0,
+      "label": "Pearl",
+      "tags": [
+        "stone"
+      ],
+      "created_at": "seed"
+    },
+    {
+      "id": 8,
+      "kind": "stone",
+      "path": "/assets/generated/onyx.png",
+      "width": 0,
+      "height": 0,
+      "label": "Onyx",
+      "tags": [
+        "stone"
+      ],
+      "created_at": "seed"
+    },
+    {
+      "id": 9,
+      "kind": "stone",
+      "path": "/assets/generated/rose_quartz.png",
+      "width": 0,
+      "height": 0,
+      "label": "Rose quartz",
+      "tags": [
+        "stone"
+      ],
+      "created_at": "seed"
+    },
+    {
+      "id": 10,
+      "kind": "stone",
+      "path": "/assets/generated/garnet.png",
+      "width": 0,
+      "height": 0,
+      "label": "Garnet",
+      "tags": [
+        "stone"
+      ],
+      "created_at": "seed"
+    },
+    {
+      "id": 11,
+      "kind": "stone",
+      "path": "/assets/generated/opal.png",
+      "width": 0,
+      "height": 0,
+      "label": "Opal",
+      "tags": [
+        "stone"
+      ],
+      "created_at": "seed"
+    },
+    {
+      "id": 12,
+      "kind": "stone",
+      "path": "/assets/generated/heart_charm.png",
+      "width": 0,
+      "height": 0,
+      "label": "Heart charm",
+      "tags": [
+        "stone",
+        "charm"
+      ],
+      "created_at": "seed"
+    },
+    {
+      "id": 13,
+      "kind": "stone",
+      "path": "/assets/generated/diamind.png",
+      "width": 0,
+      "height": 0,
+      "label": "Diamond",
+      "tags": [
+        "stone"
+      ],
+      "created_at": "seed"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      APP_URL: http://localhost:3000
+      DB_CLIENT: sqlite3
+      DB_FILENAME: /app/data/aurora.sqlite3
+    ports:
+      - "3000:3000"
+    volumes:
+      - aurora-sqlite-data:/app/data
+      - aurora-uploads:/app/public/assets/uploads
+
+  seed:
+    build: .
+    profiles: ["tools"]
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: development
+      DB_CLIENT: sqlite3
+      DB_FILENAME: /app/data/aurora.sqlite3
+    command: sh -c "npm run db:migrate && npm run db:seed"
+    volumes:
+      - aurora-sqlite-data:/app/data
+      - aurora-uploads:/app/public/assets/uploads
+
+volumes:
+  aurora-sqlite-data:
+  aurora-uploads:

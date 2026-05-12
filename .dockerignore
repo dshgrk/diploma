@@ -1,0 +1,13 @@
+node_modules
+npm-debug.log
+server-runtime.log
+server-runtime.err
+.git
+.gitignore
+.ai
+Information
+db/*.sqlite3
+db/*.sqlite
+public/react-app
+*.png
+*.log
