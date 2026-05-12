@@ -35,6 +35,7 @@
 - Корень проекта: `C:\Users\WinShim\Desktop\diploma`.
 - Локальная копия в `E:\diploma (7)\diploma` инициализирована как Git-репозиторий; `origin` привязан к `https://github.com/dshgrk/diploma.git`, основная ветка — `main`.
 - Для локального Git в этой копии включён `core.hooksPath=.githooks`; hook `.githooks/post-commit` автоматически делает `git push origin <current-branch>` после каждого локального коммита. Отключение: `npm run git:auto-push:disable`, повторное включение: `npm run git:auto-push:install`.
+- Для режима полного автосинка доступен watcher `scripts/git-auto-sync.js`: он следит за изменениями файлов проекта и с задержкой делает `git add -A`, `git commit` и `git push origin <current-branch>` автоматически. Управление: `npm run git:auto-sync:start`, `npm run git:auto-sync:status`, `npm run git:auto-sync:stop`.
 - Проект называется `artisan-jewelry-mvp`: MVP веб-системы для продажи авторских украшений с конструктором дизайна.
 - Документация проекта лежит в `docs/`.
 - Клиентская часть лежит в `client/`.

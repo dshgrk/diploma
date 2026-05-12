@@ -12,3 +12,5 @@ db/*.sqlite3-journal
 .tmp_pptxgen/
 tmp_pptxgen_pkg/
 *.png
+.gitautosync.pid
+.gitautosync.log
