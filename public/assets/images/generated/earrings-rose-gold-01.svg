@@ -1,0 +1,7 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='1200' viewBox='0 0 1200 1200'>
+<defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='#f4c5b5'/><stop offset='100%' stop-color='#b77362'/></linearGradient></defs>
+
+
+<path d='M430 330c0-70 55-125 125-125s125 55 125 125v180c0 70-55 125-125 125s-125-55-125-125z' fill='none' stroke='url(#g)' stroke-width='32'/><path d='M770 330c0-70 55-125 125-125s125 55 125 125v180c0 70-55 125-125 125s-125-55-125-125z' fill='none' stroke='url(#g)' stroke-width='32'/>
+
+<text x='600' y='1030' text-anchor='middle' fill='#b77362' font-family='Manrope,Arial' font-size='48'>Aurora Atelier 01</text></svg>

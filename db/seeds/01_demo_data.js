@@ -140,130 +140,91 @@ exports.seed = async function seed(knex) {
     is_active: true
   });
 
-  const [heartProductId] = await knex("products").insert({
-    jewelry_type_id: pendantTypeId,
-    sku: "AUR-PENDANT-001",
-    slug: "silver-heart-pendant",
-    name_uk: "Срібна підвіска Серце",
-    name_en: "Silver Heart Pendant",
-    description_uk:
-      "Підвіска з м'яким серцевим акцентом для щоденного носіння і важливих подарунків. Спокійна форма, чиста лінія та фініш, який доречний і вдень, і ввечері.",
-    description_en:
-      "A pendant with a soft heart accent for daily wear and meaningful gifts. Quiet form, clean line and a finish that feels right from morning to evening.",
-    price: 1299,
-    currency: "UAH",
-    is_active: true
-  });
+  const catalogBlueprint = [
+    { typeId: ringTypeId, typeCode: "ring", prefix: "RING", filterType: "Ring", uaType: "каблучка", enType: "ring", counts: { Silver: 3, Gold: 4, "Rose Gold": 3 } },
+    { typeId: braceletTypeId, typeCode: "bracelet", prefix: "BRACELET", filterType: "Bracelet", uaType: "браслет", enType: "bracelet", counts: { Silver: 4, Gold: 3, "Rose Gold": 3 } },
+    { typeId: earringsTypeId, typeCode: "earrings", prefix: "EARRINGS", filterType: "Earrings", uaType: "сережки", enType: "earrings", counts: { Silver: 3, Gold: 4, "Rose Gold": 3 } },
+    { typeId: pendantTypeId, typeCode: "pendant", prefix: "PENDANT", filterType: null, uaType: "підвіска", enType: "pendant", counts: { Silver: 4, Gold: 3, "Rose Gold": 3 } }
+  ];
 
-  const [moonProductId] = await knex("products").insert({
-    jewelry_type_id: braceletTypeId,
-    sku: "AUR-BRACELET-002",
-    slug: "moon-bracelet",
-    name_uk: "Браслет Місяць",
-    name_en: "Moon Bracelet",
-    description_uk:
-      "Мінімалістичний браслет із місячним силуетом: легкий, стриманий і достатньо виразний, щоб стати особистим знаком у щоденному образі.",
-    description_en:
-      "A minimal bracelet with a moon-shaped silhouette: light, restrained and expressive enough to become a personal everyday mark.",
-    price: 999,
-    currency: "UAH",
-    filter_type: "Bracelet",
-    filter_metal: "Gold",
-    filter_stone_type: "Sapphire",
-    filter_stone_shape: "Oval",
-    filter_stone_color: "Blue",
-    filter_stone_size: "1 ct",
-    filter_bracelet_length: "18 cm",
-    is_active: true
-  });
+  const namePairs = [
+    ["Ранкова Зірка", "Morning Star"], ["Полярне Сяйво", "Polar Glow"], ["Тиха Хвиля", "Quiet Wave"],
+    ["Оксамитовий Промінь", "Velvet Ray"], ["Нічна Роса", "Night Dew"], ["Бурштиновий Акцент", "Amber Accent"],
+    ["Сонячна Лінія", "Sunline"], ["Кришталевий Ритм", "Crystal Rhythm"], ["М'який Вогонь", "Soft Flame"], ["Лунна Стежка", "Moon Path"]
+  ];
 
-  const [ringProductId] = await knex("products").insert({
-    jewelry_type_id: ringTypeId,
-    sku: "AUR-RING-003",
-    slug: "quiet-pearl-ring",
-    name_uk: "Каблучка Тиха перлина",
-    name_en: "Quiet Pearl Ring",
-    description_uk:
-      "Каблучка з делікатним перлинним акцентом для тих, хто любить помітні деталі без зайвого шуму.",
-    description_en:
-      "A ring with a delicate pearl accent for people who like noticeable details without noise.",
-    price: 1490,
-    currency: "UAH",
-    filter_type: "Ring",
-    filter_metal: "Rose Gold",
-    filter_stone_type: "Emerald",
-    filter_stone_shape: "Princess",
-    filter_stone_color: "Green",
-    filter_stone_size: "2 ct",
-    filter_ring_size: "17",
-    filter_ring_type: "Fashion",
-    is_active: true
-  });
+  const metalUa = { Silver: "Срібло", Gold: "Золото", "Rose Gold": "Рожеве золото" };
+  const metalEn = { Silver: "Silver", Gold: "Gold", "Rose Gold": "Rose Gold" };
+  const stoneByMetal = {
+    Silver: ["Sapphire", "Diamond", "None"],
+    Gold: ["Diamond", "Emerald", "Sapphire"],
+    "Rose Gold": ["Emerald", "Diamond", "None"]
+  };
+  const stoneMeta = {
+    Diamond: { color: "White", shape: "Round", size: "1 ct" },
+    Emerald: { color: "Green", shape: "Princess", size: "2 ct" },
+    Sapphire: { color: "Blue", shape: "Oval", size: "0.5 ct" },
+    None: { color: "White", shape: "Round", size: "0.5 ct" }
+  };
 
-  const [earringsProductId] = await knex("products").insert({
-    jewelry_type_id: earringsTypeId,
-    sku: "AUR-EARRINGS-004",
-    slug: "white-diamond-earrings",
-    name_uk: "Сережки White Diamond",
-    name_en: "White Diamond Earrings",
-    description_uk:
-      "Лаконічні сережки з білим каменем для щоденного образу і вечірніх акцентів.",
-    description_en:
-      "Minimal earrings with a white stone accent for everyday styling and evening detail.",
-    price: 1690,
-    currency: "UAH",
-    filter_type: "Earrings",
-    filter_metal: "Gold",
-    filter_stone_type: "Diamond",
-    filter_stone_shape: "Round",
-    filter_stone_color: "White",
-    filter_stone_size: "1 ct",
-    is_active: true
-  });
+  const createdProducts = [];
+  for (const category of catalogBlueprint) {
+    let localIndex = 0;
+    const metals = Object.entries(category.counts).flatMap(([metal, count]) => Array.from({ length: count }, () => metal));
 
-  await knex("product_images").insert([
-    {
-      product_id: heartProductId,
-      asset_path: "/assets/images/aurora-jewelry-hero.png",
-      alt_uk: "Срібна підвіска серце Aurora Atelier",
-      alt_en: "Silver heart pendant by Aurora Atelier",
-      width: 1200,
-      height: 1200,
-      sort_order: 1,
-      is_primary: true
-    },
-    {
-      product_id: moonProductId,
-      asset_path: "/assets/images/aurora-jewelry-hero.png",
-      alt_uk: "Браслет з місячним акцентом Aurora Atelier",
-      alt_en: "Moon charm bracelet by Aurora Atelier",
-      width: 1200,
-      height: 1200,
-      sort_order: 1,
-      is_primary: true
-    },
-    {
-      product_id: ringProductId,
-      asset_path: "/assets/images/aurora-jewelry-hero.png",
-      alt_uk: "Каблучка з перлинним акцентом Aurora Atelier",
-      alt_en: "Pearl accent ring by Aurora Atelier",
-      width: 1200,
-      height: 1200,
-      sort_order: 1,
-      is_primary: true
-    },
-    {
-      product_id: earringsProductId,
-      asset_path: "/assets/images/aurora-jewelry-hero.png",
-      alt_uk: "Сережки White Diamond Aurora Atelier",
-      alt_en: "White diamond earrings by Aurora Atelier",
-      width: 1200,
-      height: 1200,
-      sort_order: 1,
-      is_primary: true
+    for (const metal of metals) {
+      const [uaNamePart, enNamePart] = namePairs[localIndex % namePairs.length];
+      const sequence = String(localIndex + 1).padStart(2, "0");
+      const sku = `AUR-${category.prefix}-${sequence}`;
+      const slug = `${category.typeCode}-${enNamePart.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${metalEn[metal].toLowerCase().replace(/\s+/g, "-")}-${sequence}`;
+      const stoneType = stoneByMetal[metal][localIndex % stoneByMetal[metal].length];
+      const stone = stoneMeta[stoneType];
+      const priceBase = category.typeCode === "ring" ? 3100 : category.typeCode === "bracelet" ? 2900 : category.typeCode === "earrings" ? 3300 : 2700;
+      const metalDelta = metal === "Gold" ? 900 : metal === "Rose Gold" ? 760 : 0;
+      const price = priceBase + metalDelta + localIndex * 35;
+
+      const [productId] = await knex("products").insert({
+        jewelry_type_id: category.typeId,
+        sku,
+        slug,
+        name_uk: `${category.uaType} ${uaNamePart} (${metalUa[metal]})`,
+        name_en: `${enNamePart} ${category.enType} (${metalEn[metal]})`,
+        description_uk: `Авторська ${category.uaType} з колекції Aurora Atelier у металі ${metalUa[metal].toLowerCase()}. Камінь: ${stoneType === "None" ? "без каменю" : stoneType}. Створена для щоденного стилю та святкових образів.`,
+        description_en: `Handcrafted ${category.enType} from Aurora Atelier in ${metalEn[metal].toLowerCase()}. Stone: ${stoneType === "None" ? "no stone" : stoneType}. Designed for both everyday styling and special occasions.`,
+        price,
+        currency: "UAH",
+        filter_type: category.filterType,
+        filter_metal: metal,
+        filter_stone_type: stoneType,
+        filter_stone_shape: stone.shape,
+        filter_stone_color: stone.color,
+        filter_stone_size: stone.size,
+        filter_ring_size: category.typeCode === "ring" ? ["15", "16", "17", "18"][localIndex % 4] : null,
+        filter_ring_type: category.typeCode === "ring" ? ["Engagement", "Wedding", "Fashion"][localIndex % 3] : null,
+        filter_bracelet_length: category.typeCode === "bracelet" ? ["16 cm", "18 cm", "20 cm"][localIndex % 3] : null,
+        is_active: true
+      });
+
+      await knex("product_images").insert({
+        product_id: productId,
+        asset_path: `/assets/images/generated/${category.typeCode}-${metalEn[metal].toLowerCase().replace(/\s+/g, "-")}-${sequence}.svg`,
+        alt_uk: `${category.uaType} ${uaNamePart} на прозорому фоні`,
+        alt_en: `${enNamePart} ${category.enType} on transparent background`,
+        width: 1200,
+        height: 1200,
+        sort_order: 1,
+        is_primary: true
+      });
+
+      createdProducts.push({ id: productId, category: category.typeCode, price });
+      localIndex += 1;
     }
-  ]);
+  }
 
+  const heartProductId = createdProducts.find((item) => item.category === "pendant")?.id;
+  const moonProductId = createdProducts.find((item) => item.category === "bracelet")?.id;
+  const ringProductId = createdProducts.find((item) => item.category === "ring")?.id;
+  const earringsProductId = createdProducts.find((item) => item.category === "earrings")?.id;
   async function insertOption(jewelryTypeId, code, labelUk, labelEn, sortOrder, overrides = {}) {
     const [id] = await knex("design_options").insert({
       jewelry_type_id: jewelryTypeId,
