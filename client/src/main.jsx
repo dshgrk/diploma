@@ -964,6 +964,19 @@ function Hero() {
   const slides = copy.heroSlides;
   const activeSlide = slides[currentSlide] || slides[0];
   const activeHeroImage = REFERENCE_IMAGES.hero[currentSlide] || REFERENCE_IMAGES.hero[0];
+  const slideCount = slides.length;
+
+  function goToSlide(nextIndex) {
+    setCurrentSlide((nextIndex + slideCount) % slideCount);
+  }
+
+  function goPrevSlide() {
+    goToSlide(currentSlide - 1);
+  }
+
+  function goNextSlide() {
+    goToSlide(currentSlide + 1);
+  }
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -982,6 +995,7 @@ function Hero() {
         />
         <div className="hero-overlay" />
         <div className="hero-shine" />
+        <div className="hero-glow-band" />
         <div className="hero-shell">
           <div className="hero-content">
             <div className="hero-copy-panel">
@@ -1008,6 +1022,12 @@ function Hero() {
                 >
                   {copy.heroCtaSecondary}
                 </button>
+              </div>
+              <div className="hero-copy-meta">
+                <div className="hero-slide-index">
+                  <span>{String(currentSlide + 1).padStart(2, "0")}</span>
+                  <p>{slideCount} {locale === "uk" ? "сюжети колекції" : "collection stories"}</p>
+                </div>
               </div>
             </div>
           </div>
@@ -1046,16 +1066,22 @@ function Hero() {
       </article>
 
       <div className="hero-controls">
+        <button type="button" className="hero-control-arrow hero-control-arrow-compact" aria-label={t("previousSlide")} onClick={goPrevSlide}>
+          <ChevronLeft aria-hidden="true" />
+        </button>
         <div className="slider-dots">
           {slides.map((slide, index) => (
             <button
               key={slide.title}
               className={`hero-dot${index === currentSlide ? " active" : ""}`}
               aria-label={`Slide ${index + 1}`}
-              onClick={() => setCurrentSlide(index)}
+              onClick={() => goToSlide(index)}
             />
           ))}
         </div>
+        <button type="button" className="hero-control-arrow hero-control-arrow-compact" aria-label={t("nextSlide")} onClick={goNextSlide}>
+          <ChevronRight aria-hidden="true" />
+        </button>
       </div>
       <div className="hero-scroll-hint">
         <div className="scroll-line" />

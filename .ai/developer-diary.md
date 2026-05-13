@@ -26,6 +26,7 @@
 - Генератор курсового отчёта находится в `.ai/build_coursework_report_v2.py`; в актуальной версии он собирает ручной ссылочный `ЗМІСТ` через внутренние bookmarks/PAGEREF, потому что стандартное поле TOC в этом шаблоне Word срабатывает нестабильно.
 - Для визуальной проверки курсового отчёта на этой машине надёжнее экспортировать DOCX в PDF через Word COM (`SaveAs` в формат PDF); встроенный `render_docx.py` не отрабатывает, если локально нет LibreOffice/soffice.
 - Главная витрина React-клиента в основном живёт в `client/src/main.jsx` и `client/src/styles.css`; 13.05.2026 для неё зафиксирован premium-luxury визуальный слой с упором на editorial hero, boutique-витрину и типографику `Cormorant Garamond` + `Manrope`.
+- Для wide-desktop версии home hero (около `1920px`) заголовок нужно держать консервативнее по масштабу и давать hero более широкий shell, иначе длинные украинские слайды наезжают на правую advisory-card; ключевая настройка живёт в `client/src/styles.css` через desktop media-query для `.hero-shell`, `.hero-copy-panel` и `.hero-title`.
 - Для luxury-направления главной ведущий accent следует держать в тоне `champagne / gold / ivory`; `sage/green` не использовать как главный визуальный акцент hero и ключевых home-секций.
 - Для общего UI-pass по сайту системный accent также держать золотым не только на home, но и в каталоге, состояниях выбора, badges, active tabs, chips и внутренних CMS/admin-экранах, чтобы палитра не расходилась между публичной и рабочей частями.
 - Для full-site color pass учитывать не только React-экраны, но и серверные email-шаблоны в `server/modules/notifications/notifications.service.js`: уведомления о коде подтверждения и статусе заказа тоже должны использовать ту же luxury-палитру `ivory / champagne / gold / espresso`, без возврата к старым зелёным акцентам.
@@ -35,7 +36,7 @@
 - Корень проекта: `C:\Users\WinShim\Desktop\diploma`.
 - Локальная копия в `E:\diploma (7)\diploma` инициализирована как Git-репозиторий; `origin` привязан к `https://github.com/dshgrk/diploma.git`, основная ветка — `main`.
 - Для локального Git в этой копии включён `core.hooksPath=.githooks`; hook `.githooks/post-commit` автоматически делает `git push origin <current-branch>` после каждого локального коммита. Отключение: `npm run git:auto-push:disable`, повторное включение: `npm run git:auto-push:install`.
-- Для режима полного автосинка доступен watcher `scripts/git-auto-sync.js`: он следит за изменениями файлов проекта и с задержкой делает `git add -A`, `git commit` и `git push origin <current-branch>` автоматически. Управление: `npm run git:auto-sync:start`, `npm run git:auto-sync:status`, `npm run git:auto-sync:stop`.
+- Для режима полного автосинка в проекте есть watcher `scripts/git-auto-sync.js`, но предпочтительный рабочий режим — не использовать его постоянно, чтобы не пушить промежуточные правки. Базовый безопасный вариант для этого репозитория: автопуш только после осознанного локального `git commit` через `.githooks/post-commit`.
 - Проект называется `artisan-jewelry-mvp`: MVP веб-системы для продажи авторских украшений с конструктором дизайна.
 - Документация проекта лежит в `docs/`.
 - Клиентская часть лежит в `client/`.
@@ -113,3 +114,4 @@
 
 - Созданы `AGENTS.md` и `.ai/developer-diary.md`.
 - Добавлено правило читать память перед работой и обновлять ее после появления полезной долговременной информации.
+- 2026-05-13: Для актуального первого экрана React-витрины в `client/src/styles.css` нужно держать стили под scoped-селекторами `.aurora-hero ...`, потому что ниже по файлу остаются старые глобальные `.hero-*` правила и они могут переопределять wide-desktop layout и размер заголовка.
