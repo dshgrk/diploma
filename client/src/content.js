@@ -250,6 +250,90 @@ export function compactCatalogFilters(filters) {
   return Object.fromEntries(Object.entries(filters).filter(([, value]) => Boolean(value)));
 }
 
+const FILTER_LABELS = {
+  uk: {
+    type: "Тип",
+    metal: "Метал",
+    stoneType: "Камінь",
+    stoneShape: "Огранювання",
+    stoneColor: "Колір",
+    stoneSize: "Розмір каменю",
+    ringSize: "Розмір каблучки",
+    ringType: "Стиль каблучки",
+    braceletLength: "Довжина браслета"
+  },
+  en: {
+    type: "Type",
+    metal: "Metal",
+    stoneType: "Stone",
+    stoneShape: "Cut",
+    stoneColor: "Color",
+    stoneSize: "Stone size",
+    ringSize: "Ring size",
+    ringType: "Ring style",
+    braceletLength: "Bracelet length"
+  }
+};
+
+const FILTER_VALUE_TRANSLATIONS = {
+  uk: {
+    Silver: "Срібло",
+    Gold: "Золото",
+    "Rose Gold": "Рожеве золото",
+    Pearl: "Перлина",
+    Diamond: "Діамант",
+    Emerald: "Смарагд",
+    Sapphire: "Сапфір",
+    Topaz: "Топаз",
+    Opal: "Опал",
+    Garnet: "Гранат",
+    Citrine: "Цитрин",
+    Morganite: "Морґаніт",
+    Zircon: "Циркон",
+    Quartz: "Кварц",
+    "Rose Quartz": "Рожевий кварц",
+    Spinel: "Шпінель",
+    Aquamarine: "Аквамарин",
+    Tourmaline: "Турмалін",
+    Moonstone: "Місячний камінь",
+    White: "Білий",
+    Cream: "Кремовий",
+    Blue: "Синій",
+    Aqua: "Аква",
+    Green: "Зелений",
+    Honey: "Медовий",
+    Blush: "Рожевий",
+    Burgundy: "Бургунді",
+    Champagne: "Шампань",
+    Clear: "Прозорий",
+    Smoke: "Димчастий",
+    Yellow: "Жовтий",
+    Ice: "Крижаний",
+    Round: "Коло",
+    Oval: "Овал",
+    Pear: "Груша",
+    Princess: "Принцеса",
+    "Emerald Cut": "Смарагдове",
+    Baguette: "Багет",
+    Heart: "Серце",
+    Marquise: "Маркіз",
+    Trillion: "Трильйон",
+    Fashion: "Модерн",
+    Minimal: "Мінімалізм",
+    Statement: "Акцентний",
+    Classic: "Класика",
+    Evening: "Вечірній",
+    Romantic: "Романтичний",
+    Signature: "Signature"
+  },
+  en: {}
+};
+
+export function localizeProductFilterValue(value, locale = "uk") {
+  if (!value) return value;
+  return FILTER_VALUE_TRANSLATIONS[locale]?.[value] || value;
+}
+
 export function normalizeCatalogFilterChange(currentFilters, key, value) {
   const nextFilters = { ...currentFilters, [key]: value };
   if (!value) delete nextFilters[key];
@@ -265,29 +349,34 @@ export function normalizeCatalogFilterChange(currentFilters, key, value) {
   return compactCatalogFilters(nextFilters);
 }
 
-export function productAttributeEntries(filters = {}) {
+export function productAttributeEntries(filters = {}, locale = "uk") {
+  const safeFilters = filters || {};
+  const labels = FILTER_LABELS[locale] || FILTER_LABELS.en;
   const entries = [
-    ["Type", filters.type],
-    ["Metal", filters.metal],
-    ["Stone type", filters.stoneType],
-    ["Stone shape", filters.stoneShape],
-    ["Stone color", filters.stoneColor],
-    ["Stone size", filters.stoneSize]
+    [labels.type, safeFilters.type ? localizeProductFilterValue(safeFilters.type, locale) : safeFilters.type],
+    [labels.metal, localizeProductFilterValue(safeFilters.metal, locale)],
+    [labels.stoneType, localizeProductFilterValue(safeFilters.stoneType, locale)],
+    [labels.stoneShape, localizeProductFilterValue(safeFilters.stoneShape, locale)],
+    [labels.stoneColor, localizeProductFilterValue(safeFilters.stoneColor, locale)],
+    [labels.stoneSize, localizeProductFilterValue(safeFilters.stoneSize, locale)]
   ];
 
-  if (filters.type === "Ring") {
-    entries.push(["Ring size", filters.ringSize], ["Ring type", filters.ringType]);
+  if (safeFilters.type === "Ring") {
+    entries.push(
+      [labels.ringSize, localizeProductFilterValue(safeFilters.ringSize, locale)],
+      [labels.ringType, localizeProductFilterValue(safeFilters.ringType, locale)]
+    );
   }
 
-  if (filters.type === "Bracelet") {
-    entries.push(["Bracelet length", filters.braceletLength]);
+  if (safeFilters.type === "Bracelet") {
+    entries.push([labels.braceletLength, localizeProductFilterValue(safeFilters.braceletLength, locale)]);
   }
 
   return entries.filter(([, value]) => Boolean(value));
 }
 
-export function productAttributeValues(filters = {}) {
-  return productAttributeEntries(filters).map(([, value]) => value);
+export function productAttributeValues(filters = {}, locale = "uk") {
+  return productAttributeEntries(filters, locale).map(([, value]) => value);
 }
 
 export function referenceCopy(locale) {
@@ -296,9 +385,10 @@ export function referenceCopy(locale) {
 
 export function productDisplayImage(product, index = 0) {
   return (
+    product?.thumbnail_url ||
+    product?.images?.[0]?.asset_path ||
     REFERENCE_IMAGES.productBySlug[product?.slug] ||
     REFERENCE_IMAGES.featured[index % REFERENCE_IMAGES.featured.length] ||
-    product?.thumbnail_url ||
     FALLBACK_PRODUCT_IMAGE
   );
 }

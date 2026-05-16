@@ -93,7 +93,7 @@ async function createCheckoutOrder(userId, payload) {
         product_id: item.product_id,
         jewelry_type_id: item.jewelry_type_id,
         title_snapshot: item.title,
-        configuration_json: item.item_type === "custom_design" ? JSON.stringify(item.configuration) : null,
+        configuration_json: item.configuration && Object.keys(item.configuration).length ? JSON.stringify(item.configuration) : null,
         unit_price: item.unit_price,
         quantity: item.quantity,
         line_total: item.line_total

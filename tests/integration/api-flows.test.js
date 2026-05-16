@@ -147,16 +147,30 @@ describe("api flows", () => {
       password: "password123"
     });
 
+    const seededCart = await agent.get("/api/cart");
+    for (const item of seededCart.body.data.items) {
+      await agent.delete(`/api/cart/items/${item.id}`);
+    }
+
+    await agent.post("/api/cart/items").send({
+      item_type: "ready_product",
+      product_id: 1,
+      quantity: 1,
+      configuration: { size: "17" }
+    });
+
     const response = await agent.post("/api/cart/items").send({
       item_type: "ready_product",
-      product_id: 2,
-      quantity: 2
+      product_id: 1,
+      quantity: 2,
+      configuration: { size: "17" }
     });
 
     expect(response.status).toBe(201);
     expect(response.body.success).toBe(true);
-    expect(response.body.data.items).toHaveLength(1);
-    expect(response.body.data.items[0].quantity).toBe(3);
+    const updatedItem = response.body.data.items.find((item) => item.product_id === 1 && item.configuration?.size === "17");
+    expect(updatedItem).toBeTruthy();
+    expect(updatedItem.quantity).toBe(3);
   });
 
   test("constructor config exposes active jewelry types", async () => {

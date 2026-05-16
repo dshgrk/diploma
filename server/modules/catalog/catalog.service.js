@@ -1,6 +1,7 @@
 const { db } = require("../../db/knex");
 const { pickLocalizedFields, resolveLocale } = require("../../utils/locale");
 const { createHttpError } = require("../../utils/http-error");
+const { resolveProductImage } = require("../../utils/product-image");
 const { FILTER_COLUMN_BY_KEY, normalizeCatalogFilters, serializeProductFilters } = require("./catalog.filters");
 
 async function listProducts(req) {
@@ -54,7 +55,7 @@ async function listProducts(req) {
       price: Number(localized.price),
       currency: localized.currency,
       filters: serializeProductFilters(localized),
-      thumbnail_url: imagesByProductId[localized.id]?.asset_path || "/assets/images/product-heart.png"
+      thumbnail_url: resolveProductImage(imagesByProductId[localized.id]?.asset_path, localized.filter_type, localized.slug)
     };
   });
 }
@@ -92,7 +93,7 @@ async function getProductByIdOrSlug(identifier, req) {
     filters: serializeProductFilters(localized),
     images: images.map((image) => ({
       id: image.id,
-      asset_path: image.asset_path,
+      asset_path: resolveProductImage(image.asset_path, localized.filter_type, localized.slug),
       alt: locale === "en" ? image.alt_en : image.alt_uk,
       is_primary: image.is_primary
     }))

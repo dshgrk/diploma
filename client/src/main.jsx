@@ -24,6 +24,7 @@ import {
   FALLBACK_PRODUCT_IMAGE,
   REFERENCE_IMAGES,
   compactCatalogFilters,
+  localizeProductFilterValue,
   normalizeCatalogFilterChange,
   productAttributeEntries,
   productAttributeValues,
@@ -31,6 +32,26 @@ import {
   productTypeLabel,
   referenceCopy
 } from "./content";
+import {
+  getReadyProductDefaultSize,
+  getReadyProductNormalizedSize,
+  getReadyProductSizeDefinition,
+  getReadyProductSizeLabel,
+  getReadyProductSizeOptions,
+  getReadyProductSizeTitle,
+  readyProductConfigurationsEqual
+} from "./ready-product";
+import {
+  extractPendantChainOption,
+  getPendantChainColorNote,
+  getPendantChainOptionLabel,
+  getPendantChainOptions,
+  getPendantChainSummary,
+  getPendantChainUpsellNote,
+  normalizePendantType,
+  resolveCustomDesignPendantChain,
+  resolveReadyProductPendantChain
+} from "./pendant-chain";
 import { buildStoneCodeMap, JewelryPreview, previewStoneStyle } from "./jewelry-preview";
 import { formatCurrency } from "./utils";
 import "./styles.css";
@@ -46,6 +67,7 @@ const LOCALE_FORMATS = {
   uk: "uk-UA",
   en: "en-US"
 };
+const MAX_CART_ITEM_QUANTITY = 100;
 
 const GENERATED_STONE_ASSETS = [
   { code: "none", label: "No stone", path: "/assets/preview/stone-none.svg" },
@@ -674,13 +696,85 @@ function syncCartCount(cart) {
   return count;
 }
 
+function announceCartAddition(detail = {}) {
+  window.dispatchEvent(new CustomEvent("aurora:item-added", { detail }));
+}
+
+function isPendantItem(item, typeById = {}) {
+  if (!item) return false;
+  if (item.item_type === "ready_product") {
+    return normalizePendantType(item.product_type);
+  }
+  const typeCode = typeById[String(item.jewelry_type_id)]?.code || item.jewelry_type_code;
+  return normalizePendantType(typeCode) || Boolean(item.configuration?.chain);
+}
+
+function getItemChainConfiguration(item, typeById = {}) {
+  if (!isPendantItem(item, typeById)) return null;
+  return item?.configuration?.chain || { option: "none", length: null, metal: null, price: 0 };
+}
+
+function getPendantChainDisplay(item, locale, typeById = {}, options = {}) {
+  const chain = getItemChainConfiguration(item, typeById);
+  if (!chain) return null;
+
+  const isEnglish = locale === "en";
+  const includeLabel = options.includeLabel !== false;
+  const useExplicitMetal = options.includeMetal !== false;
+
+  if (chain.option === "none") {
+    return {
+      text: includeLabel
+        ? (isEnglish ? "Configuration: without chain" : "Комплектація: без ланцюжка")
+        : (isEnglish ? "without chain" : "без ланцюжка"),
+      surcharge: null,
+      chain
+    };
+  }
+
+  const chainLength = chain.length || Number(String(chain.option || "").replace("cm", ""));
+  const parts = [
+    isEnglish ? `chain ${chainLength} cm` : `ланцюжок ${chainLength} см`,
+    useExplicitMetal
+      ? (isEnglish ? `color ${chain.metal}` : `колір ${chain.metal}`)
+      : (isEnglish ? "matching pendant color" : "у колір підвіски")
+  ];
+
+  return {
+    text: `${includeLabel ? (isEnglish ? "Configuration: " : "Комплектація: ") : ""}${parts.join(", ")}`,
+    surcharge:
+      Number(chain.price || 0) > 0
+        ? `${isEnglish ? "Chain surcharge" : "Доплата за ланцюжок"}: ${formatCurrency(Number(chain.price || 0), "UAH", LOCALE_FORMATS[locale] || LOCALE_FORMATS.uk)}`
+        : null,
+    chain
+  };
+}
+
 function buildGuestCart(items = []) {
   const safeItems = (items || []).map((item, index) => {
     const quantity = Math.max(1, Number(item?.quantity) || 1);
     const unitPrice = Number(item?.unit_price || 0);
+    const slug = String(item?.product_slug || "").trim();
+    const productType = item?.product_type || null;
+    const normalizedSize =
+      item?.item_type === "ready_product"
+        ? getReadyProductNormalizedSize(productType, item?.configuration?.size || item?.selected_size)
+        : "";
+    const thumbnailUrl =
+      item?.item_type === "ready_product" && slug
+        ? `/assets/products/${slug}.png`
+        : item?.thumbnail_url || null;
     return {
       ...item,
       id: item?.id || `guest-${index + 1}-${Date.now()}`,
+      configuration:
+        item?.item_type === "ready_product"
+          ? {
+              ...(item?.configuration || {}),
+              ...(normalizedSize ? { size: normalizedSize } : {})
+            }
+          : item?.configuration || {},
+      thumbnail_url: thumbnailUrl,
       quantity,
       unit_price: unitPrice,
       line_total: unitPrice * quantity
@@ -744,23 +838,38 @@ function addGuestCartItem(item) {
   const nextId = () => `guest-${window.crypto?.randomUUID?.() || Date.now()}`;
 
   if (item.item_type === "ready_product") {
-    const existingIndex = nextItems.findIndex((entry) => entry.item_type === "ready_product" && String(entry.product_id) === String(item.product_id));
+    const normalizedSize = getReadyProductNormalizedSize(item.product_type, item?.configuration?.size || item?.selected_size);
+    const nextReadyItem = {
+      ...item,
+      configuration: {
+        ...(item.configuration || {}),
+        ...(normalizedSize ? { size: normalizedSize } : {})
+      }
+    };
+    const existingIndex = nextItems.findIndex(
+      (entry) =>
+        entry.item_type === "ready_product" &&
+        String(entry.product_id) === String(item.product_id) &&
+        readyProductConfigurationsEqual(entry?.configuration || {}, nextReadyItem?.configuration || {})
+    );
     if (existingIndex >= 0) {
       const current = nextItems[existingIndex];
       nextItems[existingIndex] = {
         ...current,
-        quantity: Number(current.quantity || 1) + Number(item.quantity || 1)
+        quantity: Math.min(MAX_CART_ITEM_QUANTITY, Number(current.quantity || 1) + Number(item.quantity || 1))
       };
     } else {
       nextItems.push({
-        ...item,
-        id: nextId()
+        ...nextReadyItem,
+        id: nextId(),
+        quantity: Math.min(MAX_CART_ITEM_QUANTITY, Math.max(1, Number(nextReadyItem.quantity || 1)))
       });
     }
   } else {
     nextItems.push({
       ...item,
-      id: nextId()
+      id: nextId(),
+      quantity: Math.min(MAX_CART_ITEM_QUANTITY, Math.max(1, Number(item.quantity || 1)))
     });
   }
 
@@ -774,9 +883,28 @@ function updateGuestCartItem(itemId, quantity) {
   const cart = readGuestCart();
   const nextItems = cart.items.map((item) =>
     String(item.id) === String(itemId)
-      ? { ...item, quantity: Math.max(1, Number(quantity) || 1) }
+      ? { ...item, quantity: Math.min(MAX_CART_ITEM_QUANTITY, Math.max(1, Number(quantity) || 1)) }
       : item
   );
+  const nextCart = buildGuestCart(nextItems);
+  writeGuestCart(nextCart);
+  syncCartCount(nextCart);
+  return nextCart;
+}
+
+function patchGuestCartItem(itemId, patch = {}) {
+  const cart = readGuestCart();
+  const nextItems = cart.items.map((item) => {
+    if (String(item.id) !== String(itemId)) return item;
+    return {
+      ...item,
+      ...patch,
+      configuration: {
+        ...(item.configuration || {}),
+        ...(patch.configuration || {})
+      }
+    };
+  });
   const nextCart = buildGuestCart(nextItems);
   writeGuestCart(nextCart);
   syncCartCount(nextCart);
@@ -835,6 +963,7 @@ function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const [accountHref, setAccountHref] = useState("/auth");
+  const [cartCelebrating, setCartCelebrating] = useState(false);
   const { locale, toggleLocale, t } = useI18n();
   const copy = referenceCopy(locale);
 
@@ -888,14 +1017,25 @@ function Header() {
       if (document.visibilityState === "visible") refreshCartCount();
     }
 
+    function handleItemAdded() {
+      if (!active) return;
+      setCartCelebrating(false);
+      window.requestAnimationFrame(() => setCartCelebrating(true));
+      window.setTimeout(() => {
+        if (active) setCartCelebrating(false);
+      }, 900);
+    }
+
     refreshCartCount();
     window.addEventListener("aurora:cart-updated", handleCartUpdated);
+    window.addEventListener("aurora:item-added", handleItemAdded);
     window.addEventListener("focus", refreshCartCount);
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
       active = false;
       window.removeEventListener("aurora:cart-updated", handleCartUpdated);
+      window.removeEventListener("aurora:item-added", handleItemAdded);
       window.removeEventListener("focus", refreshCartCount);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
@@ -926,7 +1066,7 @@ function Header() {
           <button type="button" className="icon-button header-action" onClick={toggleLocale} aria-label={t("toggleLanguage")}>
             <span className="lang-toggle">{localeLabel}</span>
           </button>
-          <a className="icon-button header-action bag-button" href="/cart" aria-label={t("cart")}>
+          <a className={`icon-button header-action bag-button${cartCelebrating ? " is-celebrating" : ""}`} href="/cart" aria-label={t("cart")}>
             <ShoppingBag aria-hidden="true" />
             {cartCount > 0 ? <span className="cart-badge">{cartCount > 99 ? "99+" : cartCount}</span> : null}
           </a>
@@ -1188,7 +1328,7 @@ function FeaturedCollections({ products, locale }) {
 
 function ProductCard({ product, locale }) {
   const { t } = useI18n();
-  const attributes = productAttributeValues(product.filters);
+  const attributes = productAttributeValues(product.filters, locale);
 
   return (
     <article className="react-product-card">
@@ -1312,7 +1452,9 @@ function CatalogPage() {
                   <div className="product-card-body">
                     <div className="product-card-type">{productTypeLabel(product, locale)}</div>
                     <div className="product-card-name">{product.name}</div>
-                    <div className="product-card-material">{product.filters?.metal || (locale === "uk" ? "Авторська прикраса" : "Signature piece")}</div>
+                    <div className="product-card-material">
+                      {localizeProductFilterValue(product.filters?.metal, locale) || (locale === "uk" ? "Авторська прикраса" : "Signature piece")}
+                    </div>
                     <div className="product-card-price">{formatCurrency(product.price, product.currency, LOCALE_FORMATS[locale])}</div>
                   </div>
                 </a>
@@ -1335,9 +1477,11 @@ function ProductPage() {
   const slug = window.location.pathname.split("/").filter(Boolean).at(-1);
   const [product, setProduct] = useState(null);
   const [loadError, setLoadError] = useState("");
-  const [toast, setToast] = useState("");
+  const [toast, setToast] = useState(null);
   const [isAdding, setIsAdding] = useState(false);
   const [qty, setQty] = useState(1);
+  const [selectedReadySize, setSelectedReadySize] = useState("");
+  const [selectedChainOption, setSelectedChainOption] = useState("none");
   const { locale, t } = useI18n();
   const copy = referenceCopy(locale);
 
@@ -1364,45 +1508,90 @@ function ProductPage() {
     return () => window.clearTimeout(timer);
   }, [toast]);
 
+  useEffect(() => {
+    if (!product) return;
+    setSelectedReadySize(getReadyProductDefaultSize(product, locale));
+    setSelectedChainOption(normalizePendantType(product) ? "none" : "none");
+  }, [locale, product]);
+
+  function showAddedFeedback(quantityValue, sizeCode, chain) {
+    const sizeLabel = sizeCode ? getReadyProductSizeLabel(product, sizeCode, locale) : "";
+    const chainLabel = chain?.option && chain.option !== "none" ? getPendantChainOptionLabel(chain.option, locale) : "";
+    announceCartAddition({
+      productSlug: product?.slug,
+      quantity: quantityValue,
+      size: sizeLabel,
+      chain: chainLabel
+    });
+    setToast({
+      kind: "success",
+      title: t("addedPiece"),
+      meta: [
+        quantityValue > 1 ? `${t("qty")}: ${quantityValue}` : null,
+        sizeLabel || null,
+        chainLabel || null
+      ].filter(Boolean).join(" · ")
+    });
+  }
+
   async function handleAddToCart() {
     if (!product) return;
     setIsAdding(true);
+    const readyProductSize = getReadyProductNormalizedSize(product, selectedReadySize, locale);
+    const readyChain = resolveReadyProductPendantChain(product, selectedChainOption);
     const payload = {
       item_type: "ready_product",
       product_id: product.id,
+      configuration: {
+        ...(readyProductSize ? { size: readyProductSize } : {}),
+        ...(readyChain ? { chainOption: readyChain.option } : {})
+      },
       quantity: qty
     };
     try {
       const cart = await cartApi.addItem(payload);
       syncCartCount(cart);
-      setToast(t("addedPiece"));
+      showAddedFeedback(Math.min(MAX_CART_ITEM_QUANTITY, qty), readyProductSize, readyChain);
     } catch (error) {
       if (error.status === 401 || error.message.toLowerCase().includes("auth")) {
         addGuestCartItem({
           item_type: "ready_product",
           product_id: product.id,
+          product_type: product.filters?.type || product.type || null,
           product_slug: product.slug,
           title: product.name,
-          unit_price: Number(product.price || 0),
+          configuration: {
+            ...(readyProductSize ? { size: readyProductSize } : {}),
+            ...(readyChain ? { chain: readyChain } : {})
+          },
+          unit_price: Number(product.price || 0) + Number(readyChain?.price || 0),
           quantity: qty
         });
-        setToast(t("addedPiece"));
+        showAddedFeedback(Math.min(MAX_CART_ITEM_QUANTITY, qty), readyProductSize, readyChain);
         return;
       }
-      setToast(error.message);
+      setToast({ kind: "error", title: error.message, meta: "" });
     } finally {
       setIsAdding(false);
     }
   }
 
   const primaryImage = product ? productDisplayImage(product) : FALLBACK_PRODUCT_IMAGE;
-  const attributeEntries = productAttributeEntries(product?.filters);
-  const sizeOptions =
-    product?.filters?.type === "Ring"
-      ? ["16", "17", "18", "19"]
-      : product?.filters?.type === "Bracelet"
-        ? ["16 cm", "17 cm", "18 cm", "19 cm"]
-        : null;
+  const isPendantProduct = normalizePendantType(product);
+  const readySizeOptions = product ? getReadyProductSizeOptions(product, locale) : [];
+  const readySizeDefinition = product ? getReadyProductSizeDefinition(product) : null;
+  const chainOptions = getPendantChainOptions(locale);
+  const selectedChain = product ? resolveReadyProductPendantChain(product, selectedChainOption) : null;
+  const selectedReadySizeLabel = readySizeOptions.find((item) => item.code === selectedReadySize)?.label || "";
+  const displayFilters = product?.filters
+    ? {
+        ...product.filters,
+        ringSize: product.filters.type === "Ring" && selectedReadySizeLabel ? selectedReadySizeLabel : product.filters.ringSize,
+        braceletLength: product.filters.type === "Bracelet" && selectedReadySizeLabel ? selectedReadySizeLabel : product.filters.braceletLength
+      }
+    : null;
+  const attributeEntries = productAttributeEntries(displayFilters, locale);
+  const displayPrice = Number(product?.price || 0) + Number(selectedChain?.price || 0);
 
   return (
     <>
@@ -1445,29 +1634,55 @@ function ProductPage() {
                 <p className="product-type-label">{productTypeLabel(product, locale)}</p>
                 <h1 className="product-name">{product.name}</h1>
                 <div className="product-price-row">
-                  <span className="product-price">{formatCurrency(product.price, product.currency, LOCALE_FORMATS[locale])}</span>
+                  <span className="product-price">{formatCurrency(displayPrice, product.currency, LOCALE_FORMATS[locale])}</span>
                 </div>
 
                 <div className="product-attrs">
-                  <div className="product-attr">
-                    <span className="product-attr-label">{copy.productMaterial}</span>
-                    <span className="product-attr-val">{product.filters?.metal || "-"}</span>
-                  </div>
-                  <div className="product-attr">
-                    <span className="product-attr-label">{copy.productStone}</span>
-                    <span className="product-attr-val">{product.filters?.stoneType || "-"}</span>
-                  </div>
+                  {attributeEntries.map(([label, value]) => (
+                    <div className="product-attr" key={label}>
+                      <span className="product-attr-label">{label}</span>
+                      <span className="product-attr-val">{value}</span>
+                    </div>
+                  ))}
                 </div>
 
-                {sizeOptions ? (
+                {readySizeDefinition && readySizeOptions.length ? (
                   <div className="product-sizes">
-                    <p className="product-attr-label" style={{ marginBottom: "0.75rem" }}>{copy.productSize}</p>
+                    <p className="product-attr-label" style={{ marginBottom: "0.75rem" }}>{getReadyProductSizeTitle(product, locale)}</p>
                     <div className="size-grid">
-                      {sizeOptions.map((size) => (
-                        <button className="size-btn" key={size} type="button">
-                          {size}
+                      {readySizeOptions.map((size) => (
+                        <button
+                          className={`size-btn${selectedReadySize === size.code ? " active" : ""}`}
+                          key={size.code}
+                          type="button"
+                          onClick={() => setSelectedReadySize(size.code)}
+                        >
+                          {size.label}
                         </button>
                       ))}
+                    </div>
+                  </div>
+                ) : null}
+
+                {isPendantProduct ? (
+                  <div className="product-sizes">
+                    <p className="product-attr-label" style={{ marginBottom: "0.75rem" }}>{locale === "uk" ? "Комплектація" : "Configuration"}</p>
+                    <p className="product-desc-text" style={{ marginBottom: "1rem" }}>{getPendantChainUpsellNote(locale)}</p>
+                    <div className="size-grid">
+                      {chainOptions.map((option) => (
+                        <button
+                          className={`size-btn${selectedChainOption === option.code ? " active" : ""}`}
+                          key={option.code}
+                          type="button"
+                          onClick={() => setSelectedChainOption(option.code)}
+                        >
+                          <span className="size-val">{option.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                    <div className="summary-breakdown" style={{ marginTop: "1rem" }}>
+                      <span>{getPendantChainColorNote(product?.filters?.metal, locale)}</span>
+                      <span>{selectedChain?.price ? formatCurrency(selectedChain.price, product.currency, LOCALE_FORMATS[locale]) : locale === "uk" ? "0 грн" : "0 UAH"}</span>
                     </div>
                   </div>
                 ) : null}
@@ -1481,7 +1696,7 @@ function ProductPage() {
                   <div className="qty-control">
                     <button className="qty-btn" type="button" onClick={() => setQty((current) => Math.max(1, current - 1))}>-</button>
                     <span className="qty-val">{qty}</span>
-                    <button className="qty-btn" type="button" onClick={() => setQty((current) => current + 1)}>+</button>
+                    <button className="qty-btn" type="button" onClick={() => setQty((current) => Math.min(MAX_CART_ITEM_QUANTITY, current + 1))}>+</button>
                   </div>
                   <button className="button product-add-btn" type="button" onClick={handleAddToCart} disabled={isAdding}>
                     {isAdding ? t("adding") : copy.addToCart}
@@ -1502,7 +1717,15 @@ function ProductPage() {
         ) : null}
       </main>
       <Footer />
-      {toast ? <div className="react-toast">{toast}</div> : null}
+      {toast ? (
+        <div className={`react-toast ${toast.kind === "success" ? "react-toast-success" : "react-toast-error"}`}>
+          <div className="react-toast-icon">{toast.kind === "success" ? <Check aria-hidden="true" size={16} /> : <X aria-hidden="true" size={16} />}</div>
+          <div className="react-toast-copy">
+            <strong>{toast.title}</strong>
+            {toast.meta ? <span>{toast.meta}</span> : null}
+          </div>
+        </div>
+      ) : null}
     </>
   );
 }
@@ -2329,7 +2552,7 @@ function CartPage() {
   }, [toast]);
 
   async function updateQuantity(item, quantity) {
-    const nextQuantity = Math.max(1, Number(quantity) || 1);
+    const nextQuantity = Math.min(MAX_CART_ITEM_QUANTITY, Math.max(1, Number(quantity) || 1));
     setBusyItemId(item.id);
     try {
       const updated = isAuthenticated
@@ -2450,20 +2673,49 @@ function CartPage() {
 
                           {item.item_type === "custom_design" ? (
                             <div className="cart-item-meta-grid">
-                              <div className="cart-item-meta">
-                                <span>{locale === "uk-UA" ? "Матеріал" : "Material"}</span>
-                                <strong>{findTypeOptionLabel(typeById[String(item.jewelry_type_id)]?.materials, item.configuration?.material) || "-"}</strong>
-                              </div>
                               {typeById[String(item.jewelry_type_id)]?.size_options?.length ? (
                                 <div className="cart-item-meta">
                                   <span>{locale === "uk-UA" ? "Розмір" : "Size"}</span>
                                   <strong>{findTypeOptionLabel(typeById[String(item.jewelry_type_id)]?.size_options, item.configuration?.size) || "-"}</strong>
                                 </div>
                               ) : null}
+                              {getPendantChainDisplay(item, locale, typeById) ? (
+                                <div className="cart-item-meta">
+                                  <span>{locale === "uk-UA" ? "Комплектація" : "Configuration"}</span>
+                                  <strong>{getPendantChainDisplay(item, locale, typeById, { includeLabel: false }).text}</strong>
+                                </div>
+                              ) : null}
+                              {getPendantChainDisplay(item, locale, typeById)?.surcharge ? (
+                                <div className="cart-item-meta">
+                                  <span>{locale === "uk-UA" ? "Доплата за ланцюжок" : "Chain surcharge"}</span>
+                                  <strong>{formatCurrency(Number(getPendantChainDisplay(item, locale, typeById).chain?.price || 0), cart.currency, locale)}</strong>
+                                </div>
+                              ) : null}
                               {item.configuration?.engraving_text ? (
                                 <div className="cart-item-meta">
                                   <span>{locale === "uk-UA" ? "Гравіювання" : "Engraving"}</span>
                                   <strong>{item.configuration.engraving_text}</strong>
+                                </div>
+                              ) : null}
+                            </div>
+                          ) : item.configuration?.size || getPendantChainDisplay(item, locale, typeById) ? (
+                            <div className="cart-item-meta-grid">
+                              {item.configuration?.size ? (
+                                <div className="cart-item-meta">
+                                  <span>{getReadyProductSizeTitle(item.product_type, locale)}</span>
+                                  <strong>{getReadyProductSizeLabel(item.product_type, item.configuration.size, locale)}</strong>
+                                </div>
+                              ) : null}
+                              {getPendantChainDisplay(item, locale, typeById) ? (
+                                <div className="cart-item-meta">
+                                  <span>{locale === "uk-UA" ? "Комплектація" : "Configuration"}</span>
+                                  <strong>{getPendantChainDisplay(item, locale, typeById, { includeLabel: false }).text}</strong>
+                                </div>
+                              ) : null}
+                              {getPendantChainDisplay(item, locale, typeById)?.surcharge ? (
+                                <div className="cart-item-meta">
+                                  <span>{locale === "uk-UA" ? "Доплата за ланцюжок" : "Chain surcharge"}</span>
+                                  <strong>{formatCurrency(Number(getPendantChainDisplay(item, locale, typeById).chain?.price || 0), cart.currency, locale)}</strong>
                                 </div>
                               ) : null}
                             </div>
@@ -2478,25 +2730,24 @@ function CartPage() {
                         </div>
                       </div>
 
-                      <div className="cart-item-controls">
-                        <div className="cart-item-controls-top">
-                          {item.item_type === "ready_product" ? (
-                            <label className="cart-quantity">
-                              <span>{t("qty")}</span>
-                              <input
-                                type="number"
-                                min="1"
-                                value={item.quantity}
-                                disabled={busyItemId === item.id}
-                                onChange={(event) => updateQuantity(item, event.target.value)}
-                              />
-                            </label>
-                          ) : (
-                            <span className="badge subtle">{t("configuredDesign")}</span>
-                          )}
-                          <button
-                            type="button"
-                            className="cart-remove-button"
+	                      <div className="cart-item-controls">
+	                          <div className="cart-item-controls-top">
+                            <div className="cart-item-control-cluster">
+	                            <label className="cart-quantity">
+	                              <span>{t("qty")}</span>
+	                              <input
+	                                type="number"
+	                                min="1"
+                                  max={MAX_CART_ITEM_QUANTITY}
+	                                value={item.quantity}
+	                                disabled={busyItemId === item.id}
+	                                onChange={(event) => updateQuantity(item, event.target.value)}
+	                              />
+	                            </label>
+                            </div>
+	                          <button
+	                            type="button"
+	                            className="cart-remove-button"
                             disabled={busyItemId === item.id}
                             onClick={() => removeItem(item)}
                             aria-label={`${t("remove")} ${item.title}`}
@@ -2781,15 +3032,19 @@ function AccountPage() {
                       </div>
                     </div>
                     <div className="account-order-items">
-                      {currentOrder.items.map((item) => (
-                        <div className="account-order-item" key={item.id}>
-                          <div>
-                            <strong>{item.title}</strong>
-                            <span>{locale === "uk-UA" ? `Кількість: ${item.quantity}` : `Qty: ${item.quantity}`}</span>
+                        {currentOrder.items.map((item) => (
+                          <div className="account-order-item" key={item.id}>
+                            <div>
+                              <strong>{item.title}</strong>
+                              <span>
+                                {locale === "uk-UA" ? `Кількість: ${item.quantity}` : `Qty: ${item.quantity}`}
+                                {item.configuration?.size ? ` · ${getReadyProductSizeLabel(item.product_type, item.configuration.size, locale)}` : ""}
+                                {getPendantChainDisplay(item, locale) ? ` · ${getPendantChainDisplay(item, locale, {}, { includeLabel: false }).text}` : ""}
+                              </span>
+                            </div>
+                            <strong>{formatCurrency(item.line_total, currentOrder.currency, locale)}</strong>
                           </div>
-                          <strong>{formatCurrency(item.line_total, currentOrder.currency, locale)}</strong>
-                        </div>
-                      ))}
+                        ))}
                     </div>
                     <a className="button button-ghost" href={`/orders/${currentOrder.id}`}>
                       {locale === "uk-UA" ? "Відкрити досьє замовлення" : "Open order dossier"}
@@ -2831,7 +3086,11 @@ function AccountPage() {
                           <div className="account-order-item" key={item.id}>
                             <div>
                               <strong>{item.title}</strong>
-                              <span>{locale === "uk-UA" ? `Кількість: ${item.quantity}` : `Qty: ${item.quantity}`}</span>
+                              <span>
+                                {locale === "uk-UA" ? `Кількість: ${item.quantity}` : `Qty: ${item.quantity}`}
+                                {item.configuration?.size ? ` · ${getReadyProductSizeLabel(item.product_type, item.configuration.size, locale)}` : ""}
+                                {getPendantChainDisplay(item, locale) ? ` · ${getPendantChainDisplay(item, locale, {}, { includeLabel: false }).text}` : ""}
+                              </span>
                             </div>
                             <strong>{formatCurrency(item.line_total, order.currency, locale)}</strong>
                           </div>
@@ -3261,7 +3520,10 @@ function CheckoutPage() {
                 <div className="checkout-items">
                   {items.map((item) => (
                     <div key={item.id}>
-                      <span>{item.title}</span>
+                      <span>
+                        {item.title}
+                        {item.configuration?.size ? ` · ${getReadyProductSizeLabel(item.product_type, item.configuration.size, locale)}` : ""}
+                      </span>
                       <strong>{formatCurrency(item.line_total, cart.currency, locale)}</strong>
                     </div>
                   ))}
@@ -4081,6 +4343,15 @@ function AdminOrderDetailPage() {
               {order.items.map((item) => (
                 <div key={item.id}>
                   <span>{item.title} x {item.quantity}</span>
+                  {item.item_type === "custom_design" && item.jewelry_type_code ? (
+                    <p>{`Тип виробу: ${item.jewelry_type_code === "pendant" ? "підвіска" : item.jewelry_type_code}`}</p>
+                  ) : null}
+                  {getPendantChainDisplay(item, locale, {}, { includeMetal: true }) ? (
+                    <p>{getPendantChainDisplay(item, locale, {}, { includeMetal: true }).text}</p>
+                  ) : null}
+                  {getPendantChainDisplay(item, locale, {}, { includeMetal: true })?.surcharge ? (
+                    <p>{getPendantChainDisplay(item, locale, {}, { includeMetal: true }).surcharge}</p>
+                  ) : null}
                   <strong>{formatCurrency(item.line_total, order.currency, locale)}</strong>
                 </div>
               ))}
@@ -5056,7 +5327,12 @@ function resolveOrderPreviewData(item, constructorConfig) {
 
 function CartItemPreview({ item, constructorConfig }) {
   if (item.item_type !== "custom_design") {
-    const image = item.thumbnail_url || REFERENCE_IMAGES.productBySlug[item.product_slug] || FALLBACK_PRODUCT_IMAGE;
+    const slug = String(item?.product_slug || "").trim();
+    const image =
+      (slug ? `/assets/products/${slug}.png` : null) ||
+      item.thumbnail_url ||
+      REFERENCE_IMAGES.productBySlug[item.product_slug] ||
+      FALLBACK_PRODUCT_IMAGE;
     return (
       <div className="cart-item-preview-shell cart-item-preview-ready">
         <img className="cart-ready-image" src={image} alt={item.title || ""} />
@@ -5085,6 +5361,7 @@ function OrderDetailItemCard({ item, order, locale, t, constructorConfig, typeBy
   const previewData = resolveOrderPreviewData(item, constructorConfig);
   const variant = previewData.variant || variantsById[String(item.configuration?.variant_id)] || null;
   const selectedStones = stoneSelectionSummary(previewData.selections, stonesByCode, locale);
+  const chainDisplay = getPendantChainDisplay(item, locale, typeById);
 
   return (
     <article className={`order-detail-item-card${item.item_type === "custom_design" ? " is-custom" : ""}`}>
@@ -5113,6 +5390,18 @@ function OrderDetailItemCard({ item, order, locale, t, constructorConfig, typeBy
                     <strong>{findTypeOptionLabel(type?.size_options, item.configuration?.size) || "-"}</strong>
                   </div>
                 ) : null}
+                {chainDisplay ? (
+                  <div className="order-detail-item-meta">
+                    <span>{locale === "uk-UA" ? "Комплектація" : "Configuration"}</span>
+                    <strong>{chainDisplay.text.replace(/^Комплектація:\s|^Configuration:\s/, "")}</strong>
+                  </div>
+                ) : null}
+                {chainDisplay?.surcharge ? (
+                  <div className="order-detail-item-meta">
+                    <span>{locale === "uk-UA" ? "Доплата за ланцюжок" : "Chain surcharge"}</span>
+                    <strong>{formatCurrency(Number(chainDisplay.chain?.price || 0), order.currency, locale)}</strong>
+                  </div>
+                ) : null}
                 {item.configuration?.engraving_text ? (
                   <div className="order-detail-item-meta">
                     <span>{locale === "uk-UA" ? "Гравіювання" : "Engraving"}</span>
@@ -5133,12 +5422,38 @@ function OrderDetailItemCard({ item, order, locale, t, constructorConfig, typeBy
                 </div>
               ) : null}
             </>
-          ) : item.product_slug ? (
-            <a className="text-cta" href={`/products/${item.product_slug}`}>
-              {t("viewPiece")}
-              <ChevronRight aria-hidden="true" />
-            </a>
-          ) : null}
+          ) : (
+            <>
+              {item.configuration?.size || chainDisplay ? (
+                <div className="order-detail-item-meta-grid">
+                  {item.configuration?.size ? (
+                    <div className="order-detail-item-meta">
+                      <span>{getReadyProductSizeTitle(item.product_type, locale)}</span>
+                      <strong>{getReadyProductSizeLabel(item.product_type, item.configuration.size, locale)}</strong>
+                    </div>
+                  ) : null}
+                  {chainDisplay ? (
+                    <div className="order-detail-item-meta">
+                      <span>{locale === "uk-UA" ? "Комплектація" : "Configuration"}</span>
+                      <strong>{chainDisplay.text.replace(/^Комплектація:\s|^Configuration:\s/, "")}</strong>
+                    </div>
+                  ) : null}
+                  {chainDisplay?.surcharge ? (
+                    <div className="order-detail-item-meta">
+                      <span>{locale === "uk-UA" ? "Доплата за ланцюжок" : "Chain surcharge"}</span>
+                      <strong>{formatCurrency(Number(chainDisplay.chain?.price || 0), order.currency, locale)}</strong>
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+              {item.product_slug ? (
+                <a className="text-cta" href={`/products/${item.product_slug}`}>
+                  {t("viewPiece")}
+                  <ChevronRight aria-hidden="true" />
+                </a>
+              ) : null}
+            </>
+          )}
         </div>
       </div>
 
@@ -5198,6 +5513,9 @@ function ConstructorStudioPage() {
     })
     .filter(Boolean);
   const stonesByCode = buildStoneCodeMap(availableStones);
+  const isPendantType = normalizePendantType(currentType?.code);
+  const constructorChainOptions = getPendantChainOptions(locale);
+  const selectedConstructorChain = resolveCustomDesignPendantChain(currentType?.code, configuration);
 
   useEffect(() => {
     if (!currentType) return;
@@ -5270,7 +5588,7 @@ function ConstructorStudioPage() {
           jewelry_type_id: Number(currentType.id),
           jewelry_type_code: currentType.code,
           title: calculation?.jewelry_type || currentType.name || t("personalDesign"),
-          configuration: { ...configuration, variant_id: Number(currentVariant.id) },
+          configuration: calculation?.normalized_configuration || { ...configuration, variant_id: Number(currentVariant.id) },
           unit_price: Number(calculation?.price || 0),
           quantity: 1
         });
@@ -5429,6 +5747,31 @@ function ConstructorStudioPage() {
                     <div className="summary-breakdown"><span>{isCalculating ? t("calculating") : t("validated")}</span><span>{currentVariant?.name || currentType?.name || t("piece")}</span></div>
                     <div className="summary-breakdown"><span>{locale === "en" ? "Material" : "Матеріал"}</span><span>{currentType?.materials?.find((item) => item.code === configuration.material)?.label || "-"}</span></div>
                     {currentType?.size_options?.length ? <div className="summary-breakdown"><span>{locale === "en" ? "Size" : "Розмір"}</span><span>{currentType?.size_options?.find((item) => item.code === configuration.size)?.label || "-"}</span></div> : null}
+                    {isPendantType ? (
+                      <>
+                        <div className="summary-divider" />
+                        <div className="product-sizes" style={{ marginTop: "0.5rem" }}>
+                          <p className="product-attr-label" style={{ marginBottom: "0.75rem" }}>{locale === "uk" ? "Комплектація" : "Configuration"}</p>
+                          <p className="product-desc-text" style={{ marginBottom: "1rem" }}>{getPendantChainUpsellNote(locale)}</p>
+                          <div className="size-grid">
+                            {constructorChainOptions.map((option) => (
+                              <button
+                                key={option.code}
+                                className={`size-btn${extractPendantChainOption(configuration) === option.code ? " active" : ""}`}
+                                type="button"
+                                onClick={() => updateConfigurationField("chainOption", option.code)}
+                              >
+                                <span className="size-val">{option.label}</span>
+                              </button>
+                            ))}
+                          </div>
+                          <div className="summary-breakdown" style={{ marginTop: "1rem" }}>
+                            <span>{getPendantChainColorNote(selectedConstructorChain?.metal, locale)}</span>
+                            <span>{selectedConstructorChain?.price ? formatCurrency(selectedConstructorChain.price, "UAH", LOCALE_FORMATS[locale]) : locale === "uk" ? "0 грн" : "0 UAH"}</span>
+                          </div>
+                        </div>
+                      </>
+                    ) : null}
                     {!calculation?.is_valid ? <div className="summary-warning">{(calculation?.missing_required || []).join(", ")}</div> : null}
                     <button className="button constructor-add-btn" type="button" disabled={!calculation?.is_valid || isAdding} onClick={handleAddDesign}>
                       {isAdding ? t("adding") : t("addToCart")}

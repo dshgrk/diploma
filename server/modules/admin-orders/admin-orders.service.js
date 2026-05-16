@@ -156,7 +156,17 @@ async function getAdminOrderDetails(orderId) {
     throw createHttpError(404, "ORDER_NOT_FOUND", "Order not found");
   }
 
-  const items = await db("order_items").where({ order_id: order.id }).orderBy("id", "asc");
+  const items = await db("order_items")
+    .leftJoin("products", "order_items.product_id", "products.id")
+    .leftJoin("jewelry_types", "order_items.jewelry_type_id", "jewelry_types.id")
+    .select(
+      "order_items.*",
+      "products.filter_type as product_type",
+      "products.slug as product_slug",
+      "jewelry_types.code as jewelry_type_code"
+    )
+    .where({ order_id: order.id })
+    .orderBy("order_items.id", "asc");
   const history = await db("order_status_history")
     .leftJoin("users", "order_status_history.changed_by_user_id", "users.id")
     .select(
@@ -196,6 +206,9 @@ async function getAdminOrderDetails(orderId) {
     items: items.map((item) => ({
       id: item.id,
       item_type: item.item_type,
+      product_type: item.product_type || null,
+      product_slug: item.product_slug || null,
+      jewelry_type_code: item.jewelry_type_code || null,
       title: item.title_snapshot,
       quantity: item.quantity,
       unit_price: Number(item.unit_price),

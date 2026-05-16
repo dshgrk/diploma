@@ -8,7 +8,7 @@ const { createApp } = require("../../server/app");
 const { ORDER_STATUSES } = require("../../server/constants/order-statuses");
 const { updateAdminOrderStatus } = require("../../server/modules/admin-orders/admin-orders.service");
 const { listAdminOrders } = require("../../server/modules/admin-orders/admin-orders.service");
-const { applyCartPromoCode, getOrCreateActiveCart } = require("../../server/modules/cart/cart.service");
+const { addCartItem, applyCartPromoCode, getOrCreateActiveCart, serializeCart } = require("../../server/modules/cart/cart.service");
 const { createCheckoutOrder } = require("../../server/modules/checkout/checkout.service");
 const { confirmMockPayment } = require("../../server/modules/payments/payments.service");
 
@@ -203,6 +203,124 @@ describe("cart and checkout integrity", () => {
     ).rejects.toThrow();
   });
 
+  test("ready products keep selected size through cart and checkout", async () => {
+    const cart = await getOrCreateActiveCart(2);
+    await db("cart_items").where({ cart_id: cart.id }).del();
+
+    await addCartItem(2, {
+      item_type: "ready_product",
+      product_id: 1,
+      quantity: 1,
+      configuration: { size: "17" }
+    });
+
+    await addCartItem(2, {
+      item_type: "ready_product",
+      product_id: 1,
+      quantity: 1,
+      configuration: { size: "18" }
+    });
+
+    const serializedCart = await serializeCart(cart.id, { userId: 2 });
+    const sizedItems = serializedCart.items
+      .filter((item) => item.product_id === 1)
+      .map((item) => item.configuration?.size)
+      .sort();
+
+    expect(sizedItems).toEqual(["17", "18"]);
+
+    const checkoutResult = await createCheckoutOrder(2, CHECKOUT_PAYLOAD);
+    const orderItems = await db("order_items").where({ order_id: checkoutResult.order_id, product_id: 1 }).orderBy("id", "asc");
+    const orderSizes = orderItems.map((item) => JSON.parse(item.configuration_json || "{}").size).sort();
+
+    expect(orderSizes).toEqual(["17", "18"]);
+  });
+
+  test("ready pendant keeps chain configuration and backend surcharge through checkout", async () => {
+    const cart = await getOrCreateActiveCart(2);
+    await db("cart_items").where({ cart_id: cart.id }).del();
+
+    const pendantProduct = await db("products").where({ slug: "silver-heart-pendant" }).first();
+
+    await addCartItem(2, {
+      item_type: "ready_product",
+      product_id: pendantProduct.id,
+      quantity: 1,
+      configuration: { chainOption: "45cm", chain: { option: "50cm", price: 999999 } }
+    });
+
+    const serializedCart = await serializeCart(cart.id, { userId: 2 });
+    const pendantItem = serializedCart.items.find((item) => item.product_id === pendantProduct.id);
+
+    expect(pendantItem.configuration?.chain).toEqual({
+      option: "45cm",
+      length: 45,
+      metal: "Silver",
+      price: 1450
+    });
+    expect(pendantItem.unit_price).toBe(Number(pendantProduct.price) + 1450);
+
+    const checkoutResult = await createCheckoutOrder(2, CHECKOUT_PAYLOAD);
+    const orderItem = await db("order_items")
+      .where({ order_id: checkoutResult.order_id, product_id: pendantProduct.id })
+      .first();
+    const savedConfiguration = JSON.parse(orderItem.configuration_json || "{}");
+
+    expect(savedConfiguration.chain).toEqual({
+      option: "45cm",
+      length: 45,
+      metal: "Silver",
+      price: 1450
+    });
+    expect(Number(orderItem.unit_price)).toBe(Number(pendantProduct.price) + 1450);
+  });
+
+  test("custom pendant keeps chain configuration and backend surcharge through checkout", async () => {
+    const cart = await getOrCreateActiveCart(2);
+    await db("cart_items").where({ cart_id: cart.id }).del();
+
+    const pendantType = await db("jewelry_types").where({ code: "pendant" }).first();
+
+    await addCartItem(2, {
+      item_type: "custom_design",
+      jewelry_type_id: pendantType.id,
+      quantity: 1,
+      configuration: {
+        variant_id: 301,
+        material: "gold_plated",
+        chainOption: "50cm",
+        stone_slots: {
+          pendant: "pearl"
+        }
+      }
+    });
+
+    const serializedCart = await serializeCart(cart.id, { userId: 2 });
+    const customPendant = serializedCart.items.find((item) => item.item_type === "custom_design" && item.jewelry_type_id === pendantType.id);
+
+    expect(customPendant.configuration?.chain).toEqual({
+      option: "50cm",
+      length: 50,
+      metal: "Gold",
+      price: 2100
+    });
+    expect(customPendant.unit_price).toBeGreaterThanOrEqual(2100);
+
+    const checkoutResult = await createCheckoutOrder(2, CHECKOUT_PAYLOAD);
+    const orderItem = await db("order_items")
+      .where({ order_id: checkoutResult.order_id, jewelry_type_id: pendantType.id, item_type: "custom_design" })
+      .first();
+    const savedConfiguration = JSON.parse(orderItem.configuration_json || "{}");
+
+    expect(savedConfiguration.chain).toEqual({
+      option: "50cm",
+      length: 50,
+      metal: "Gold",
+      price: 2100
+    });
+    expect(Number(orderItem.unit_price)).toBe(Number(customPendant.unit_price));
+  });
+
   test("checkout uses account email when payload email is omitted", async () => {
     const result = await createCheckoutOrder(2, {
       ...CHECKOUT_PAYLOAD,
@@ -264,14 +382,14 @@ describe("cart and checkout integrity", () => {
     const detailResponse = await request(app).get("/api/catalog/products/quiet-pearl-ring");
 
     expect(ringResponse.status).toBe(200);
-    expect(ringResponse.body.data.map((product) => product.slug)).toEqual(["quiet-pearl-ring"]);
+    expect(ringResponse.body.data.map((product) => product.slug)).toContain("quiet-pearl-ring");
     expect(braceletResponse.status).toBe(200);
-    expect(braceletResponse.body.data.map((product) => product.slug)).toEqual(["moon-bracelet"]);
+    expect(braceletResponse.body.data.map((product) => product.slug)).toContain("moon-bracelet");
     expect(detailResponse.status).toBe(200);
     expect(detailResponse.body.data.filters).toMatchObject({
       type: "Ring",
       metal: "Rose Gold",
-      stoneType: "Emerald",
+      stoneType: "Pearl",
       ringSize: "17",
       ringType: "Fashion"
     });

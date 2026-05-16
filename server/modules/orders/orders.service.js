@@ -2,6 +2,7 @@ const { db } = require("../../db/knex");
 const { BUSINESS_RULES } = require("../../constants/business-rules");
 const { createHttpError } = require("../../utils/http-error");
 const { parseJsonField } = require("../../utils/json");
+const { resolveProductImage } = require("../../utils/product-image");
 
 function isOrderOverdue(order) {
   if (order.status !== "in_progress" || !order.in_progress_at) {
@@ -39,6 +40,7 @@ async function getOrderDetailsForUser(userId, orderId) {
     .select(
       "order_items.*",
       "products.slug as product_slug",
+      "products.filter_type as product_type",
       "jewelry_types.code as jewelry_type_code"
     )
     .where({ order_id: order.id })
@@ -79,8 +81,9 @@ async function getOrderDetailsForUser(userId, orderId) {
       product_id: item.product_id,
       jewelry_type_id: item.jewelry_type_id,
       product_slug: item.product_slug,
+      product_type: item.product_type || null,
       jewelry_type_code: item.jewelry_type_code,
-      thumbnail_url: item.product_id ? imageByProductId[item.product_id]?.asset_path || null : null,
+      thumbnail_url: item.product_id ? resolveProductImage(imageByProductId[item.product_id]?.asset_path, item.jewelry_type_code, item.product_slug) : null,
       title: item.title_snapshot,
       quantity: item.quantity,
       unit_price: Number(item.unit_price),

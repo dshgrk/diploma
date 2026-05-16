@@ -4,6 +4,7 @@ const crypto = require("crypto");
 const { createHttpError } = require("../../utils/http-error");
 const { resolveLocale } = require("../../utils/locale");
 const { BUSINESS_RULES } = require("../../constants/business-rules");
+const { resolveCustomDesignChainConfiguration } = require("../../utils/pendant-chain");
 const {
   FILES,
   DEFAULT_DATA,
@@ -295,6 +296,41 @@ async function calculateStudioPrice({ jewelryTypeId, configuration = {}, req = n
     calculatedPrice += Number(type.engraving.price_delta || 0);
   }
 
+  const chain = resolveCustomDesignChainConfiguration(type, configuration);
+  if (chain?.price) {
+    calculatedPrice += Number(chain.price || 0);
+  }
+
+  const normalizedConfiguration = {
+    ...configuration,
+    variant_id: Number(variant.id)
+  };
+
+  if (selectedMaterial) {
+    normalizedConfiguration.material = selectedMaterial.code;
+  }
+
+  if (selectedSize) {
+    normalizedConfiguration.size = selectedSize.code;
+  } else {
+    delete normalizedConfiguration.size;
+  }
+
+  if (engravingText) {
+    normalizedConfiguration.engraving_text = engravingText;
+  } else {
+    delete normalizedConfiguration.engraving_text;
+  }
+
+  delete normalizedConfiguration.chainOption;
+  delete normalizedConfiguration.chain_option;
+
+  if (chain) {
+    normalizedConfiguration.chain = chain;
+  } else {
+    delete normalizedConfiguration.chain;
+  }
+
   return {
     is_valid: missingRequired.length === 0,
     missing_required: missingRequired,
@@ -302,7 +338,9 @@ async function calculateStudioPrice({ jewelryTypeId, configuration = {}, req = n
     currency: BUSINESS_RULES.CURRENCY,
     jewelry_type: locale === "en" ? type.name_en : type.name_uk,
     variant_name: locale === "en" ? variant.name_en : variant.name_uk,
-    preview_layers: buildPreviewLayersFromVariant(studio, variant, slotSelections, engravingText)
+    preview_layers: buildPreviewLayersFromVariant(studio, variant, slotSelections, engravingText),
+    chain,
+    normalized_configuration: normalizedConfiguration
   };
 }
 

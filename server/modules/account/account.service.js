@@ -19,6 +19,8 @@ function orderSummary(order, items = [], updatedAt = null) {
     items: items.map((item) => ({
       id: item.id,
       item_type: item.item_type,
+      product_type: item.product_type || null,
+      jewelry_type_code: item.jewelry_type_code || null,
       title: item.title_snapshot,
       quantity: item.quantity,
       unit_price: Number(item.unit_price || 0),
@@ -31,7 +33,10 @@ function orderSummary(order, items = [], updatedAt = null) {
 async function getOrderItemsByOrderIds(orderIds) {
   if (!orderIds.length) return new Map();
   const rows = await db("order_items")
+    .leftJoin("products", "order_items.product_id", "products.id")
+    .leftJoin("jewelry_types", "order_items.jewelry_type_id", "jewelry_types.id")
     .whereIn("order_id", orderIds)
+    .select("order_items.*", "products.filter_type as product_type", "jewelry_types.code as jewelry_type_code")
     .orderBy([{ column: "order_id", order: "asc" }, { column: "id", order: "asc" }]);
   const byOrderId = new Map();
   for (const row of rows) {
