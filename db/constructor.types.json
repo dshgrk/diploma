@@ -11,28 +11,28 @@
       "materials": [
         {
           "code": "silver",
-          "name_uk": "Срібло 925",
-          "name_en": "Silver 925",
+          "name_uk": "Срібло",
+          "name_en": "Silver",
           "price_delta": 0,
           "tone": "#b7bec8",
           "is_active": true,
           "sort_order": 1
         },
         {
-          "code": "gold_plated",
-          "name_uk": "Позолота",
-          "name_en": "Gold plated",
-          "price_delta": 320,
-          "tone": "#cfab67",
+          "code": "gold",
+          "name_uk": "Золото",
+          "name_en": "Gold",
+          "price_delta": 1250,
+          "tone": "#b8914f",
           "is_active": true,
           "sort_order": 2
         },
         {
-          "code": "solid_gold",
-          "name_uk": "Золото 585",
-          "name_en": "Solid gold 585",
-          "price_delta": 1250,
-          "tone": "#b8914f",
+          "code": "rose_gold",
+          "name_uk": "Рожеве золото",
+          "name_en": "Rose Gold",
+          "price_delta": 950,
+          "tone": "#c88d78",
           "is_active": true,
           "sort_order": 3
         }
@@ -90,40 +90,31 @@
       "sort_order": 2,
       "materials": [
         {
-          "code": "jewelry_steel",
-          "name_uk": "Ювелірна сталь",
-          "name_en": "Jewelry steel",
-          "price_delta": -120,
-          "tone": "#8d98a4",
+          "code": "silver",
+          "name_uk": "Срібло",
+          "name_en": "Silver",
+          "price_delta": 0,
+          "tone": "#b7bec8",
           "is_active": true,
           "sort_order": 1
         },
         {
-          "code": "silver",
-          "name_uk": "Срібло 925",
-          "name_en": "Silver 925",
-          "price_delta": 0,
-          "tone": "#b7bec8",
+          "code": "gold",
+          "name_uk": "Золото",
+          "name_en": "Gold",
+          "price_delta": 1250,
+          "tone": "#b8914f",
           "is_active": true,
           "sort_order": 2
         },
         {
-          "code": "gold_plated",
-          "name_uk": "Позолота",
-          "name_en": "Gold plated",
-          "price_delta": 320,
-          "tone": "#cfab67",
+          "code": "rose_gold",
+          "name_uk": "Рожеве золото",
+          "name_en": "Rose Gold",
+          "price_delta": 950,
+          "tone": "#c88d78",
           "is_active": true,
           "sort_order": 3
-        },
-        {
-          "code": "solid_gold",
-          "name_uk": "Золото 585",
-          "name_en": "Solid gold 585",
-          "price_delta": 1250,
-          "tone": "#b8914f",
-          "is_active": true,
-          "sort_order": 4
         }
       ],
       "size_options": [
@@ -180,28 +171,28 @@
       "materials": [
         {
           "code": "silver",
-          "name_uk": "Срібло 925",
-          "name_en": "Silver 925",
+          "name_uk": "Срібло",
+          "name_en": "Silver",
           "price_delta": 0,
           "tone": "#b7bec8",
           "is_active": true,
           "sort_order": 1
         },
         {
-          "code": "gold_plated",
-          "name_uk": "Позолота",
-          "name_en": "Gold plated",
-          "price_delta": 320,
-          "tone": "#cfab67",
+          "code": "gold",
+          "name_uk": "Золото",
+          "name_en": "Gold",
+          "price_delta": 1250,
+          "tone": "#b8914f",
           "is_active": true,
           "sort_order": 2
         },
         {
-          "code": "solid_gold",
-          "name_uk": "Золото 585",
-          "name_en": "Solid gold 585",
-          "price_delta": 1250,
-          "tone": "#b8914f",
+          "code": "rose_gold",
+          "name_uk": "Рожеве золото",
+          "name_en": "Rose Gold",
+          "price_delta": 950,
+          "tone": "#c88d78",
           "is_active": true,
           "sort_order": 3
         }
@@ -226,28 +217,28 @@
       "materials": [
         {
           "code": "silver",
-          "name_uk": "Срібло 925",
-          "name_en": "Silver 925",
+          "name_uk": "Срібло",
+          "name_en": "Silver",
           "price_delta": 0,
           "tone": "#b7bec8",
           "is_active": true,
           "sort_order": 1
         },
         {
-          "code": "gold_plated",
-          "name_uk": "Позолота",
-          "name_en": "Gold plated",
-          "price_delta": 320,
-          "tone": "#cfab67",
+          "code": "gold",
+          "name_uk": "Золото",
+          "name_en": "Gold",
+          "price_delta": 1250,
+          "tone": "#b8914f",
           "is_active": true,
           "sort_order": 2
         },
         {
-          "code": "solid_gold",
-          "name_uk": "Золото 585",
-          "name_en": "Solid gold 585",
-          "price_delta": 1250,
-          "tone": "#b8914f",
+          "code": "rose_gold",
+          "name_uk": "Рожеве золото",
+          "name_en": "Rose Gold",
+          "price_delta": 950,
+          "tone": "#c88d78",
           "is_active": true,
           "sort_order": 3
         }

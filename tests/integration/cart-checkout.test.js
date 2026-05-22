@@ -287,7 +287,7 @@ describe("cart and checkout integrity", () => {
       quantity: 1,
       configuration: {
         variant_id: 301,
-        material: "gold_plated",
+        material: "gold",
         chainOption: "50cm",
         stone_slots: {
           pendant: "pearl"
@@ -373,25 +373,40 @@ describe("cart and checkout integrity", () => {
     const ringResponse = await request(app).get("/api/catalog/products").query({
       type: "Ring",
       ringSize: "17",
-      ringType: "Fashion"
+      ringStyle: "Fashion",
+      stone: ["Pearl", "Diamond"],
+      sort: "price_desc"
     });
     const braceletResponse = await request(app).get("/api/catalog/products").query({
       type: "Bracelet",
       braceletLength: "18 cm"
     });
+    const pendantResponse = await request(app).get("/api/catalog/products").query({
+      type: "Pendant",
+      priceMin: 10000,
+      priceMax: 17000,
+      sort: "newest"
+    });
     const detailResponse = await request(app).get("/api/catalog/products/quiet-pearl-ring");
 
     expect(ringResponse.status).toBe(200);
     expect(ringResponse.body.data.map((product) => product.slug)).toContain("quiet-pearl-ring");
+    expect(ringResponse.body.data[0].price).toBeGreaterThanOrEqual(ringResponse.body.data.at(-1).price);
     expect(braceletResponse.status).toBe(200);
     expect(braceletResponse.body.data.map((product) => product.slug)).toContain("moon-bracelet");
+    expect(pendantResponse.status).toBe(200);
+    expect(pendantResponse.body.data.map((product) => product.slug)).toContain("sun-disc-pendant");
+    expect(pendantResponse.body.data.every((product) => product.filters.type === "Pendant")).toBe(true);
+    expect(pendantResponse.body.data.every((product) => product.price >= 10000 && product.price <= 17000)).toBe(true);
     expect(detailResponse.status).toBe(200);
     expect(detailResponse.body.data.filters).toMatchObject({
       type: "Ring",
       metal: "Rose Gold",
       stoneType: "Pearl",
+      stone: "Pearl",
       ringSize: "17",
-      ringType: "Fashion"
+      ringType: "Fashion",
+      ringStyle: "Fashion"
     });
   });
 

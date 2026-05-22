@@ -24,9 +24,9 @@ const DEFAULT_DATA = {
         is_active: true,
         sort_order: 1,
         materials: [
-          { code: "silver", name_uk: "Срібло 925", name_en: "Silver 925", price_delta: 0, tone: "#b7bec8", is_active: true, sort_order: 1 },
-          { code: "gold_plated", name_uk: "Позолота", name_en: "Gold plated", price_delta: 320, tone: "#cfab67", is_active: true, sort_order: 2 },
-          { code: "solid_gold", name_uk: "Золото 585", name_en: "Solid gold 585", price_delta: 1250, tone: "#b8914f", is_active: true, sort_order: 3 }
+          { code: "silver", name_uk: "\u0421\u0440\u0456\u0431\u043b\u043e", name_en: "Silver", price_delta: 0, tone: "#b7bec8", is_active: true, sort_order: 1 },
+          { code: "gold", name_uk: "\u0417\u043e\u043b\u043e\u0442\u043e", name_en: "Gold", price_delta: 1250, tone: "#b8914f", is_active: true, sort_order: 2 },
+          { code: "rose_gold", name_uk: "\u0420\u043e\u0436\u0435\u0432\u0435 \u0437\u043e\u043b\u043e\u0442\u043e", name_en: "Rose Gold", price_delta: 950, tone: "#c88d78", is_active: true, sort_order: 3 }
         ],
         size_options: [
           { code: "16", label_uk: "16", label_en: "16", price_delta: 0, is_default: true, is_active: true, sort_order: 1 },
@@ -51,10 +51,9 @@ const DEFAULT_DATA = {
         is_active: true,
         sort_order: 2,
         materials: [
-          { code: "jewelry_steel", name_uk: "Ювелірна сталь", name_en: "Jewelry steel", price_delta: -120, tone: "#8d98a4", is_active: true, sort_order: 1 },
-          { code: "silver", name_uk: "Срібло 925", name_en: "Silver 925", price_delta: 0, tone: "#b7bec8", is_active: true, sort_order: 2 },
-          { code: "gold_plated", name_uk: "Позолота", name_en: "Gold plated", price_delta: 320, tone: "#cfab67", is_active: true, sort_order: 3 },
-          { code: "solid_gold", name_uk: "Золото 585", name_en: "Solid gold 585", price_delta: 1250, tone: "#b8914f", is_active: true, sort_order: 4 }
+          { code: "silver", name_uk: "\u0421\u0440\u0456\u0431\u043b\u043e", name_en: "Silver", price_delta: 0, tone: "#b7bec8", is_active: true, sort_order: 1 },
+          { code: "gold", name_uk: "\u0417\u043e\u043b\u043e\u0442\u043e", name_en: "Gold", price_delta: 1250, tone: "#b8914f", is_active: true, sort_order: 2 },
+          { code: "rose_gold", name_uk: "\u0420\u043e\u0436\u0435\u0432\u0435 \u0437\u043e\u043b\u043e\u0442\u043e", name_en: "Rose Gold", price_delta: 950, tone: "#c88d78", is_active: true, sort_order: 3 }
         ],
         size_options: [
           { code: "16", label_uk: "16 см", label_en: "16 cm", price_delta: 0, is_default: true, is_active: true, sort_order: 1 },
@@ -79,9 +78,9 @@ const DEFAULT_DATA = {
         is_active: true,
         sort_order: 3,
         materials: [
-          { code: "silver", name_uk: "Срібло 925", name_en: "Silver 925", price_delta: 0, tone: "#b7bec8", is_active: true, sort_order: 1 },
-          { code: "gold_plated", name_uk: "Позолота", name_en: "Gold plated", price_delta: 320, tone: "#cfab67", is_active: true, sort_order: 2 },
-          { code: "solid_gold", name_uk: "Золото 585", name_en: "Solid gold 585", price_delta: 1250, tone: "#b8914f", is_active: true, sort_order: 3 }
+          { code: "silver", name_uk: "\u0421\u0440\u0456\u0431\u043b\u043e", name_en: "Silver", price_delta: 0, tone: "#b7bec8", is_active: true, sort_order: 1 },
+          { code: "gold", name_uk: "\u0417\u043e\u043b\u043e\u0442\u043e", name_en: "Gold", price_delta: 1250, tone: "#b8914f", is_active: true, sort_order: 2 },
+          { code: "rose_gold", name_uk: "\u0420\u043e\u0436\u0435\u0432\u0435 \u0437\u043e\u043b\u043e\u0442\u043e", name_en: "Rose Gold", price_delta: 950, tone: "#c88d78", is_active: true, sort_order: 3 }
         ],
         size_options: [],
         engraving: {
@@ -101,9 +100,9 @@ const DEFAULT_DATA = {
         is_active: true,
         sort_order: 4,
         materials: [
-          { code: "silver", name_uk: "Срібло 925", name_en: "Silver 925", price_delta: 0, tone: "#b7bec8", is_active: true, sort_order: 1 },
-          { code: "gold_plated", name_uk: "Позолота", name_en: "Gold plated", price_delta: 320, tone: "#cfab67", is_active: true, sort_order: 2 },
-          { code: "solid_gold", name_uk: "Золото 585", name_en: "Solid gold 585", price_delta: 1250, tone: "#b8914f", is_active: true, sort_order: 3 }
+          { code: "silver", name_uk: "\u0421\u0440\u0456\u0431\u043b\u043e", name_en: "Silver", price_delta: 0, tone: "#b7bec8", is_active: true, sort_order: 1 },
+          { code: "gold", name_uk: "\u0417\u043e\u043b\u043e\u0442\u043e", name_en: "Gold", price_delta: 1250, tone: "#b8914f", is_active: true, sort_order: 2 },
+          { code: "rose_gold", name_uk: "\u0420\u043e\u0436\u0435\u0432\u0435 \u0437\u043e\u043b\u043e\u0442\u043e", name_en: "Rose Gold", price_delta: 950, tone: "#c88d78", is_active: true, sort_order: 3 }
         ],
         size_options: [],
         engraving: {

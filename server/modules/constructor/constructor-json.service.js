@@ -44,6 +44,15 @@ function clampDiameter(value) {
   return Math.max(2, Math.min(80, number));
 }
 
+function normalizeConstructorMaterialCode(value) {
+  const normalized = normalizeText(value).toLowerCase();
+  if (!normalized) return "";
+  if (normalized === "silver" || normalized === "silver_925") return "silver";
+  if (normalized === "gold" || normalized === "gold_plated" || normalized === "solid_gold") return "gold";
+  if (normalized === "rose_gold" || normalized === "rose_gold_925" || normalized === "rose_gold_plated") return "rose_gold";
+  return normalized;
+}
+
 function normalizeTypeRecord(payload, current = {}) {
   return {
     id: current.id || null,
@@ -263,7 +272,8 @@ async function calculateStudioPrice({ jewelryTypeId, configuration = {}, req = n
 
   const materials = (type.materials || []).filter((item) => item.is_active !== false);
   const sizes = (type.size_options || []).filter((item) => item.is_active !== false);
-  const selectedMaterial = materials.find((item) => item.code === configuration.material);
+  const requestedMaterialCode = normalizeConstructorMaterialCode(configuration.material);
+  const selectedMaterial = materials.find((item) => item.code === requestedMaterialCode);
   if (!selectedMaterial) missingRequired.push("material");
   const selectedSize = sizes.length ? sizes.find((item) => item.code === configuration.size) : null;
   if (sizes.length && !selectedSize) missingRequired.push("size");

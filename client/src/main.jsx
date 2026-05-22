@@ -18,14 +18,11 @@ import {
 } from "lucide-react";
 import { accountApi, adminCatalogApi, adminOrdersApi, authApi, cartApi, catalogApi, constructorApi, ordersApi } from "./api";
 import {
-  CATALOG_FILTERS,
   CONSTRUCTOR_SLOT_CONFIGS,
   CONSTRUCTOR_STONE_MEDIA,
   FALLBACK_PRODUCT_IMAGE,
   REFERENCE_IMAGES,
-  compactCatalogFilters,
   localizeProductFilterValue,
-  normalizeCatalogFilterChange,
   productAttributeEntries,
   productAttributeValues,
   productDisplayImage,
@@ -59,9 +56,49 @@ import "./styles.css";
 const LOCAL_STORAGE_KEY = "aurora-locale";
 const GUEST_CART_STORAGE_KEY = "aurora-guest-cart";
 const POST_AUTH_REDIRECT_KEY = "aurora-post-auth-redirect";
+const HOME_HERO_VIDEO = "/assets/images/home-hero-main.mp4";
+const HOME_HERO_POSTER = "/assets/images/aurora-jewelry-hero.png";
 const LOCALE_LABELS = {
   uk: "UK",
   en: "EN"
+};
+const HOME_HERO_COPY = {
+  uk: {
+    eyebrow: "АВТОРСЬКА ЮВЕЛІРНА МАЙСТЕРНЯ",
+    title: "Прикраси, створені навколо вашої історії",
+    subtitle:
+      "Оберіть готовий виріб із колекції або створіть власну прикрасу в конструкторі — з металом, каменем і деталями, що мають значення саме для вас.",
+    primaryCta: "Переглянути колекцію",
+    secondaryCta: "Створити прикрасу",
+    note: "Готові вироби та персональні дизайни в одному просторі.",
+    supportKicker: "Private atelier service",
+    supportTitle: "Колекція та конструктор в одному просторі",
+    supportText:
+      "Готові авторські прикраси й можливість створити власний дизайн онлайн — від металу до каменю, форми й деталей.",
+    supportPoints: [
+      "Ручна робота",
+      "Вибір металу й каменю",
+      "Персональне налаштування"
+    ]
+  },
+  en: {
+    eyebrow: "HANDCRAFTED JEWELRY ATELIER",
+    title: "Jewelry shaped around your story",
+    subtitle:
+      "Choose a finished piece from the collection or create your own design in the constructor — with the metal, stone, and details that feel personal to you.",
+    primaryCta: "Explore the collection",
+    secondaryCta: "Create your piece",
+    note: "Finished jewelry and personal designs in one refined space.",
+    supportKicker: "Private atelier service",
+    supportTitle: "Collection and constructor in one space",
+    supportText:
+      "Finished handcrafted jewelry and the option to create your own design online — from metal and stone to shape and detail.",
+    supportPoints: [
+      "Handcrafted pieces",
+      "Metal and stone selection",
+      "Personal customization"
+    ]
+  }
 };
 const LOCALE_FORMATS = {
   uk: "uk-UA",
@@ -93,9 +130,8 @@ const GENERATED_LAYOUT_BASES = {
 
 const CONSTRUCTOR_MATERIAL_TONES = {
   silver: "#b7bec8",
-  gold_plated: "#cfab67",
-  solid_gold: "#b8914f",
-  jewelry_steel: "#8d98a4"
+  gold: "#b8914f",
+  rose_gold: "#c88d78"
 };
 
 const CONSTRUCTOR_PREVIEW_BASES = {
@@ -184,6 +220,22 @@ const translations = {
     authSubmitVerification: "Verify account",
     authResendCode: "Resend code",
     authBackToLogin: "Back to sign in",
+    authLoginLead: "Sign in to continue checkout, review your reservations, and keep every atelier update in one place.",
+    authRegisterLead: "Create your account to reserve pieces, confirm delivery details, and follow each order through the atelier.",
+    authVerifyLead: "We protect your reservation history with a short confirmation step before the atelier opens your account.",
+    authPasswordHint: "Minimum 6 characters.",
+    authLoginBadge: "Private client access",
+    authRegisterBadge: "Create your client profile",
+    authVerifyBadge: "Verify your email",
+    authSignInChip1: "Order timeline",
+    authSignInChip2: "Checkout resume",
+    authRegisterChip1: "Atelier updates",
+    authRegisterChip2: "Faster checkout",
+    authVerifyChip1: "Secure access",
+    authVerifyChip2: "Protected reservations",
+    authAsideLoginText: "A quiet client space for tracking atelier progress, confirming delivery details, and returning to the pieces you reserved.",
+    authAsideRegisterText: "Your account keeps bespoke requests, ready pieces, and every status update in one refined place.",
+    authAsideVerifyText: "One final confirmation step links your email to your reservations, atelier notes, and future order updates.",
     password: "Password",
     cart: "Cart",
     toggleLanguage: "Toggle language",
@@ -313,7 +365,6 @@ const translations = {
     reservationSummary: "Reservation summary",
     readyCheckout: "Ready for checkout",
     subtotal: "Subtotal",
-    minimumOrder: "Minimum order amount: 500 UAH.",
     proceedCheckout: "Proceed to secure checkout",
     awaitingPayment: "Reservation created",
     confirmed: "Confirmed",
@@ -437,6 +488,22 @@ const translations = {
     authSubmitVerification: "Підтвердити акаунт",
     authResendCode: "Надіслати код ще раз",
     authBackToLogin: "Повернутися до входу",
+    authLoginLead: "Увійдіть, щоб продовжити оформлення, переглядати свої резерви та зберігати всі оновлення ательє в одному місці.",
+    authRegisterLead: "Створіть акаунт, щоб резервувати вироби, підтверджувати доставку та відстежувати кожне замовлення в ательє.",
+    authVerifyLead: "Ми захищаємо історію ваших резервів коротким підтвердженням email перед відкриттям доступу до акаунта.",
+    authPasswordHint: "Мінімум 6 символів.",
+    authLoginBadge: "Приватний кабінет клієнта",
+    authRegisterBadge: "Створення клієнтського профілю",
+    authVerifyBadge: "Підтвердження email",
+    authSignInChip1: "Статуси замовлень",
+    authSignInChip2: "Продовження оформлення",
+    authRegisterChip1: "Оновлення ательє",
+    authRegisterChip2: "Швидше оформлення",
+    authVerifyChip1: "Захищений доступ",
+    authVerifyChip2: "Збережені резерви",
+    authAsideLoginText: "Спокійний клієнтський простір для відстеження етапів ательє, підтвердження доставки та повернення до зарезервованих виробів.",
+    authAsideRegisterText: "Ваш акаунт зберігає індивідуальні запити, готові вироби та кожне оновлення статусу в одному вишуканому місці.",
+    authAsideVerifyText: "Останній крок підтвердження поєднує вашу пошту з резервами, нотатками ательє та майбутніми оновленнями замовлень.",
     password: "Пароль",
     cart: "Кошик",
     toggleLanguage: "Перемкнути мову",
@@ -566,7 +633,6 @@ const translations = {
     reservationSummary: "Резюме резерву",
     readyCheckout: "Готово до оформлення",
     subtotal: "Проміжна сума",
-    minimumOrder: "Мінімальна сума замовлення: 500 грн.",
     proceedCheckout: "Перейти до безпечного оформлення",
     awaitingPayment: "Резерв створено",
     confirmed: "Підтверджено",
@@ -1098,133 +1164,56 @@ function Header() {
 }
 
 function Hero() {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const { locale, t } = useI18n();
-  const copy = referenceCopy(locale);
-  const slides = copy.heroSlides;
-  const activeSlide = slides[currentSlide] || slides[0];
-  const activeHeroImage = REFERENCE_IMAGES.hero[currentSlide] || REFERENCE_IMAGES.hero[0];
-  const slideCount = slides.length;
-
-  function goToSlide(nextIndex) {
-    setCurrentSlide((nextIndex + slideCount) % slideCount);
-  }
-
-  function goPrevSlide() {
-    goToSlide(currentSlide - 1);
-  }
-
-  function goNextSlide() {
-    goToSlide(currentSlide + 1);
-  }
-
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      setCurrentSlide((index) => (index + 1) % slides.length);
-    }, 5500);
-
-    return () => window.clearInterval(timer);
-  }, [slides.length]);
+  const { locale } = useI18n();
+  const hero = HOME_HERO_COPY[locale] || HOME_HERO_COPY.uk;
 
   return (
     <section className="aurora-hero" aria-label="Aurora Atelier hero">
-      <article className="hero-slide fade-in is-active" key={activeSlide.title}>
-        <div
-          className="hero-bg"
-          style={{ backgroundImage: `url(${activeHeroImage})` }}
-        />
-        <div className="hero-overlay" />
-        <div className="hero-shine" />
-        <div className="hero-glow-band" />
-        <div className="hero-shell">
-          <div className="hero-content">
-            <div className="hero-copy-panel">
-              <p className="hero-eyebrow">{activeSlide.eyebrow}</p>
-              <h1 className="hero-title" style={{ whiteSpace: "pre-line" }}>{activeSlide.title}</h1>
-              <p className="hero-statement">{t("heroStatement")}</p>
-              <p className="hero-lead">{t("heroLead")}</p>
-              <div className="hero-actions">
-                <button
-                  type="button"
-                  className="button button-light"
-                  onClick={() => {
-                    window.location.href = "/catalog";
-                  }}
-                >
-                  {copy.heroCtaPrimary}
-                </button>
-                <button
-                  type="button"
-                  className="button-ghost-light"
-                  onClick={() => {
-                    window.location.href = "/constructor";
-                  }}
-                >
-                  {copy.heroCtaSecondary}
-                </button>
-              </div>
-              <div className="hero-copy-meta">
-                <div className="hero-slide-index">
-                  <span>{String(currentSlide + 1).padStart(2, "0")}</span>
-                  <p>{slideCount} {locale === "uk" ? "сюжети колекції" : "collection stories"}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <aside className="hero-aside">
-            <div className="hero-aside-card hero-aside-card-main">
-              <span className="hero-aside-kicker">Aurora Atelier</span>
-              <strong>{locale === "uk" ? "Private atelier service" : "Private atelier service"}</strong>
-              <p>{t("bespokeText")}</p>
-              <div className="hero-aside-meta">
-                <div>
-                  <span>01</span>
-                  <p>{t("trustGuarantee")}</p>
-                </div>
-                <div>
-                  <span>02</span>
-                  <p>{t("trustMaterials")}</p>
-                </div>
-              </div>
-            </div>
-          </aside>
-          <div className="hero-bottom-rail">
-            <div className="hero-rail-item">
-              <span>01</span>
-              <p>{t("transparentPriceText")}</p>
-            </div>
-            <div className="hero-rail-item">
-              <span>02</span>
-              <p>{t("personalRouteText")}</p>
-            </div>
-            <div className="hero-rail-item">
-              <span>03</span>
-              <p>{t("trustDeliveryText")}</p>
-            </div>
-          </div>
-        </div>
-      </article>
-
-      <div className="hero-controls">
-        <button type="button" className="hero-control-arrow hero-control-arrow-compact" aria-label={t("previousSlide")} onClick={goPrevSlide}>
-          <ChevronLeft aria-hidden="true" />
-        </button>
-        <div className="slider-dots">
-          {slides.map((slide, index) => (
-            <button
-              key={slide.title}
-              className={`hero-dot${index === currentSlide ? " active" : ""}`}
-              aria-label={`Slide ${index + 1}`}
-              onClick={() => goToSlide(index)}
-            />
-          ))}
-        </div>
-        <button type="button" className="hero-control-arrow hero-control-arrow-compact" aria-label={t("nextSlide")} onClick={goNextSlide}>
-          <ChevronRight aria-hidden="true" />
-        </button>
+      <div className="aurora-hero-media" aria-hidden="true">
+        <img className="aurora-hero-poster" src={HOME_HERO_POSTER} alt="" />
+        <video
+          className="aurora-hero-video"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          poster={HOME_HERO_POSTER}
+        >
+          <source src={HOME_HERO_VIDEO} type="video/mp4" />
+        </video>
+        <div className="aurora-hero-overlay" />
+        <div className="aurora-hero-glow" />
       </div>
-      <div className="hero-scroll-hint">
-        <div className="scroll-line" />
+
+      <div className="aurora-hero-shell">
+        <div className="aurora-hero-copy">
+          <span className="aurora-hero-eyebrow">{hero.eyebrow}</span>
+          <h1 className="aurora-hero-title">{hero.title}</h1>
+          <p className="aurora-hero-statement">{hero.subtitle}</p>
+          <div className="aurora-hero-actions">
+            <button
+              type="button"
+              className="button"
+              onClick={() => {
+                window.location.href = "/catalog";
+              }}
+            >
+              {hero.primaryCta}
+            </button>
+            <button
+              type="button"
+              className="button-ghost-light aurora-hero-secondary"
+              onClick={() => {
+                window.location.href = "/constructor";
+              }}
+            >
+              {hero.secondaryCta}
+            </button>
+          </div>
+          <p className="aurora-hero-lead">{hero.note}</p>
+        </div>
+
       </div>
     </section>
   );
@@ -1254,72 +1243,229 @@ function TrustMetrics() {
   );
 }
 
-function FeaturedProductCard({ product, locale, index }) {
+function HomeTwoPaths() {
+  const { locale } = useI18n();
   const copy = referenceCopy(locale);
-  const attributes = productAttributeValues(product.filters);
+  const [hiddenImages, setHiddenImages] = useState({
+    collection: false,
+    constructor: false
+  });
+
+  const cards = [
+    {
+      key: "collection",
+      image: REFERENCE_IMAGES.homePaths?.collection,
+      ...copy.twoPaths.collection
+    },
+    {
+      key: "constructor",
+      image: REFERENCE_IMAGES.homePaths?.constructor,
+      ...copy.twoPaths.constructor
+    }
+  ];
+
+  function handleImageError(key) {
+    setHiddenImages((current) => (current[key] ? current : { ...current, [key]: true }));
+  }
 
   return (
-    <article className="featured-card">
-      <a className="featured-card-img" href={`/products/${product.slug}`}>
+    <section className="home-paths-section section" data-locale={locale}>
+      <div className="section-inner">
+        <div className="home-paths-intro">
+          <p className="home-paths-eyebrow">{copy.twoPaths.eyebrow}</p>
+          <h2 className="home-paths-title">{copy.twoPaths.title}</h2>
+        </div>
+        <div className="home-paths-grid" role="list">
+          {cards.map((card) => (
+            <a key={card.key} className={`home-path-card home-path-card-${card.key}`} href={card.href}>
+              <div className="home-path-media">
+                {card.image && !hiddenImages[card.key] ? (
+                  <img
+                    src={card.image}
+                    alt=""
+                    loading="lazy"
+                    onError={() => handleImageError(card.key)}
+                  />
+                ) : null}
+                <div className="home-path-overlay" />
+              </div>
+
+              <div className="home-path-body">
+                <span className="home-path-label">{card.label}</span>
+                <div className="home-path-copy">
+                  <h3 className="home-path-card-title">{card.title}</h3>
+                  <p className="home-path-text">{card.text}</p>
+                </div>
+                <div className="home-path-tags">
+                  {card.tags.map((tag) => (
+                    <span key={tag} className="home-path-tag">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <span className="home-path-cta">
+                  <span>{card.cta}</span>
+                  <ChevronRight aria-hidden="true" />
+                </span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function HomeCategories() {
+  const { locale } = useI18n();
+  const copy = referenceCopy(locale);
+  const [hiddenImages, setHiddenImages] = useState({
+    rings: false,
+    earrings: false,
+    bracelets: false,
+    pendants: false
+  });
+
+  const categories = [
+    { key: "rings", image: REFERENCE_IMAGES.homeCategories?.rings, ...copy.homeCategories.rings },
+    { key: "earrings", image: REFERENCE_IMAGES.homeCategories?.earrings, ...copy.homeCategories.earrings },
+    { key: "bracelets", image: REFERENCE_IMAGES.homeCategories?.bracelets, ...copy.homeCategories.bracelets },
+    { key: "pendants", image: REFERENCE_IMAGES.homeCategories?.pendants, ...copy.homeCategories.pendants }
+  ];
+
+  function handleImageError(key) {
+    setHiddenImages((current) => (current[key] ? current : { ...current, [key]: true }));
+  }
+
+  return (
+    <section className="home-categories-section section" data-locale={locale}>
+      <div className="section-inner">
+        <div className="home-categories-heading">
+          <p className="home-categories-eyebrow">{copy.homeCategories.eyebrow}</p>
+          <h2 className="home-categories-title">{copy.homeCategories.title}</h2>
+          <p className="home-categories-subtitle">{copy.homeCategories.subtitle}</p>
+        </div>
+
+        <div className="home-categories-grid" role="list">
+          {categories.map((category) => (
+            <a
+              key={category.key}
+              className={`home-category-card home-category-card-${category.key}`}
+              href={category.href}
+            >
+              <div className="home-category-media">
+                {category.image && !hiddenImages[category.key] ? (
+                  <img
+                    src={category.image}
+                    alt=""
+                    loading="lazy"
+                    onError={() => handleImageError(category.key)}
+                  />
+                ) : null}
+                <div className="home-category-overlay" />
+              </div>
+
+              <div className="home-category-copy">
+                <h3 className="home-category-title-card">{category.title}</h3>
+                <p className="home-category-text">{category.text}</p>
+                <span className="home-category-cta">
+                  <span>{category.cta}</span>
+                  <ChevronRight aria-hidden="true" />
+                </span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function normalizeFeaturedProductPrice(product) {
+  const value = Number(product?.price);
+  return Number.isFinite(value) ? value : null;
+}
+
+function selectFeaturedProducts(products = []) {
+  return [...(products || [])]
+    .sort((left, right) => {
+      const leftPrice = normalizeFeaturedProductPrice(left);
+      const rightPrice = normalizeFeaturedProductPrice(right);
+
+      if (rightPrice !== null && leftPrice === null) return 1;
+      if (leftPrice !== null && rightPrice === null) return -1;
+      if (rightPrice !== null && leftPrice !== null && rightPrice !== leftPrice) {
+        return rightPrice - leftPrice;
+      }
+
+      return 0;
+    })
+    .slice(0, 4);
+}
+
+function FeaturedProductCard({ product, locale, index }) {
+  const copy = referenceCopy(locale);
+  const typeLabel = productTypeLabel(product, locale);
+  const metalLabel = localizeProductFilterValue(product?.filters?.metal, locale);
+
+  return (
+    <a className="featured-card" href={`/products/${product.slug}`}>
+      <div className="featured-card-media">
         <img src={productDisplayImage(product, index)} alt={product.name} />
         <div className="featured-card-topline">
-          <span>{productTypeLabel(product, locale)}</span>
-          <span>{String(index + 1).padStart(2, "0")}</span>
+          <span className="featured-card-badge">{copy.featuredCardBadge}</span>
+          <span className="featured-card-type">{typeLabel}</span>
         </div>
         <div className="featured-card-overlay">
-          <span className="button-ghost-light btn-sm">{copy.viewPiece}</span>
+          <span className="featured-card-cta">
+            <span>{copy.viewPiece}</span>
+            <ChevronRight aria-hidden="true" />
+          </span>
         </div>
-      </a>
+      </div>
       <div className="featured-card-info">
         <div className="featured-card-name">{product.name}</div>
         <div className="featured-card-meta">
-          {attributes[1] || attributes[0] || productTypeLabel(product, locale)}
+          <span>{typeLabel}</span>
+          {metalLabel ? <span>{metalLabel}</span> : null}
         </div>
         <div className="featured-card-price">{formatCurrency(product.price, product.currency, LOCALE_FORMATS[locale])}</div>
       </div>
-    </article>
+    </a>
   );
 }
 
 function FeaturedCollections({ products, locale }) {
-  const featured = useMemo(() => products.slice(0, 4), [products]);
+  const featured = useMemo(() => selectFeaturedProducts(products), [products]);
   const copy = referenceCopy(locale === "uk-UA" ? "uk" : "en");
-  const collectionNote = locale === "uk-UA"
-    ? "Витрина з акцентом на тиху розкіш, пропорцію та авторський сервіс."
-    : "A boutique edit shaped around quiet luxury, proportion, and signature service.";
 
   return (
     <section className="section featured-section" id="collections">
       <div className="section-inner">
-        <div className="section-heading featured-heading-grid">
-          <div>
-            <p className="eyebrow">{copy.featuredEyebrow}</p>
-            <h2 className="section-title">{copy.featuredTitle}</h2>
-            <p className="section-sub">{copy.featuredSubtitle}</p>
+        <div className="featured-layout">
+          <div className="featured-intro">
+            <p className="featured-eyebrow">{copy.featuredEyebrow}</p>
+            <h2 className="featured-title">{copy.featuredTitle}</h2>
+            <p className="featured-subtitle">{copy.featuredSubtitle}</p>
+            <div className="featured-section-footer">
+              <a className="button" href="/catalog">
+                {copy.catalogButton}
+              </a>
+            </div>
           </div>
-          <div className="featured-heading-note">
-            <span>Maison edit</span>
-            <p>{collectionNote}</p>
-          </div>
-        </div>
 
-        {featured.length ? (
-          <div className="featured-grid">
-            {featured.map((product, index) => (
-              <FeaturedProductCard key={product.id || product.slug} product={product} locale={locale === "uk-UA" ? "uk" : "en"} index={index} />
-            ))}
-          </div>
-        ) : (
-          <div className="empty-state-react">
-            <h3>{copy.featuredTitle}</h3>
-            <p>{copy.featuredSubtitle}</p>
-          </div>
-        )}
-
-        <div className="featured-section-footer">
-          <a className="button" href="/catalog">
-            {copy.catalogButton}
-          </a>
+          {featured.length ? (
+            <div className="featured-grid">
+              {featured.map((product, index) => (
+                <FeaturedProductCard key={product.id || product.slug} product={product} locale={locale === "uk-UA" ? "uk" : "en"} index={index} />
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state-react featured-empty-state">
+              <h3>{copy.featuredTitle}</h3>
+              <p>{copy.featuredEmptyText}</p>
+            </div>
+          )}
         </div>
       </div>
     </section>
@@ -1363,13 +1509,195 @@ function ProductCard({ product, locale }) {
   );
 }
 
+const CATALOG_MULTI_FILTER_KEYS = [
+  "metal",
+  "stoneType",
+  "stoneShape",
+  "stoneColor",
+  "stoneSize",
+  "ringSize",
+  "ringType",
+  "braceletLength"
+];
+
+function createEmptyCatalogFilterState() {
+  return {
+    metal: [],
+    stoneType: [],
+    stoneShape: [],
+    stoneColor: [],
+    stoneSize: [],
+    ringSize: [],
+    ringType: [],
+    braceletLength: [],
+    priceMin: "",
+    priceMax: "",
+    sort: "default"
+  };
+}
+
+function getCatalogFilterValue(product, key) {
+  if (key === "ringType") return product?.filters?.ringType || product?.filters?.ringStyle || "";
+  if (key === "stoneType") return product?.filters?.stoneType || product?.filters?.stone || "";
+  return product?.filters?.[key] || "";
+}
+
+function parseCatalogNumericToken(value) {
+  const normalized = String(value || "").trim().toLowerCase().replace(",", ".");
+  const numeric = Number.parseFloat(normalized);
+  return Number.isFinite(numeric) ? numeric : Number.POSITIVE_INFINITY;
+}
+
+function sortCatalogFacetValues(values = [], key, locale) {
+  const normalizedLocale = locale === "uk" ? "uk-UA" : "en-US";
+  const numericKeys = new Set(["ringSize", "braceletLength", "stoneSize"]);
+
+  return [...values].sort((left, right) => {
+    if (numericKeys.has(key)) {
+      const diff = parseCatalogNumericToken(left) - parseCatalogNumericToken(right);
+      if (diff !== 0) return diff;
+    }
+
+    return localizeProductFilterValue(left, locale).localeCompare(localizeProductFilterValue(right, locale), normalizedLocale);
+  });
+}
+
+function normalizeCatalogPriceInput(value) {
+  return String(value || "").replace(/[^\d]/g, "");
+}
+
+const CATALOG_TYPE_FILTERS = new Set(["Ring", "Earrings", "Bracelet", "Pendant"]);
+
+function getCatalogTypeFromSearch() {
+  if (typeof window === "undefined") return "all";
+  const queryType = new URLSearchParams(window.location.search).get("type");
+  return CATALOG_TYPE_FILTERS.has(queryType) ? queryType : "all";
+}
+
+function productMatchesCatalogFilters(product, activeType, filters, options = {}) {
+  const ignoreKey = options.ignoreKey || null;
+  const ignorePrice = options.ignorePrice || false;
+  const productType = product?.filters?.type || "Pendant";
+
+  if (activeType !== "all" && productType !== activeType) {
+    return false;
+  }
+
+  for (const key of CATALOG_MULTI_FILTER_KEYS) {
+    if (ignoreKey === key) continue;
+    const selectedValues = filters?.[key] || [];
+    if (!selectedValues.length) continue;
+    const productValue = getCatalogFilterValue(product, key);
+    if (!productValue || !selectedValues.includes(productValue)) {
+      return false;
+    }
+  }
+
+  if (!ignorePrice) {
+    const price = Number(product?.price || 0);
+    const priceMin = Number(filters?.priceMin || 0);
+    const priceMax = Number(filters?.priceMax || 0);
+
+    if (filters?.priceMin !== "" && price < priceMin) {
+      return false;
+    }
+
+    if (filters?.priceMax !== "" && price > priceMax) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function getCatalogUiCopy(locale = "uk") {
+  return locale === "uk"
+    ? {
+        all: "Усі",
+        rings: "Каблучки",
+        bracelets: "Браслети",
+        pendants: "Підвіски",
+        earrings: "Сережки",
+        filters: "Фільтри",
+        found: "Знайдено",
+        items: "виробів",
+        reset: "Скинути фільтри",
+        sortDefault: "За замовчуванням",
+        sortPriceAsc: "Ціна: від нижчої до вищої",
+        sortPriceDesc: "Ціна: від вищої до нижчої",
+        sortNewest: "Новинки",
+        priceRange: "Діапазон ціни",
+        from: "Від",
+        to: "До",
+        noResults: "За обраними фільтрами прикрас не знайдено.",
+        categoryFiltersTitle: "Фільтри колекції",
+        showResults: "Показати вироби",
+        closeFilters: "Закрити фільтри",
+        noProducts: "Колекція ще готується",
+        noProductsText: "Спробуйте повернутися пізніше або перейдіть у конструктор."
+      }
+    : {
+        all: "All",
+        rings: "Rings",
+        bracelets: "Bracelets",
+        pendants: "Pendants",
+        earrings: "Earrings",
+        filters: "Filters",
+        found: "Found",
+        items: "pieces",
+        reset: "Reset filters",
+        sortDefault: "Default",
+        sortPriceAsc: "Price: low to high",
+        sortPriceDesc: "Price: high to low",
+        sortNewest: "New arrivals",
+        priceRange: "Price range",
+        from: "From",
+        to: "To",
+        noResults: "No jewelry matched the selected filters.",
+        categoryFiltersTitle: "Collection filters",
+        showResults: "Show pieces",
+        closeFilters: "Close filters",
+        noProducts: "The collection is being prepared",
+        noProductsText: "Please check back soon or move into the constructor."
+      };
+}
+
+function CatalogFacetGroup({ title, options, selectedValues, onToggle, locale }) {
+  if (!options.length) return null;
+
+  return (
+    <section className="catalog-filter-group">
+      <div className="catalog-filter-group-title">{title}</div>
+      <div className="catalog-filter-options">
+        {options.map((option) => {
+          const isActive = selectedValues.includes(option);
+          return (
+            <button
+              key={option}
+              type="button"
+              className={`catalog-filter-chip${isActive ? " active" : ""}`}
+              onClick={() => onToggle(option)}
+            >
+              <span>{localizeProductFilterValue(option, locale)}</span>
+              {isActive ? <Check size={14} strokeWidth={2.4} /> : null}
+            </button>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 
 function CatalogPage() {
   const [products, setProducts] = useState([]);
   const [loadError, setLoadError] = useState("");
-  const [activeType, setActiveType] = useState("all");
+  const [activeType, setActiveType] = useState(() => getCatalogTypeFromSearch());
+  const [catalogFilters, setCatalogFilters] = useState(() => createEmptyCatalogFilterState());
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const { locale, t } = useI18n();
   const copy = referenceCopy(locale);
+  const catalogUi = getCatalogUiCopy(locale);
 
   useEffect(() => {
     let active = true;
@@ -1389,18 +1717,241 @@ function CatalogPage() {
     };
   }, []);
 
-  const filters = [
-    { id: "all", label: locale === "uk" ? "Усі" : "All" },
-    { id: "Ring", label: locale === "uk" ? "Каблучки" : "Rings" },
-    { id: "Bracelet", label: locale === "uk" ? "Браслети" : "Bracelets" },
-    { id: "Pendant", label: locale === "uk" ? "Підвіски" : "Pendants" },
-    { id: "Earrings", label: locale === "uk" ? "Сережки" : "Earrings" }
+  useEffect(() => {
+    if (!isMobileFiltersOpen) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isMobileFiltersOpen]);
+
+  useEffect(() => {
+    const syncFromUrl = () => setActiveType(getCatalogTypeFromSearch());
+    window.addEventListener("popstate", syncFromUrl);
+    return () => window.removeEventListener("popstate", syncFromUrl);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    if (activeType === "all") {
+      url.searchParams.delete("type");
+    } else {
+      url.searchParams.set("type", activeType);
+    }
+    const nextUrl = `${url.pathname}${url.search}${url.hash}`;
+    const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    if (nextUrl !== currentUrl) {
+      window.history.replaceState({}, "", nextUrl);
+    }
+  }, [activeType]);
+
+  const categoryFilters = [
+    { id: "all", label: catalogUi.all },
+    { id: "Ring", label: catalogUi.rings },
+    { id: "Bracelet", label: catalogUi.bracelets },
+    { id: "Pendant", label: catalogUi.pendants },
+    { id: "Earrings", label: catalogUi.earrings }
   ];
 
-  const visibleProducts = useMemo(() => {
+  const sortOptions = [
+    { value: "default", label: catalogUi.sortDefault },
+    { value: "price_asc", label: catalogUi.sortPriceAsc },
+    { value: "price_desc", label: catalogUi.sortPriceDesc },
+    { value: "newest", label: catalogUi.sortNewest }
+  ];
+
+  const typeScopedProducts = useMemo(() => {
     if (activeType === "all") return products;
     return products.filter((product) => (product.filters?.type || "Pendant") === activeType);
   }, [activeType, products]);
+
+  const productsMatchingFilters = useMemo(
+    () => typeScopedProducts.filter((product) => productMatchesCatalogFilters(product, activeType, catalogFilters)),
+    [activeType, catalogFilters, typeScopedProducts]
+  );
+
+  const visibleProducts = useMemo(() => {
+    const sorted = [...productsMatchingFilters];
+
+    if (catalogFilters.sort === "price_asc") {
+      sorted.sort((left, right) => Number(left.price || 0) - Number(right.price || 0));
+      return sorted;
+    }
+
+    if (catalogFilters.sort === "price_desc") {
+      sorted.sort((left, right) => Number(right.price || 0) - Number(left.price || 0));
+      return sorted;
+    }
+
+    if (catalogFilters.sort === "newest") {
+      sorted.sort((left, right) => {
+        const leftDate = Date.parse(left.createdAt || 0) || 0;
+        const rightDate = Date.parse(right.createdAt || 0) || 0;
+        if (rightDate !== leftDate) return rightDate - leftDate;
+        return Number(right.id || 0) - Number(left.id || 0);
+      });
+    }
+
+    return sorted;
+  }, [catalogFilters.sort, productsMatchingFilters]);
+
+  const priceBounds = useMemo(() => {
+    const scope = typeScopedProducts.filter((product) => productMatchesCatalogFilters(product, activeType, catalogFilters, { ignorePrice: true }));
+    if (!scope.length) return { min: 0, max: 0 };
+
+    const prices = scope.map((product) => Number(product.price || 0));
+    return {
+      min: Math.min(...prices),
+      max: Math.max(...prices)
+    };
+  }, [activeType, catalogFilters, typeScopedProducts]);
+
+  const filterDefinitions = useMemo(() => {
+    const definitions = [
+      { key: "metal", label: locale === "uk" ? "Метал" : "Metal" },
+      { key: "stoneType", label: locale === "uk" ? "Камінь" : "Stone" },
+      { key: "stoneShape", label: locale === "uk" ? "Огранювання" : "Stone cut" },
+      { key: "stoneColor", label: locale === "uk" ? "Колір каменю" : "Stone color" },
+      { key: "stoneSize", label: locale === "uk" ? "Розмір каменю" : "Stone size" }
+    ];
+
+    if (activeType === "Ring") {
+      definitions.push(
+        { key: "ringSize", label: locale === "uk" ? "Розмір каблучки" : "Ring size" },
+        { key: "ringType", label: locale === "uk" ? "Стиль каблучки" : "Ring style" }
+      );
+    }
+
+    if (activeType === "Bracelet") {
+      definitions.push({ key: "braceletLength", label: locale === "uk" ? "Довжина браслета" : "Bracelet length" });
+    }
+
+    return definitions
+      .map((definition) => {
+        const scopedProducts = typeScopedProducts.filter((product) =>
+          productMatchesCatalogFilters(product, activeType, catalogFilters, { ignoreKey: definition.key })
+        );
+        const options = sortCatalogFacetValues(
+          [...new Set(scopedProducts.map((product) => getCatalogFilterValue(product, definition.key)).filter(Boolean))],
+          definition.key,
+          locale
+        );
+        return { ...definition, options };
+      })
+      .filter((definition) => definition.options.length);
+  }, [activeType, catalogFilters, locale, typeScopedProducts]);
+
+  const hasActiveFilters = useMemo(() => {
+    if (activeType !== "all") return true;
+    if (catalogFilters.sort !== "default") return true;
+    if (catalogFilters.priceMin !== "" || catalogFilters.priceMax !== "") return true;
+    return CATALOG_MULTI_FILTER_KEYS.some((key) => (catalogFilters[key] || []).length > 0);
+  }, [activeType, catalogFilters]);
+
+  function handleTypeChange(typeId) {
+    setActiveType(typeId);
+    setCatalogFilters((current) => ({
+      ...current,
+      ringSize: typeId === "Ring" ? current.ringSize : [],
+      ringType: typeId === "Ring" ? current.ringType : [],
+      braceletLength: typeId === "Bracelet" ? current.braceletLength : []
+    }));
+  }
+
+  function toggleFilterValue(key, value) {
+    setCatalogFilters((current) => {
+      const selectedValues = current[key] || [];
+      const nextValues = selectedValues.includes(value)
+        ? selectedValues.filter((item) => item !== value)
+        : [...selectedValues, value];
+      return { ...current, [key]: nextValues };
+    });
+  }
+
+  function resetCatalogFilters() {
+    setActiveType("all");
+    setCatalogFilters(createEmptyCatalogFilterState());
+    setIsMobileFiltersOpen(false);
+  }
+
+  function renderFiltersContent(isDrawer = false) {
+    return (
+      <div className={`catalog-filters-surface${isDrawer ? " is-drawer" : ""}`}>
+        <div className="catalog-filters-surface-head">
+          <div>
+            <p className="catalog-filters-kicker">{catalogUi.filters}</p>
+            <h2>{catalogUi.categoryFiltersTitle}</h2>
+          </div>
+          <div className="catalog-filters-head-actions">
+            {hasActiveFilters ? (
+              <button type="button" className="catalog-reset-button" onClick={resetCatalogFilters}>
+                {catalogUi.reset}
+              </button>
+            ) : null}
+            {isDrawer ? (
+              <button type="button" className="catalog-drawer-close" onClick={() => setIsMobileFiltersOpen(false)} aria-label={catalogUi.closeFilters}>
+                <X size={18} />
+              </button>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="catalog-filters-scroll">
+          {filterDefinitions.map((definition) => (
+            <CatalogFacetGroup
+              key={definition.key}
+              title={definition.label}
+              options={definition.options}
+              selectedValues={catalogFilters[definition.key] || []}
+              onToggle={(value) => toggleFilterValue(definition.key, value)}
+              locale={locale}
+            />
+          ))}
+
+          <section className="catalog-filter-group">
+            <div className="catalog-filter-group-title">{catalogUi.priceRange}</div>
+            <div className="catalog-price-grid">
+              <label className="catalog-price-field">
+                <span>{catalogUi.from}</span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={catalogFilters.priceMin}
+                  onChange={(event) => setCatalogFilters((current) => ({ ...current, priceMin: normalizeCatalogPriceInput(event.target.value) }))}
+                  placeholder={priceBounds.min ? String(priceBounds.min) : "0"}
+                />
+              </label>
+              <label className="catalog-price-field">
+                <span>{catalogUi.to}</span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={catalogFilters.priceMax}
+                  onChange={(event) => setCatalogFilters((current) => ({ ...current, priceMax: normalizeCatalogPriceInput(event.target.value) }))}
+                  placeholder={priceBounds.max ? String(priceBounds.max) : "0"}
+                />
+              </label>
+            </div>
+          </section>
+        </div>
+
+        {isDrawer ? (
+          <div className="catalog-drawer-footer">
+            {hasActiveFilters ? (
+              <button type="button" className="catalog-drawer-secondary" onClick={resetCatalogFilters}>
+                {catalogUi.reset}
+              </button>
+            ) : null}
+            <button type="button" className="button catalog-drawer-apply" onClick={() => setIsMobileFiltersOpen(false)}>
+              {catalogUi.showResults}
+            </button>
+          </div>
+        ) : null}
+      </div>
+    );
+  }
 
   return (
     <>
@@ -1428,12 +1979,12 @@ function CatalogPage() {
 
         <div className="section-inner" style={{ paddingTop: "2rem" }}>
           <div className="filter-bar">
-            {filters.map((filter) => (
+            {categoryFilters.map((filter) => (
               <button
                 key={filter.id}
                 type="button"
                 className={`filter-pill${activeType === filter.id ? " active" : ""}`}
-                onClick={() => setActiveType(filter.id)}
+                onClick={() => handleTypeChange(filter.id)}
               >
                 {filter.label}
               </button>
@@ -1442,30 +1993,90 @@ function CatalogPage() {
 
           {loadError ? <p className="load-error">{loadError}</p> : null}
 
-          {visibleProducts.length ? (
-            <div className="product-grid">
-              {visibleProducts.map((product, index) => (
-                <a className="product-card" href={`/products/${product.slug}`} key={product.id || product.slug}>
-                  <div className="product-card-img">
-                    <img src={productDisplayImage(product, index)} alt={product.name} />
-                  </div>
-                  <div className="product-card-body">
-                    <div className="product-card-type">{productTypeLabel(product, locale)}</div>
-                    <div className="product-card-name">{product.name}</div>
-                    <div className="product-card-material">
-                      {localizeProductFilterValue(product.filters?.metal, locale) || (locale === "uk" ? "Авторська прикраса" : "Signature piece")}
-                    </div>
-                    <div className="product-card-price">{formatCurrency(product.price, product.currency, LOCALE_FORMATS[locale])}</div>
-                  </div>
-                </a>
-              ))}
+          <div className="catalog-mobile-actions">
+            <button type="button" className="catalog-mobile-filter-button" onClick={() => setIsMobileFiltersOpen(true)}>
+              {catalogUi.filters}
+            </button>
+          </div>
+
+          <div className="catalog-layout">
+            <aside className="catalog-filters-column">
+              {renderFiltersContent(false)}
+            </aside>
+
+            <div className="catalog-results-column">
+              <div className="catalog-toolbar">
+                <div className="catalog-toolbar-meta">
+                  <strong>{catalogUi.found}</strong>
+                  <span>{visibleProducts.length} {catalogUi.items}</span>
+                </div>
+                <div className="catalog-toolbar-actions">
+                  {hasActiveFilters ? (
+                    <button type="button" className="catalog-toolbar-reset" onClick={resetCatalogFilters}>
+                      {catalogUi.reset}
+                    </button>
+                  ) : null}
+                  <label className="catalog-sort-control">
+                    <span>{t("sort")}</span>
+                    <select
+                      value={catalogFilters.sort}
+                      onChange={(event) => setCatalogFilters((current) => ({ ...current, sort: event.target.value }))}
+                    >
+                      {sortOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+              </div>
+
+              {visibleProducts.length ? (
+                <div className="product-grid">
+                  {visibleProducts.map((product, index) => (
+                    <a className="product-card" href={`/products/${product.slug}`} key={product.id || product.slug}>
+                      <div className="product-card-img">
+                        <img src={productDisplayImage(product, index)} alt={product.name} />
+                      </div>
+                      <div className="product-card-body">
+                        <div className="product-card-type">{productTypeLabel(product, locale)}</div>
+                        <div className="product-card-name">{product.name}</div>
+                        <div className="product-card-material">
+                          {localizeProductFilterValue(product.filters?.metal, locale) || (locale === "uk" ? "Авторська прикраса" : "Signature piece")}
+                        </div>
+                        <div className="product-card-price">{formatCurrency(product.price, product.currency, LOCALE_FORMATS[locale])}</div>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              ) : products.length ? (
+                <div className="empty-state-react catalog-empty-state">
+                  <h3>{catalogUi.noResults}</h3>
+                  <p>{t("searchOrConstructor")}</p>
+                  {hasActiveFilters ? (
+                    <button type="button" className="small-button is-active" onClick={resetCatalogFilters}>
+                      {catalogUi.reset}
+                    </button>
+                  ) : null}
+                </div>
+              ) : (
+                <div className="empty-state-react catalog-empty-state">
+                  <h3>{catalogUi.noProducts}</h3>
+                  <p>{catalogUi.noProductsText}</p>
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="empty-state-react">
-              <h3>{t("collectionPreparing")}</h3>
-              <p>{t("searchOrConstructor")}</p>
+          </div>
+
+          {isMobileFiltersOpen ? (
+            <div className="catalog-drawer-shell" role="dialog" aria-modal="true" aria-label={catalogUi.filters}>
+              <button type="button" className="catalog-drawer-backdrop" onClick={() => setIsMobileFiltersOpen(false)} aria-label={catalogUi.closeFilters} />
+              <div className="catalog-drawer-panel">
+                {renderFiltersContent(true)}
+              </div>
             </div>
-          )}
+          ) : null}
         </div>
       </main>
       <Footer />
@@ -2584,14 +3195,9 @@ function CartPage() {
   }
 
   const items = cart?.items || [];
-  const minimumReached = Number(cart?.subtotal_amount || 0) >= 500;
   const typeById = Object.fromEntries((constructorConfig?.types || []).map((entry) => [String(entry.id), entry]));
 
   function handleProceedCheckout(event) {
-    if (!minimumReached) {
-      event.preventDefault();
-      return;
-    }
     if (!isAuthenticated) {
       event.preventDefault();
       setPostAuthRedirect("/checkout");
@@ -2769,8 +3375,7 @@ function CartPage() {
                   <span>{t("subtotal")}</span>
                   <strong>{formatCurrency(cart.subtotal_amount, cart.currency, locale)}</strong>
                 </div>
-                <p className={minimumReached ? "" : "cart-warning"}>{t("minimumOrder")}</p>
-                <a className={`button cart-checkout-button ${minimumReached ? "" : "is-disabled"}`} href={minimumReached ? "/checkout" : "#cart"} onClick={handleProceedCheckout}>
+                <a className="button cart-checkout-button" href="/checkout" onClick={handleProceedCheckout}>
                   {t("proceedCheckout")}
                   <ChevronRight aria-hidden="true" />
                 </a>
@@ -3396,7 +4001,6 @@ function CheckoutPage() {
   }
 
   const items = cart?.items || [];
-  const minimumReached = Number(cart?.subtotal_amount || 0) >= 500;
 
   return (
     <>
@@ -3501,7 +4105,7 @@ function CheckoutPage() {
                     />
                     <span>{t("acceptReturn")}</span>
                   </label>
-                  <button className="button checkout-submit" type="submit" disabled={isSubmitting || !minimumReached}>
+                  <button className="button checkout-submit" type="submit" disabled={isSubmitting}>
                     {isSubmitting ? t("creatingOrder") : t("createOrder")}
                     <ChevronRight aria-hidden="true" />
                   </button>
@@ -3515,7 +4119,6 @@ function CheckoutPage() {
                   <span>{t("total")}</span>
                   <strong>{formatCurrency(cart.subtotal_amount, cart.currency, locale)}</strong>
                 </div>
-                {!minimumReached ? <p className="cart-warning">{t("minimumOrder")}</p> : null}
 
                 <div className="checkout-items">
                   {items.map((item) => (
@@ -3569,23 +4172,213 @@ function CheckoutPage() {
   );
 }
 
+function normalizeLegacyConstructorMaterialCode(value) {
+  const normalized = String(value || "").trim().toLowerCase();
+  if (!normalized) return "";
+  if (normalized === "silver" || normalized === "silver_925") return "silver";
+  if (normalized === "gold" || normalized === "gold_plated" || normalized === "solid_gold") return "gold";
+  if (normalized === "rose_gold" || normalized === "rose_gold_925" || normalized === "rose_gold_plated") return "rose_gold";
+  return normalized;
+}
+
+function localizedConstructorValue(entry, locale, keys = ["label", "name"]) {
+  if (!entry) return "";
+
+  for (const key of keys) {
+    const localized = entry?.[`${key}_${locale}`];
+    if (localized) return localized;
+    if (entry?.[key]) return entry[key];
+  }
+
+  return "";
+}
+
+function selectConstructorShowcaseType(types = []) {
+  const preferredCodes = ["pendant", "ring", "bracelet", "earrings"];
+  return preferredCodes.map((code) => types.find((item) => item.code === code)).find(Boolean) || types[0] || null;
+}
+
+function selectConstructorShowcaseVariant(typeCode, variants = []) {
+  const orderedVariants = [...variants].sort((left, right) => Number(left.sort_order || 0) - Number(right.sort_order || 0));
+  const preferredCodesByType = {
+    pendant: ["pendant-heart", "pendant-moon", "pendant-drop"],
+    ring: ["ring-trinity"],
+    bracelet: ["bracelet-orbit"],
+    earrings: ["earrings-drop"]
+  };
+  const preferredCodes = preferredCodesByType[typeCode] || [];
+
+  return preferredCodes.map((code) => orderedVariants.find((item) => item.code === code)).find(Boolean) || orderedVariants[0] || null;
+}
+
+function selectConstructorShowcaseMaterial(materials = []) {
+  return [...materials].sort((left, right) => Number(right.price_delta || 0) - Number(left.price_delta || 0))[0] || materials[0] || null;
+}
+
+function selectConstructorShowcaseStone(stones = []) {
+  const preferredCodes = ["diamond", "opal", "pearl", "garnet", "rose_quartz", "onyx", "heart_charm", "none"];
+  return preferredCodes.map((code) => stones.find((item) => item.code === code)).find(Boolean) || stones[0] || null;
+}
+
+function buildConstructorShowcase(config, locale) {
+  const types = config?.types || [];
+  const variants = config?.variants || [];
+  const stones = config?.stones || [];
+  const matrix = config?.variantStoneMatrix || [];
+  const currentType = selectConstructorShowcaseType(types);
+
+  if (!currentType) return null;
+
+  const typeVariants = variants.filter((item) => String(item.type_id) === String(currentType.id));
+  const currentVariant = selectConstructorShowcaseVariant(currentType.code, typeVariants);
+  if (!currentVariant) return null;
+
+  const slots = [...(config?.slotsByVariant?.[currentVariant.id] || [])].sort(
+    (left, right) => Number(left.sort_order || 0) - Number(right.sort_order || 0)
+  );
+  const matrixForVariant = matrix.filter(
+    (item) => String(item.variant_id) === String(currentVariant.id) && item.is_enabled !== false
+  );
+  const availableStones = matrixForVariant
+    .map((entry) => {
+      const stone = stones.find((item) => String(item.id) === String(entry.stone_id));
+      return stone ? { ...stone, price_delta: entry.price_delta, is_default: entry.is_default } : null;
+    })
+    .filter(Boolean);
+  const material = selectConstructorShowcaseMaterial(currentType.materials || []);
+  const size = (currentType.size_options || []).find((item) => item.is_default) || currentType.size_options?.[0] || null;
+  const selectedStone = selectConstructorShowcaseStone(availableStones.filter((item) => item.code !== "none")) || selectConstructorShowcaseStone(availableStones);
+  const selections = slots.reduce((accumulator, slot) => {
+    accumulator[slot.code] = selectedStone?.code || "none";
+    return accumulator;
+  }, {});
+  const engraving = currentType?.engraving?.enabled ? "AURORA" : "";
+
+  return {
+    type: currentType,
+    variant: currentVariant,
+    slots,
+    availableStones,
+    selections,
+    material,
+    size,
+    engraving,
+    configuration: {
+      variant_id: Number(currentVariant.id),
+      material: material?.code || "",
+      stone_slots: selections,
+      ...(size?.code ? { size: size.code } : {}),
+      ...(engraving ? { engraving_text: engraving } : {})
+    },
+    display: {
+      type: localizedConstructorValue(currentType, locale, ["name"]),
+      variant: localizedConstructorValue(currentVariant, locale, ["name"]),
+      material: localizedConstructorValue(material, locale, ["label"]),
+      stone: localizedConstructorValue(selectedStone, locale, ["label", "name"]),
+      size: localizedConstructorValue(size, locale, ["label"])
+    }
+  };
+}
+
 function Bespoke() {
   const { locale } = useI18n();
   const copy = referenceCopy(locale);
+  const [config, setConfig] = useState(null);
+  const showcase = useMemo(() => buildConstructorShowcase(config, locale), [config, locale]);
+  const stonesByCode = useMemo(() => buildStoneCodeMap(showcase?.availableStones || []), [showcase]);
+
+  useEffect(() => {
+    let active = true;
+
+    constructorApi
+      .getConfig()
+      .then((data) => {
+        if (active) setConfig(data || null);
+      })
+      .catch(() => {
+        if (active) setConfig(null);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const previewChips = [
+    showcase?.display?.type,
+    showcase?.display?.material,
+    showcase?.display?.stone,
+    showcase?.type?.engraving?.enabled ? copy.bespokePreviewChipEngraving : ""
+  ].filter(Boolean);
 
   return (
-    <section className="bespoke-section" id="bespoke">
-      <div className="bespoke-bg">
-        <img src={REFERENCE_IMAGES.bespoke} alt="" aria-hidden="true" />
-        <div className="bespoke-overlay" />
-      </div>
-      <div className="bespoke-content">
-        <p className="eyebrow eyebrow-light">{copy.bespokeEyebrow}</p>
-        <h2 className="bespoke-title" style={{ whiteSpace: "pre-line" }}>{copy.bespokeTitle}</h2>
-        <p className="bespoke-sub">{copy.bespokeSubtitle}</p>
-        <a className="button button-light" href="/constructor">
-          {copy.bespokeCta}
-        </a>
+    <section className="section bespoke-section" id="bespoke">
+      <div className="section-inner">
+        <div className="bespoke-shell">
+          <div className="bespoke-top">
+            <div className="bespoke-intro">
+              <p className="bespoke-eyebrow">{copy.bespokeEyebrow}</p>
+              <h2 className="bespoke-title" style={{ whiteSpace: "pre-line" }}>{copy.bespokeTitle}</h2>
+              <p className="bespoke-sub">{copy.bespokeSubtitle}</p>
+              <div className="bespoke-actions">
+                <a className="button bespoke-cta" href="/constructor">
+                  <span>{copy.bespokeCta}</span>
+                  <ChevronRight aria-hidden="true" />
+                </a>
+                <p className="bespoke-note">{copy.bespokeNote}</p>
+              </div>
+            </div>
+
+            <aside className="bespoke-preview-card" aria-label={copy.bespokePreviewTitle}>
+              <div className="bespoke-preview-head">
+                <div className="bespoke-preview-copy">
+                  <p className="bespoke-preview-eyebrow">{copy.bespokePreviewEyebrow}</p>
+                  <h3 className="bespoke-preview-title">{copy.bespokePreviewTitle}</h3>
+                </div>
+                <span className="bespoke-preview-live">{copy.bespokePreviewLive}</span>
+              </div>
+
+              <div className="bespoke-preview-stage">
+                {showcase?.variant ? (
+                  <div className="bespoke-preview-art">
+                    <JewelryPreview
+                      variant={showcase.variant}
+                      slots={showcase.slots}
+                      stonesByCode={stonesByCode}
+                      selections={showcase.selections}
+                      engraving={showcase.engraving}
+                    />
+                  </div>
+                ) : (
+                  <div className="bespoke-preview-fallback">
+                    <img src={REFERENCE_IMAGES.bespoke} alt="" aria-hidden="true" />
+                  </div>
+                )}
+              </div>
+
+              <div className="bespoke-preview-meta">
+                <p className="bespoke-preview-note">{copy.bespokePreviewNote}</p>
+                {previewChips.length ? (
+                  <div className="bespoke-preview-chips" role="list" aria-label={copy.bespokePreviewTitle}>
+                    {previewChips.map((chip) => (
+                      <span className="bespoke-preview-chip" key={chip} role="listitem">{chip}</span>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+            </aside>
+          </div>
+
+          <div className="bespoke-steps" role="list" aria-label={copy.bespokeTitle.replace("\n", " ")}>
+            {copy.bespokeSteps.map((step) => (
+              <article className="bespoke-step-card" key={step.number} role="listitem">
+                <span className="bespoke-step-number">{step.number}</span>
+                <h3 className="bespoke-step-title">{step.title}</h3>
+                <p className="bespoke-step-text">{step.text}</p>
+              </article>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -3594,26 +4387,53 @@ function Bespoke() {
 function Editorial() {
   const { locale } = useI18n();
   const copy = referenceCopy(locale);
+  const sectionRef = React.useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const node = sectionRef.current;
+    if (!node) return undefined;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) return;
+        setIsVisible(true);
+        observer.disconnect();
+      },
+      { threshold: 0.18, rootMargin: "0px 0px -8% 0px" }
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <section className="section editorial-section">
+    <section className={`section editorial-section${isVisible ? " is-visible" : ""}`} ref={sectionRef}>
       <div className="section-inner">
-        <div className="section-heading section-heading-center">
-          <p className="eyebrow">{copy.editorialEyebrow}</p>
-          <h2 className="section-title">{copy.editorialTitle}</h2>
-        </div>
-        <div className="editorial-grid">
-          {copy.editorialCards.map((card, index) => (
-            <article className="editorial-card" key={card.title}>
-              <div className="editorial-card-img">
-                <img src={REFERENCE_IMAGES.editorial[index]} alt={card.title} />
-              </div>
-              <div className="editorial-card-body">
-                <h3 className="editorial-card-title">{card.title}</h3>
-                <p className="editorial-card-text">{card.text}</p>
-              </div>
-            </article>
-          ))}
+        <div className="editorial-shell">
+          <div className="editorial-intro">
+            <p className="editorial-eyebrow">{copy.editorialEyebrow}</p>
+            <h2 className="editorial-title">{copy.editorialTitle}</h2>
+            <p className="editorial-subtitle">{copy.editorialSubtitle}</p>
+          </div>
+          <div className="editorial-divider" aria-hidden="true" />
+          <div className="editorial-grid" role="list" aria-label={copy.editorialTitle}>
+            {copy.editorialCards.map((card, index) => (
+              <article
+                className="editorial-card"
+                key={card.title}
+                role="listitem"
+                style={{ "--editorial-delay": `${index * 140}ms` }}
+              >
+                <div className="editorial-card-topline">
+                  <span className="editorial-card-number">{card.number}</span>
+                  <span className="editorial-card-dot" aria-hidden="true" />
+                </div>
+                <div className="editorial-card-body">
+                  <h3 className="editorial-card-title">{card.title}</h3>
+                  <p className="editorial-card-text">{card.text}</p>
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
       </div>
     </section>
@@ -3715,6 +4535,8 @@ function HomePage() {
         <main className="home-main">
           <Hero />
           <TrustMetrics />
+          <HomeTwoPaths />
+          <HomeCategories />
           {loadError ? <p className="load-error">{loadError}</p> : null}
         <FeaturedCollections products={products} locale={locale} />
         <Bespoke />
@@ -3758,11 +4580,32 @@ function AuthPage() {
   const isVerifyStep = Boolean(pendingVerificationEmail);
 
   const authBenefits = [
-    t("trustGuarantee"),
-    t("trustDelivery"),
-    t("trustMaterials"),
-    t("trustService")
+    { icon: Shield, label: t("trustGuarantee"), text: t("trustGuaranteeText") },
+    { icon: Truck, label: t("trustDelivery"), text: t("trustDeliveryText") },
+    { icon: Award, label: t("trustMaterials"), text: t("trustMaterialsText") },
+    { icon: Sparkles, label: t("trustService"), text: t("trustServiceText") }
   ];
+
+  const modeMeta = isVerifyStep
+    ? {
+        badge: t("authVerifyBadge"),
+        lead: t("authVerifyLead"),
+        chips: [t("authVerifyChip1"), t("authVerifyChip2")],
+        asideText: t("authAsideVerifyText")
+      }
+    : mode === "login"
+    ? {
+        badge: t("authLoginBadge"),
+        lead: t("authLoginLead"),
+        chips: [t("authSignInChip1"), t("authSignInChip2")],
+        asideText: t("authAsideLoginText")
+      }
+    : {
+        badge: t("authRegisterBadge"),
+        lead: t("authRegisterLead"),
+        chips: [t("authRegisterChip1"), t("authRegisterChip2")],
+        asideText: t("authAsideRegisterText")
+      };
 
   useEffect(() => {
     let active = true;
@@ -3806,7 +4649,7 @@ function AuthPage() {
         size: "large",
         shape: "pill",
         text: "continue_with",
-        width: 360
+        width: Math.max(260, Math.min(googleButtonRef.current.clientWidth || 360, 420))
       });
     }
 
@@ -3950,154 +4793,199 @@ function AuthPage() {
     <>
       <Header />
       <main className="auth-react-page">
-        <section className="auth-form-panel">
-          <div className="auth-form-inner">
-            <div className="section-heading">
-              <span className="badge">{t("account")}</span>
-              <h1>{isVerifyStep ? t("authVerificationTitle") : mode === "login" ? t("authLoginTitle") : t("authRegisterTitle")}</h1>
-            </div>
+        <div className="auth-page-shell">
+          <section className="auth-form-panel">
+            <div className={`auth-form-card${isVerifyStep ? " is-verify-step" : ""}`}>
+              <div className="auth-form-chrome">
+                <div className="auth-form-kicker">
+                  <span className="badge subtle">{t("account")}</span>
+                  <p>{modeMeta.badge}</p>
+                </div>
 
-            {!isVerifyStep ? (
-              <div className="auth-tabs">
-                <button
-                  type="button"
-                  className={mode === "login" ? "is-active" : ""}
-                  onClick={() => switchMode("login")}
-                >
-                  {t("authLoginTab")}
-                </button>
-                <button
-                  type="button"
-                  className={mode === "register" ? "is-active" : ""}
-                  onClick={() => switchMode("register")}
-                >
-                  {t("authRegisterTab")}
-                </button>
-              </div>
-            ) : null}
-
-            <form className="auth-form" onSubmit={handleSubmit} noValidate>
-              {isVerifyStep ? (
-                <>
-                  <p className="auth-helper-copy">{t("authVerificationText")} <strong>{pendingVerificationEmail}</strong></p>
-                  <label className="auth-field">
-                    <span>{t("authVerificationCode")}</span>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      value={verificationCode}
-                      onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                      placeholder="123456"
-                      required
-                    />
-                  </label>
-                </>
-              ) : mode === "register" ? (
-                <label className="auth-field">
-                  <span>{t("name")}</span>
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Aurora Atelier"
-                    required
-                  />
-                </label>
-              ) : null}
-
-              {!isVerifyStep && mode === "register" ? (
-                <label className="auth-field">
-                  <span>{t("phone")}</span>
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+380991234567"
-                    required
-                  />
-                </label>
-              ) : null}
-
-              {!isVerifyStep ? (
-                <label className="auth-field">
-                  <span>{t("email")}</span>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@example.com"
-                    required
-                  />
-                </label>
-              ) : null}
-
-              {!isVerifyStep ? (
-                <label className="auth-field">
-                  <span>{t("password")}</span>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    minLength={6}
-                    required
-                  />
-                </label>
-              ) : null}
-
-              {error ? <p className="auth-error">{error}</p> : null}
-              {notice ? <p className="auth-notice">{notice}</p> : null}
-
-              <button type="submit" className="button auth-submit-button" disabled={isSubmitting}>
-                {isSubmitting
-                  ? t("creatingOrder").replace("...", "").trim() + "..."
-                  : isVerifyStep
-                  ? t("authSubmitVerification")
-                  : mode === "login"
-                  ? t("authSubmitLogin")
-                  : t("authSubmitRegister")}
-                <Check aria-hidden="true" />
-              </button>
-
-              {isVerifyStep ? (
-                <div className="auth-secondary-actions">
-                  <button type="button" className="button button-outline auth-secondary-button" onClick={resendCode} disabled={isSubmitting}>
-                    {t("authResendCode")}
-                  </button>
-                  <button type="button" className="button button-ghost auth-secondary-button" onClick={resetVerificationStep} disabled={isSubmitting}>
+                {!isVerifyStep ? (
+                  <div className="auth-tabs">
+                    <button
+                      type="button"
+                      className={mode === "login" ? "is-active" : ""}
+                      onClick={() => switchMode("login")}
+                    >
+                      {t("authLoginTab")}
+                    </button>
+                    <button
+                      type="button"
+                      className={mode === "register" ? "is-active" : ""}
+                      onClick={() => switchMode("register")}
+                    >
+                      {t("authRegisterTab")}
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className="button button-ghost auth-back-link"
+                    onClick={resetVerificationStep}
+                    disabled={isSubmitting}
+                  >
                     {t("authBackToLogin")}
                   </button>
-                </div>
-              ) : null}
-            </form>
-
-            {!isVerifyStep && googleConfig.enabled ? (
-              <div className="auth-oauth-panel">
-                <div className="auth-divider"><span>{isUk ? "або" : "or"}</span></div>
-                <div ref={googleButtonRef} className="auth-google-button" aria-label={t("authGoogle")} />
+                )}
               </div>
-            ) : null}
-          </div>
-        </section>
 
-        <aside className="auth-aside">
-          <div className="auth-aside-overlay" />
-          <img src={FALLBACK_PRODUCT_IMAGE} alt="Aurora Atelier" />
-          <div className="auth-aside-content">
-            <span className="badge badge-on-dark">{t("bespokeService")}</span>
-            <h2>{t("bespokeTitle")}</h2>
-            <ul className="auth-benefits">
-              {authBenefits.map((benefit) => (
-                <li key={benefit}>
-                  <span className="auth-benefit-icon">
+              <div className="auth-form-inner">
+                <div className="section-heading auth-heading-block">
+                  <h1>{isVerifyStep ? t("authVerificationTitle") : mode === "login" ? t("authLoginTitle") : t("authRegisterTitle")}</h1>
+                  <p className="auth-helper-copy">{modeMeta.lead}</p>
+                </div>
+
+                <div className="auth-chip-row" aria-label="Auth flow highlights">
+                  {modeMeta.chips.map((chip) => (
+                    <span key={chip} className="auth-chip">
+                      {chip}
+                    </span>
+                  ))}
+                </div>
+
+                <form className="auth-form" onSubmit={handleSubmit} noValidate>
+                  {isVerifyStep ? (
+                    <>
+                      <div className="auth-verify-intro">
+                        <p className="auth-helper-copy">{t("authVerificationText")}</p>
+                        <strong>{pendingVerificationEmail}</strong>
+                      </div>
+                      <label className="auth-field auth-field-verify">
+                        <span>{t("authVerificationCode")}</span>
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          autoComplete="one-time-code"
+                          value={verificationCode}
+                          onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                          placeholder="123456"
+                          required
+                        />
+                      </label>
+                    </>
+                  ) : (
+                    <>
+                      {mode === "register" ? (
+                        <div className="auth-field-grid">
+                          <label className="auth-field">
+                            <span>{t("name")}</span>
+                            <input
+                              type="text"
+                              autoComplete="name"
+                              value={name}
+                              onChange={(e) => setName(e.target.value)}
+                              placeholder="Aurora Atelier"
+                              required
+                            />
+                          </label>
+                          <label className="auth-field">
+                            <span>{t("phone")}</span>
+                            <input
+                              type="tel"
+                              autoComplete="tel"
+                              value={phone}
+                              onChange={(e) => setPhone(e.target.value)}
+                              placeholder="+380991234567"
+                              required
+                            />
+                          </label>
+                        </div>
+                      ) : null}
+
+                      <label className="auth-field">
+                        <span>{t("email")}</span>
+                        <input
+                          type="email"
+                          autoComplete="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="you@example.com"
+                          required
+                        />
+                      </label>
+
+                      <label className="auth-field">
+                        <span>{t("password")}</span>
+                        <input
+                          type="password"
+                          autoComplete={mode === "login" ? "current-password" : "new-password"}
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="••••••••"
+                          minLength={6}
+                          required
+                        />
+                        <small className="auth-field-note">{t("authPasswordHint")}</small>
+                      </label>
+                    </>
+                  )}
+
+                  {error ? <p className="auth-error">{error}</p> : null}
+                  {notice ? <p className="auth-notice">{notice}</p> : null}
+
+                  <button type="submit" className="button auth-submit-button" disabled={isSubmitting}>
+                    {isSubmitting
+                      ? t("creatingOrder").replace("...", "").trim() + "..."
+                      : isVerifyStep
+                      ? t("authSubmitVerification")
+                      : mode === "login"
+                      ? t("authSubmitLogin")
+                      : t("authSubmitRegister")}
                     <Check aria-hidden="true" />
-                  </span>
-                  {benefit}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </aside>
+                  </button>
+
+                  {isVerifyStep ? (
+                    <div className="auth-secondary-actions">
+                      <button type="button" className="button button-outline auth-secondary-button" onClick={resendCode} disabled={isSubmitting}>
+                        {t("authResendCode")}
+                      </button>
+                      <button type="button" className="button button-ghost auth-secondary-button" onClick={resetVerificationStep} disabled={isSubmitting}>
+                        {t("authBackToLogin")}
+                      </button>
+                    </div>
+                  ) : null}
+                </form>
+
+                {!isVerifyStep && googleConfig.enabled ? (
+                  <div className="auth-oauth-panel">
+                    <div className="auth-divider"><span>{isUk ? "або" : "or"}</span></div>
+                    <div className="auth-google-shell">
+                      <div ref={googleButtonRef} className="auth-google-button" aria-label={t("authGoogle")} />
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          </section>
+
+          <aside className="auth-aside">
+            <img src={FALLBACK_PRODUCT_IMAGE} alt="Aurora Atelier" />
+            <div className="auth-aside-overlay" />
+            <div className="auth-aside-content">
+              <span className="badge badge-on-dark">{t("bespokeService")}</span>
+              <h2>{t("bespokeTitle")}</h2>
+              <p className="auth-aside-text">{modeMeta.asideText}</p>
+              <div className="auth-benefits">
+                {authBenefits.map((benefit) => {
+                  const Icon = benefit.icon;
+                  return (
+                    <article key={benefit.label} className="auth-benefit-card">
+                      <span className="auth-benefit-icon">
+                        <Icon aria-hidden="true" />
+                      </span>
+                      <div>
+                        <strong>{benefit.label}</strong>
+                        <p>{benefit.text}</p>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </div>
+          </aside>
+        </div>
       </main>
       <Footer />
     </>
@@ -5745,7 +6633,7 @@ function ConstructorStudioPage() {
                       <span className="summary-price">{formatCurrency(calculation?.price ?? currentType?.base_price ?? 0, calculation?.currency || "UAH", LOCALE_FORMATS[locale])}</span>
                     </div>
                     <div className="summary-breakdown"><span>{isCalculating ? t("calculating") : t("validated")}</span><span>{currentVariant?.name || currentType?.name || t("piece")}</span></div>
-                    <div className="summary-breakdown"><span>{locale === "en" ? "Material" : "Матеріал"}</span><span>{currentType?.materials?.find((item) => item.code === configuration.material)?.label || "-"}</span></div>
+                    <div className="summary-breakdown"><span>{locale === "en" ? "Material" : "Матеріал"}</span><span>{currentType?.materials?.find((item) => item.code === normalizeLegacyConstructorMaterialCode(configuration.material))?.label || "-"}</span></div>
                     {currentType?.size_options?.length ? <div className="summary-breakdown"><span>{locale === "en" ? "Size" : "Розмір"}</span><span>{currentType?.size_options?.find((item) => item.code === configuration.size)?.label || "-"}</span></div> : null}
                     {isPendantType ? (
                       <>

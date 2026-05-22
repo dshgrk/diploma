@@ -26,7 +26,12 @@ export const catalogApi = {
   listProducts(filters = {}) {
     const params = new URLSearchParams();
     Object.entries(filters).forEach(([key, value]) => {
-      if (value) params.set(key, value);
+      if (Array.isArray(value)) {
+        value.filter((item) => item !== "" && item != null).forEach((item) => params.append(key, String(item)));
+        return;
+      }
+      if (value === "" || value == null) return;
+      params.set(key, String(value));
     });
     const query = params.toString();
     return http(`/api/catalog/products${query ? `?${query}` : ""}`);

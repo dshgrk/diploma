@@ -1,6 +1,5 @@
 const crypto = require("crypto");
 const { db } = require("../../db/knex");
-const { BUSINESS_RULES } = require("../../constants/business-rules");
 const { ORDER_STATUSES } = require("../../constants/order-statuses");
 const { createHttpError } = require("../../utils/http-error");
 const { generateOrderNumber } = require("../../utils/order-number");
@@ -40,14 +39,6 @@ async function createCheckoutOrder(userId, payload) {
 
     if (!serializedCart.items.length) {
       throw createHttpError(400, "EMPTY_CART", "Cart is empty");
-    }
-
-    if (serializedCart.subtotal_amount < BUSINESS_RULES.MIN_ORDER_AMOUNT) {
-      throw createHttpError(
-        422,
-        "MIN_ORDER_AMOUNT",
-        `Order amount must be at least ${BUSINESS_RULES.MIN_ORDER_AMOUNT} UAH`
-      );
     }
 
     const updatedCartRows = await trx("carts")

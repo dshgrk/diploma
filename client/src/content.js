@@ -18,6 +18,16 @@ export const REFERENCE_IMAGES = {
     "/assets/images/product-heart.png",
     "/assets/images/product-moon.png"
   ],
+  homePaths: {
+    collection: "/assets/images/home-path-collection.png",
+    constructor: "/assets/images/home-path-constructor.png"
+  },
+  homeCategories: {
+    rings: "/assets/images/home-category-rings.png",
+    earrings: "/assets/images/home-category-earrings.png",
+    bracelets: "/assets/images/home-category-bracelets.png",
+    pendants: "/assets/images/home-category-pendants.png"
+  },
   featured: [
     "/assets/images/aurora-jewelry-hero.png",
     "/assets/images/product-heart.png",
@@ -59,28 +69,123 @@ export const REFERENCE_COPY = {
     heroCtaPrimary: "Переглянути колекцію",
     heroCtaSecondary: "Створити своє",
     trust: ["Ручна\nробота", "Прозора\nціна", "Персональний\nпідхід", "Безкоштовна\nдоставка"],
-    featuredEyebrow: "Обрані твори",
-    featuredTitle: "Колекція Aurora",
-    featuredSubtitle: "Кожна прикраса — результат ручної праці та уваги до матеріалу",
-    catalogButton: "Колекція →",
-    bespokeEyebrow: "Bespoke",
-    bespokeTitle: "Створіть своє\nунікальне прикраса",
-    bespokeSubtitle: "Оберіть тип, матеріал, камені та гравіювання — ми втілимо ваш задум у металі",
+    twoPaths: {
+      eyebrow: "ЯК ПОЧАТИ",
+      title: "Оберіть формат, який підходить саме вам",
+      collection: {
+        label: "ГОТОВА КОЛЕКЦІЯ",
+        title: "Авторські прикраси, готові до замовлення",
+        text:
+          "Каблучки, сережки, браслети та підвіски з продуманою формою, каменем і настроєм.",
+        cta: "Переглянути колекцію",
+        tags: ["Каблучки", "Сережки", "Браслети", "Підвіски"],
+        href: "/catalog"
+      },
+      constructor: {
+        label: "ПЕРСОНАЛЬНИЙ ДИЗАЙН",
+        title: "Створіть прикрасу у власному стилі",
+        text:
+          "Оберіть тип виробу, метал, камінь і деталі для прикраси, що відчувається особистою.",
+        cta: "Відкрити конструктор",
+        tags: ["Метал", "Камінь", "Розмір", "Деталі"],
+        href: "/constructor"
+      }
+    },
+    homeCategories: {
+      eyebrow: "КАТЕГОРІЇ",
+      title: "Знайдіть прикрасу за формою",
+      subtitle:
+        "Почніть із виробу, який найближчий саме вам: каблучки, сережок, браслета або підвіски.",
+      rings: {
+        title: "Каблучки",
+        text:
+          "Витончені акценти для щоденного образу, важливої події або особистого символу.",
+        cta: "Дивитися каблучки",
+        href: "/catalog?type=Ring",
+        type: "Ring"
+      },
+      earrings: {
+        title: "Сережки",
+        text:
+          "Делікатні форми, що підкреслюють світло обличчя та додають образу завершеності.",
+        cta: "Дивитися сережки",
+        href: "/catalog?type=Earrings",
+        type: "Earrings"
+      },
+      bracelets: {
+        title: "Браслети",
+        text:
+          "М’які лінії металу й каменю для акценту на зап’ясті — стриманого, але помітного.",
+        cta: "Дивитися браслети",
+        href: "/catalog?type=Bracelet",
+        type: "Bracelet"
+      },
+      pendants: {
+        title: "Підвіски",
+        text:
+          "Особистий символ ближче до серця — у металі, камені та формі, що мають значення.",
+        cta: "Дивитися підвіски",
+        href: "/catalog?type=Pendant",
+        type: "Pendant"
+      }
+    },
+    featuredEyebrow: "ВИБІР МАЙСТЕРНІ",
+    featuredTitle: "Найцінніші прикраси колекції",
+    featuredSubtitle: "Добірка виробів із найвищого цінового сегмента Aurora Atelier — складніші форми, виразні камені й більше ручної роботи в кожній деталі.",
+    featuredEmptyText: "Колекція скоро з’явиться.",
+    featuredCardBadge: "Вибір майстерні",
+    catalogButton: "Переглянути всю колекцію",
+    bespokeEyebrow: "КОНСТРУКТОР AURORA",
+    bespokeTitle: "Створіть прикрасу,\nякої ще не існує",
+    bespokeSubtitle: "Оберіть тип прикраси, метал, камінь і гравіювання — конструктор допоможе зібрати персональний дизайн у спокійному, виразному ритмі.",
     bespokeCta: "Відкрити конструктор",
-    editorialEyebrow: "Підхід",
-    editorialTitle: "Чому Aurora",
+    bespokeNote: "Персональний дизайн із прозорою ціною перед замовленням.",
+    bespokePreviewEyebrow: "Персональний дизайн",
+    bespokePreviewTitle: "Прикраса, зібрана під ваш характер",
+    bespokePreviewLive: "Реальні параметри конструктора",
+    bespokePreviewNote: "Тип, метал, камінь і персональний штрих — у спокійній композиції, що відчувається як ваша.",
+    bespokePreviewChipEngraving: "Гравіювання",
+    bespokeSteps: [
+      {
+        number: "01",
+        title: "Тип прикраси",
+        text: "Оберіть форму, з якої починається ваш майбутній виріб."
+      },
+      {
+        number: "02",
+        title: "Метал",
+        text: "Від срібла до золота — основа задає тон і настрій прикраси."
+      },
+      {
+        number: "03",
+        title: "Камінь",
+        text: "Камінь додає світло, акцент і характер усій композиції."
+      },
+      {
+        number: "04",
+        title: "Гравіювання",
+        text: "Особистий штрих, який робить дизайн ще ближчим саме вам."
+      }
+    ],
+    editorialEyebrow: "ПІДХІД МАЙСТЕРНІ",
+    editorialTitle: "Прикраси, у яких важлива кожна деталь",
+    editorialSubtitle:
+      "Aurora Atelier поєднує готову колекцію, персональний конструктор і уважну роботу з кожним виробом — від першої ідеї до прикраси, яку хочеться носити.",
     editorialCards: [
       {
-        title: "Пропорція та баланс",
-        text: "Кожна форма виважена до міліметра. Ми не слідуємо моді — ми створюємо речі, що не старіють."
+        number: "01",
+        title: "Ручна робота",
+        text: "Кожен виріб створюється з увагою до форми, пропорцій і посадки, щоб прикраса виглядала природно, делікатно й відчувалася особистою."
       },
       {
-        title: "Персональність",
-        text: "Гравіювання, вибір каменю, розмір — кожна деталь відображає вас."
+        number: "02",
+        title: "Персональний підхід",
+        text: "Ви обираєте не просто прикрасу, а деталі, які мають значення саме для вас: тип виробу, матеріал, камінь і настрій майбутнього дизайну."
       },
       {
+        number: "03",
         title: "Прозорий процес",
-        text: "Від ескізу до готового виробу — ми тримаємо вас у курсі кожного кроку."
+        text: "Параметри, комплектація та ціна зрозумілі до оформлення замовлення, тому кожен вибір у колекції чи конструкторі залишається усвідомленим."
       }
     ],
     faqEyebrow: "FAQ",
@@ -146,28 +251,123 @@ export const REFERENCE_COPY = {
     heroCtaPrimary: "View Collection",
     heroCtaSecondary: "Create Your Own",
     trust: ["Handcrafted", "Transparent\nPricing", "Personal\nApproach", "Free\nShipping"],
-    featuredEyebrow: "Featured Works",
-    featuredTitle: "Aurora Collection",
-    featuredSubtitle: "Each piece is the result of handwork and close attention to material.",
-    catalogButton: "Collection →",
-    bespokeEyebrow: "Bespoke",
-    bespokeTitle: "Create your\nunique piece",
-    bespokeSubtitle: "Choose type, material, stones and engraving — we will bring your idea to life in metal",
-    bespokeCta: "Open Constructor",
-    editorialEyebrow: "Approach",
-    editorialTitle: "Why Aurora",
+    twoPaths: {
+      eyebrow: "HOW TO BEGIN",
+      title: "Choose the format that suits you best",
+      collection: {
+        label: "FINISHED COLLECTION",
+        title: "Handcrafted jewelry ready to order",
+        text:
+          "Rings, earrings, bracelets, and pendants with a considered form, stone, and mood.",
+        cta: "Explore the collection",
+        tags: ["Rings", "Earrings", "Bracelets", "Pendants"],
+        href: "/catalog"
+      },
+      constructor: {
+        label: "PERSONAL DESIGN",
+        title: "Create a jewel in your own style",
+        text:
+          "Choose the jewelry type, metal, stone, and details for a piece that feels personal.",
+        cta: "Open the constructor",
+        tags: ["Metal", "Stone", "Size", "Details"],
+        href: "/constructor"
+      }
+    },
+    homeCategories: {
+      eyebrow: "CATEGORIES",
+      title: "Find your piece by form",
+      subtitle:
+        "Begin with the jewelry type that feels closest to you: a ring, earrings, bracelet, or pendant.",
+      rings: {
+        title: "Rings",
+        text:
+          "Refined accents for everyday wear, meaningful moments, or a personal symbol.",
+        cta: "Shop rings",
+        href: "/catalog?type=Ring",
+        type: "Ring"
+      },
+      earrings: {
+        title: "Earrings",
+        text:
+          "Delicate forms that bring light close to the face and complete the look.",
+        cta: "Shop earrings",
+        href: "/catalog?type=Earrings",
+        type: "Earrings"
+      },
+      bracelets: {
+        title: "Bracelets",
+        text:
+          "Soft lines of metal and stone for the wrist — subtle, personal, and refined.",
+        cta: "Shop bracelets",
+        href: "/catalog?type=Bracelet",
+        type: "Bracelet"
+      },
+      pendants: {
+        title: "Pendants",
+        text:
+          "A personal symbol worn close to the heart, shaped through metal, stone, and meaning.",
+        cta: "Shop pendants",
+        href: "/catalog?type=Pendant",
+        type: "Pendant"
+      }
+    },
+    featuredEyebrow: "ATELIER SELECTION",
+    featuredTitle: "The most precious pieces in the collection",
+    featuredSubtitle: "A curated selection from the highest tier of Aurora Atelier — more intricate forms, expressive stones, and more handcrafted detail in every piece.",
+    featuredEmptyText: "The collection will be available soon.",
+    featuredCardBadge: "Atelier pick",
+    catalogButton: "Explore the full collection",
+    bespokeEyebrow: "AURORA CONSTRUCTOR",
+    bespokeTitle: "Create a piece\nthat does not exist yet",
+    bespokeSubtitle: "Choose the jewelry type, metal, stone, and engraving — the constructor helps shape a personal design with a calm, expressive rhythm.",
+    bespokeCta: "Open the constructor",
+    bespokeNote: "Personal design with transparent pricing before checkout.",
+    bespokePreviewEyebrow: "Personal design",
+    bespokePreviewTitle: "A piece assembled around your character",
+    bespokePreviewLive: "Real constructor options",
+    bespokePreviewNote: "Type, metal, stone, and a personal finishing touch — arranged as a calm editorial composition.",
+    bespokePreviewChipEngraving: "Engraving",
+    bespokeSteps: [
+      {
+        number: "01",
+        title: "Jewelry type",
+        text: "Choose the form that sets the direction for your future piece."
+      },
+      {
+        number: "02",
+        title: "Metal",
+        text: "From silver to gold, the base defines the tone and mood of the design."
+      },
+      {
+        number: "03",
+        title: "Stone",
+        text: "The stone brings light, emphasis, and character to the composition."
+      },
+      {
+        number: "04",
+        title: "Engraving",
+        text: "A personal finishing touch that makes the design feel even more your own."
+      }
+    ],
+    editorialEyebrow: "ATELIER APPROACH",
+    editorialTitle: "Jewelry shaped with attention to every detail",
+    editorialSubtitle:
+      "Aurora Atelier brings together a finished collection, a personal constructor, and careful work with every piece — from the first idea to jewelry made to be worn.",
     editorialCards: [
       {
-        title: "Proportion and balance",
-        text: "Every form is refined down to the millimeter. We do not chase trends — we create pieces that age gracefully."
+        number: "01",
+        title: "Handcrafted work",
+        text: "Each piece is created with attention to form, proportion, and fit, so the jewelry feels natural, delicate, and personal."
       },
       {
-        title: "Personality",
-        text: "Engraving, stone choice, and size — each detail reflects you."
+        number: "02",
+        title: "Personal approach",
+        text: "You choose more than a jewel — you choose the details that matter to you: the type of piece, material, stone, and mood of the future design."
       },
       {
+        number: "03",
         title: "Transparent process",
-        text: "From sketch to finished piece, we keep you informed at every step."
+        text: "Parameters, configuration, and price are clear before placing an order, so every choice in the collection or constructor feels considered."
       }
     ],
     faqEyebrow: "FAQ",

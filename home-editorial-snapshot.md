@@ -1,0 +1,250 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link "Aurora Atelier" [ref=e6] [cursor=pointer]:
+        - /url: /
+      - navigation "Primary navigation" [ref=e7]:
+        - link "Колекція" [ref=e8] [cursor=pointer]:
+          - /url: /catalog
+        - link "Конструктор" [ref=e9] [cursor=pointer]:
+          - /url: /constructor
+      - generic [ref=e10]:
+        - button "Перемкнути мову" [ref=e11] [cursor=pointer]:
+          - generic [ref=e12]: EN
+        - link "Кошик" [ref=e13] [cursor=pointer]:
+          - /url: /cart
+          - img [ref=e14]
+        - link "Акаунт" [ref=e17] [cursor=pointer]:
+          - /url: /auth
+          - img [ref=e18]
+  - main [ref=e21]:
+    - region "Aurora Atelier hero" [ref=e22]:
+      - generic [ref=e27]:
+        - generic [ref=e28]: АВТОРСЬКА ЮВЕЛІРНА МАЙСТЕРНЯ
+        - heading "Прикраси, створені навколо вашої історії" [level=1] [ref=e29]
+        - paragraph [ref=e30]: Оберіть готовий виріб із колекції або створіть власну прикрасу в конструкторі — з металом, каменем і деталями, що мають значення саме для вас.
+        - generic [ref=e31]:
+          - button "Переглянути колекцію" [ref=e32] [cursor=pointer]
+          - button "Створити прикрасу" [ref=e33] [cursor=pointer]
+        - paragraph [ref=e34]: Готові вироби та персональні дизайни в одному просторі.
+    - generic [ref=e35]:
+      - article [ref=e36]:
+        - img [ref=e38]
+        - generic [ref=e41]: Ручна робота
+      - article [ref=e42]:
+        - img [ref=e44]
+        - generic [ref=e47]: Прозора ціна
+      - article [ref=e48]:
+        - img [ref=e50]
+        - generic [ref=e53]: Персональний підхід
+      - article [ref=e54]:
+        - img [ref=e56]
+        - generic [ref=e61]: Безкоштовна доставка
+    - generic [ref=e63]:
+      - generic [ref=e64]:
+        - paragraph [ref=e65]: ЯК ПОЧАТИ
+        - heading "Оберіть формат, який підходить саме вам" [level=2] [ref=e66]
+      - list [ref=e67]:
+        - link "ГОТОВА КОЛЕКЦІЯ Авторські прикраси, готові до замовлення Каблучки, сережки, браслети та підвіски з продуманою формою, каменем і настроєм. Каблучки Сережки Браслети Підвіски Переглянути колекцію" [ref=e68] [cursor=pointer]:
+          - /url: /catalog
+          - generic [ref=e70]:
+            - generic [ref=e71]: ГОТОВА КОЛЕКЦІЯ
+            - generic [ref=e72]
+            - generic [ref=e75]
+            - generic [ref=e80]
+        - link "ПЕРСОНАЛЬНИЙ ДИЗАЙН Створіть прикрасу у власному стилі Оберіть тип виробу, метал, камінь і деталі для прикраси, що відчувається особистою. Метал Камінь Розмір Деталі Відкрити конструктор" [ref=e84] [cursor=pointer]:
+          - /url: /constructor
+          - generic [ref=e86]:
+            - generic [ref=e87]: ПЕРСОНАЛЬНИЙ ДИЗАЙН
+            - generic [ref=e88]
+            - generic [ref=e91]
+            - generic [ref=e96]
+    - generic [ref=e101]:
+      - generic [ref=e102]:
+        - paragraph [ref=e103]: КАТЕГОРІЇ
+        - heading "Знайдіть прикрасу за формою" [level=2] [ref=e104]
+        - paragraph [ref=e105]: "Почніть із виробу, який найближчий саме вам: каблучки, сережок, браслета або підвіски."
+      - list [ref=e106]:
+        - link "Каблучки Витончені акценти для щоденного образу, важливої події або особистого символу. Дивитися каблучки" [ref=e107] [cursor=pointer]:
+          - /url: /catalog?type=Ring
+          - generic [ref=e109]:
+            - heading "Каблучки" [level=3] [ref=e110]
+            - paragraph [ref=e111]: Витончені акценти для щоденного образу, важливої події або особистого символу.
+            - generic [ref=e112]
+        - link "Сережки Делікатні форми, що підкреслюють світло обличчя та додають образу завершеності. Дивитися сережки" [ref=e116] [cursor=pointer]:
+          - /url: /catalog?type=Earrings
+          - generic [ref=e118]:
+            - heading "Сережки" [level=3] [ref=e119]
+            - paragraph [ref=e120]: Делікатні форми, що підкреслюють світло обличчя та додають образу завершеності.
+            - generic [ref=e121]
+        - link "Браслети М’які лінії металу й каменю для акценту на зап’ясті — стриманого, але помітного. Дивитися браслети" [ref=e125] [cursor=pointer]:
+          - /url: /catalog?type=Bracelet
+          - generic [ref=e127]:
+            - heading "Браслети" [level=3] [ref=e128]
+            - paragraph [ref=e129]: М’які лінії металу й каменю для акценту на зап’ясті — стриманого, але помітного.
+            - generic [ref=e130]
+        - link "Підвіски Особистий символ ближче до серця — у металі, камені та формі, що мають значення. Дивитися підвіски" [ref=e134] [cursor=pointer]:
+          - /url: /catalog?type=Pendant
+          - generic [ref=e136]:
+            - heading "Підвіски" [level=3] [ref=e137]
+            - paragraph [ref=e138]: Особистий символ ближче до серця — у металі, камені та формі, що мають значення.
+            - generic [ref=e139]
+    - generic [ref=e145]:
+      - generic [ref=e146]:
+        - paragraph [ref=e147]: ВИБІР МАЙСТЕРНІ
+        - heading "Найцінніші прикраси колекції" [level=2] [ref=e148]
+        - paragraph [ref=e149]: Добірка виробів із найвищого цінового сегмента Aurora Atelier — складніші форми, виразні камені й більше ручної роботи в кожній деталі.
+        - link "Переглянути всю колекцію" [ref=e151] [cursor=pointer]:
+          - /url: /catalog
+      - generic [ref=e152]:
+        - link "Каблучка Сяйво корони Вибір майстерні Каблучка Переглянути виріб Каблучка Сяйво корони Каблучка Золото 21 580 грн" [ref=e271] [cursor=pointer]:
+          - /url: /products/aurora-crown-ring
+          - generic [ref=e272]:
+            - img "Каблучка Сяйво корони" [ref=e273]
+            - generic [ref=e274]
+            - generic [ref=e278]
+          - generic [ref=e282]:
+            - generic [ref=e283]: Каблучка Сяйво корони
+            - generic [ref=e284]
+            - generic [ref=e287]: 21 580 грн
+        - link "Каблучка Імперська дуга Вибір майстерні Каблучка Переглянути виріб Каблучка Імперська дуга Каблучка Золото 20 800 грн" [ref=e288] [cursor=pointer]:
+          - /url: /products/imperial-arc-ring
+          - generic [ref=e289]:
+            - img "Каблучка Імперська дуга" [ref=e290]
+            - generic [ref=e291]
+            - generic [ref=e295]
+          - generic [ref=e299]:
+            - generic [ref=e300]: Каблучка Імперська дуга
+            - generic [ref=e301]
+            - generic [ref=e304]: 20 800 грн
+        - link "Сережки White Diamond Вибір майстерні Сережки Переглянути виріб Сережки White Diamond Сережки Золото 20 350 грн" [ref=e305] [cursor=pointer]:
+          - /url: /products/white-diamond-earrings
+          - generic [ref=e306]:
+            - img "Сережки White Diamond" [ref=e307]
+            - generic [ref=e308]
+            - generic [ref=e312]
+          - generic [ref=e316]:
+            - generic [ref=e317]: Сережки White Diamond
+            - generic [ref=e318]
+            - generic [ref=e321]: 20 350 грн
+        - link "Каблучка Сонцестояння Вибір майстерні Каблучка Переглянути виріб Каблучка Сонцестояння Каблучка Золото 19 540 грн" [ref=e322] [cursor=pointer]:
+          - /url: /products/solstice-halo-ring
+          - generic [ref=e323]:
+            - img "Каблучка Сонцестояння" [ref=e324]
+            - generic [ref=e325]
+            - generic [ref=e329]
+          - generic [ref=e333]:
+            - generic [ref=e334]: Каблучка Сонцестояння
+            - generic [ref=e335]
+            - generic [ref=e338]: 19 540 грн
+    - generic [ref=e157]:
+      - generic [ref=e158]:
+        - generic [ref=e159]:
+          - paragraph [ref=e160]: КОНСТРУКТОР AURORA
+          - heading "Створіть прикрасу, якої ще не існує" [level=2] [ref=e161]
+          - paragraph [ref=e162]: Оберіть тип прикраси, метал, камінь і гравіювання — конструктор допоможе зібрати персональний дизайн у спокійному, виразному ритмі.
+          - generic [ref=e163]:
+            - link "Відкрити конструктор" [ref=e164] [cursor=pointer]:
+              - /url: /constructor
+            - paragraph [ref=e168]: Персональний дизайн із прозорою ціною перед замовленням.
+        - complementary "Прикраса, зібрана під ваш характер" [ref=e169]:
+          - generic [ref=e170]:
+            - generic [ref=e171]
+            - generic [ref=e174]: Реальні параметри конструктора
+          - generic [ref=e339]:
+            - generic [ref=e340]
+            - generic [ref=e341]: "\"AURORA\""
+          - generic [ref=e178]:
+            - paragraph [ref=e179]: Тип, метал, камінь і персональний штрих — у спокійній композиції, що відчувається як ваша.
+            - list "Прикраса, зібрана під ваш характер" [ref=e342]
+      - list "Створіть прикрасу, якої ще не існує" [ref=e180]:
+        - listitem [ref=e181]:
+          - generic [ref=e182]: "01"
+          - heading "Тип прикраси" [level=3] [ref=e183]
+          - paragraph [ref=e184]: Оберіть форму, з якої починається ваш майбутній виріб.
+          - text: →
+        - listitem [ref=e185]:
+          - generic [ref=e186]: "02"
+          - heading "Метал" [level=3] [ref=e187]
+          - paragraph [ref=e188]: Від срібла до золота — основа задає тон і настрій прикраси.
+          - text: →
+        - listitem [ref=e189]:
+          - generic [ref=e190]: "03"
+          - heading "Камінь" [level=3] [ref=e191]
+          - paragraph [ref=e192]: Камінь додає світло, акцент і характер усій композиції.
+          - text: →
+        - listitem [ref=e193]:
+          - generic [ref=e194]: "04"
+          - heading "Гравіювання" [level=3] [ref=e195]
+          - paragraph [ref=e196]: Особистий штрих, який робить дизайн ще ближчим саме вам.
+    - generic [ref=e199]:
+      - generic [ref=e200]:
+        - paragraph [ref=e201]: ПІДХІД МАЙСТЕРНІ
+        - heading "Прикраси, у яких важлива кожна деталь" [level=2] [ref=e202]
+        - paragraph [ref=e203]: Aurora Atelier поєднує готову колекцію, персональний конструктор і уважну роботу з кожним виробом — від першої ідеї до прикраси, яку хочеться носити.
+      - list "Прикраси, у яких важлива кожна деталь" [ref=e205]:
+        - listitem [ref=e206]:
+          - generic [ref=e208]: "01"
+          - generic [ref=e210]:
+            - heading "Ручна робота" [level=3] [ref=e211]
+            - paragraph [ref=e212]: Кожен виріб створюється з увагою до форми, пропорцій і посадки, щоб прикраса виглядала природно, делікатно й відчувалася особистою.
+        - listitem [ref=e213]:
+          - generic [ref=e215]: "02"
+          - generic [ref=e217]:
+            - heading "Персональний підхід" [level=3] [ref=e218]
+            - paragraph [ref=e219]: "Ви обираєте не просто прикрасу, а деталі, які мають значення саме для вас: тип виробу, матеріал, камінь і настрій майбутнього дизайну."
+        - listitem [ref=e220]:
+          - generic [ref=e222]: "03"
+          - generic [ref=e224]:
+            - heading "Прозорий процес" [level=3] [ref=e225]
+            - paragraph [ref=e226]: Параметри, комплектація та ціна зрозумілі до оформлення замовлення, тому кожен вибір у колекції чи конструкторі залишається усвідомленим.
+    - generic [ref=e228]:
+      - generic [ref=e229]:
+        - paragraph [ref=e230]: FAQ
+        - heading "Поширені питання" [level=2] [ref=e231]
+      - generic [ref=e232]:
+        - button "Як довго виготовляється замовлення? +" [ref=e234] [cursor=pointer]:
+          - generic [ref=e235]: Як довго виготовляється замовлення?
+          - generic [ref=e236]: +
+        - button "Чи можна замовити гравіювання? +" [ref=e238] [cursor=pointer]:
+          - generic [ref=e239]: Чи можна замовити гравіювання?
+          - generic [ref=e240]: +
+        - button "Яка гарантія на вироби? +" [ref=e242] [cursor=pointer]:
+          - generic [ref=e243]: Яка гарантія на вироби?
+          - generic [ref=e244]: +
+        - button "Як працює оплата і підтвердження? +" [ref=e246] [cursor=pointer]:
+          - generic [ref=e247]: Як працює оплата і підтвердження?
+          - generic [ref=e248]: +
+    - generic [ref=e250]:
+      - heading "Готові обрати своє?" [level=2] [ref=e251]
+      - paragraph [ref=e252]: Перегляньте колекцію або створіть унікальне прикраса у конструкторі
+      - generic [ref=e253]:
+        - link "Переглянути колекцію" [ref=e254] [cursor=pointer]:
+          - /url: /catalog
+        - link "Створити своє" [ref=e255] [cursor=pointer]:
+          - /url: /constructor
+  - contentinfo [ref=e256]:
+    - generic [ref=e257]:
+      - generic [ref=e258]:
+        - generic [ref=e259]: Aurora Atelier
+        - paragraph
+      - generic [ref=e260]:
+        - generic [ref=e261]:
+          - heading [level=4]
+          - link:
+            - /url: /catalog
+          - link:
+            - /url: /constructor
+        - generic [ref=e262]:
+          - heading "Акаунт" [level=4] [ref=e263]
+          - link "Мої замовлення" [ref=e264] [cursor=pointer]:
+            - /url: /orders
+          - link "Акаунт" [ref=e265] [cursor=pointer]:
+            - /url: /account
+        - generic [ref=e266]:
+          - heading [level=4]
+          - link "auroraatelier.mail@gmail.com" [ref=e267] [cursor=pointer]:
+            - /url: mailto:auroraatelier.mail@gmail.com
+    - generic [ref=e268]:
+      - generic [ref=e269]: © 2026 Aurora Atelier
+      - generic [ref=e270]: Створено в Харкові

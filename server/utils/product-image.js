@@ -29,6 +29,27 @@ function publicAssetExists(assetPath) {
   return fs.existsSync(absolutePath);
 }
 
+function getPublicAssetAbsolutePath(assetPath) {
+  if (!assetPath || typeof assetPath !== "string" || !assetPath.startsWith("/")) {
+    return null;
+  }
+
+  const normalizedAssetPath = assetPath.split("?")[0];
+  const relativePath = decodeURIComponent(normalizedAssetPath.replace(/^\//, ""));
+  return path.resolve(process.cwd(), "public", relativePath);
+}
+
+function withAssetVersion(assetPath) {
+  const absolutePath = getPublicAssetAbsolutePath(assetPath);
+  if (!absolutePath || !fs.existsSync(absolutePath)) {
+    return assetPath;
+  }
+
+  const stats = fs.statSync(absolutePath);
+  const version = Math.floor(stats.mtimeMs);
+  return `${assetPath}?v=${version}`;
+}
+
 function resolveImageBySlug(slug) {
   const normalizedSlug = String(slug || "").trim();
   if (!normalizedSlug) return null;
@@ -36,7 +57,7 @@ function resolveImageBySlug(slug) {
   for (const extension of PRODUCT_IMAGE_EXTENSIONS) {
     const assetPath = `/assets/products/${normalizedSlug}${extension}`;
     if (publicAssetExists(assetPath)) {
-      return assetPath;
+      return withAssetVersion(assetPath);
     }
   }
 
@@ -50,10 +71,10 @@ function resolveProductImage(assetPath, productType, slug) {
   }
 
   if (publicAssetExists(assetPath)) {
-    return assetPath;
+    return withAssetVersion(assetPath);
   }
 
-  return PRODUCT_IMAGE_FALLBACKS[normalizeProductType(productType)];
+  return withAssetVersion(PRODUCT_IMAGE_FALLBACKS[normalizeProductType(productType)]);
 }
 
 module.exports = { resolveProductImage };

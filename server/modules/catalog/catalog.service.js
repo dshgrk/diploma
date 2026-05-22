@@ -2,7 +2,7 @@ const { db } = require("../../db/knex");
 const { pickLocalizedFields, resolveLocale } = require("../../utils/locale");
 const { createHttpError } = require("../../utils/http-error");
 const { resolveProductImage } = require("../../utils/product-image");
-const { FILTER_COLUMN_BY_KEY, normalizeCatalogFilters, serializeProductFilters } = require("./catalog.filters");
+const { FILTER_COLUMN_BY_KEY, normalizeCatalogQuery, serializeProductFilters } = require("./catalog.filters");
 
 async function listProducts(req) {
   const locale = resolveLocale(req);
@@ -22,19 +22,35 @@ async function listProducts(req) {
       "filter_stone_size",
       "filter_ring_size",
       "filter_ring_type",
-      "filter_bracelet_length"
+      "filter_bracelet_length",
+      "created_at"
     )
-    .where("is_active", true)
-    .orderBy("created_at", "desc");
+    .where("is_active", true);
 
   if (req.query.jewelry_type) {
     query.where("products.jewelry_type_id", Number(req.query.jewelry_type));
   }
 
-  const filters = normalizeCatalogFilters(req.query);
-  Object.entries(filters).forEach(([key, value]) => {
-    query.where(FILTER_COLUMN_BY_KEY[key], value);
+  const { filters, priceMin, priceMax, sort } = normalizeCatalogQuery(req.query);
+  Object.entries(filters).forEach(([key, values]) => {
+    query.whereIn(FILTER_COLUMN_BY_KEY[key], values);
   });
+
+  if (priceMin != null) {
+    query.andWhere("products.price", ">=", priceMin);
+  }
+
+  if (priceMax != null) {
+    query.andWhere("products.price", "<=", priceMax);
+  }
+
+  if (sort === "price_asc") {
+    query.orderBy("price", "asc").orderBy("created_at", "desc");
+  } else if (sort === "price_desc") {
+    query.orderBy("price", "desc").orderBy("created_at", "desc");
+  } else {
+    query.orderBy("created_at", "desc");
+  }
 
   const records = await query;
   const productIds = records.map((item) => item.id);
@@ -54,6 +70,7 @@ async function listProducts(req) {
       name: localized.name,
       price: Number(localized.price),
       currency: localized.currency,
+      createdAt: localized.created_at,
       filters: serializeProductFilters(localized),
       thumbnail_url: resolveProductImage(imagesByProductId[localized.id]?.asset_path, localized.filter_type, localized.slug)
     };

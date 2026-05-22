@@ -144,33 +144,25 @@ exports.seed = async function seed(knex) {
 
   const [silverId] = await knex("materials").insert({
     code: "silver",
-    name_uk: "Срібло 925",
-    name_en: "Silver 925",
+    name_uk: "Срібло",
+    name_en: "Silver",
     price_delta: 0,
     is_active: true
   });
 
-  const [goldPlatedId] = await knex("materials").insert({
-    code: "gold_plated",
-    name_uk: "Позолота",
-    name_en: "Gold plated",
-    price_delta: 320,
-    is_active: true
-  });
-
-  const [solidGoldId] = await knex("materials").insert({
-    code: "solid_gold",
-    name_uk: "Золото 585",
-    name_en: "Solid gold 585",
+  const [goldId] = await knex("materials").insert({
+    code: "gold",
+    name_uk: "Золото",
+    name_en: "Gold",
     price_delta: 1250,
     is_active: true
   });
 
-  const [steelId] = await knex("materials").insert({
-    code: "jewelry_steel",
-    name_uk: "Ювелірна сталь",
-    name_en: "Jewelry steel",
-    price_delta: -120,
+  const [roseGoldId] = await knex("materials").insert({
+    code: "rose_gold",
+    name_uk: "Рожеве золото",
+    name_en: "Rose Gold",
+    price_delta: 950,
     is_active: true
   });
 
@@ -260,14 +252,11 @@ exports.seed = async function seed(knex) {
   }
 
   const materialValues = [
-    { material_id: silverId, code: "silver", label_uk: "Срібло 925", label_en: "Silver 925", price_delta: 0, layer_key: "material", z_index: 1 },
-    { material_id: goldPlatedId, code: "gold_plated", label_uk: "Позолота", label_en: "Gold plated", price_delta: 320, layer_key: "material", z_index: 1 },
-    { material_id: solidGoldId, code: "solid_gold", label_uk: "Золото 585", label_en: "Solid gold 585", price_delta: 1250, layer_key: "material", z_index: 1 }
+    { material_id: silverId, code: "silver", label_uk: "Срібло", label_en: "Silver", price_delta: 0, layer_key: "material", z_index: 1 },
+    { material_id: goldId, code: "gold", label_uk: "Золото", label_en: "Gold", price_delta: 1250, layer_key: "material", z_index: 1 },
+    { material_id: roseGoldId, code: "rose_gold", label_uk: "Рожеве золото", label_en: "Rose Gold", price_delta: 950, layer_key: "material", z_index: 1 }
   ];
-  const braceletMaterialValues = [
-    { material_id: steelId, code: "jewelry_steel", label_uk: "Ювелірна сталь", label_en: "Jewelry steel", price_delta: -120, layer_key: "material", z_index: 1 },
-    ...materialValues
-  ];
+  const braceletMaterialValues = [...materialValues];
   const stoneValues = [
     { code: "none", label_uk: "Без каменю", label_en: "No stone", price_delta: 0, layer_key: "stone", z_index: 3 },
     { code: "pearl", label_uk: "Перлина", label_en: "Pearl", price_delta: 180, layer_key: "stone", z_index: 3 },
@@ -428,7 +417,7 @@ exports.seed = async function seed(knex) {
     jewelry_type_id: pendantTypeId,
     title_snapshot: "Підвіска з рожевим кварцом",
     configuration_json: JSON.stringify({
-      material: "gold_plated",
+      material: "gold",
       shape: "drop",
       stone: "rose_quartz",
       engraving_text: "Love"

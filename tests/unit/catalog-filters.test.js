@@ -2,47 +2,58 @@ import { createRequire } from "module";
 import { describe, expect, test } from "vitest";
 
 const require = createRequire(import.meta.url);
-const { CATALOG_FILTERS, normalizeCatalogFilters } = require("../../server/modules/catalog/catalog.filters");
+const { FILTER_COLUMN_BY_KEY, normalizeCatalogFilters, normalizeCatalogQuery, normalizeCatalogSort } = require("../../server/modules/catalog/catalog.filters");
 
 describe("catalog filters", () => {
-  test("keeps only the supported filter values", () => {
+  test("normalizes supported filter values into canonical multi-select arrays", () => {
     const filters = normalizeCatalogFilters({
       type: "Ring",
-      metal: "Rose Gold",
-      stoneType: "Emerald",
+      metal: "Rose Gold,Silver",
+      stone: ["Emerald", "Diamond"],
       stoneShape: "Princess",
       stoneColor: "Green",
       stoneSize: "2 ct",
       ringSize: "17",
-      ringType: "Fashion",
+      ringStyle: "Fashion",
       braceletLength: "20 cm",
       unsupported: "ignored"
     });
 
     expect(filters).toEqual({
-      type: "Ring",
-      metal: "Rose Gold",
-      stoneType: "Emerald",
-      stoneShape: "Princess",
-      stoneColor: "Green",
-      stoneSize: "2 ct",
-      ringSize: "17",
-      ringType: "Fashion",
-      braceletLength: "20 cm"
+      type: ["Ring"],
+      metal: ["Rose Gold", "Silver"],
+      stoneType: ["Emerald", "Diamond"],
+      stoneShape: ["Princess"],
+      stoneColor: ["Green"],
+      stoneSize: ["2 ct"],
+      ringSize: ["17"],
+      ringType: ["Fashion"],
+      braceletLength: ["20 cm"]
     });
   });
 
-  test("exposes exactly the requested filter option lists", () => {
-    expect(CATALOG_FILTERS).toEqual({
-      type: ["Ring", "Earrings", "Bracelet"],
-      metal: ["Gold", "Silver", "Rose Gold"],
-      stoneType: ["Diamond", "Emerald", "Sapphire", "None"],
-      stoneShape: ["Round", "Oval", "Princess"],
-      stoneColor: ["White", "Green", "Blue"],
-      stoneSize: ["0.5 ct", "1 ct", "2 ct"],
-      ringSize: ["15", "16", "17", "18"],
-      ringType: ["Engagement", "Wedding", "Fashion"],
-      braceletLength: ["16 cm", "18 cm", "20 cm"]
+  test("normalizes price range and sort aliases for the catalog query", () => {
+    expect(normalizeCatalogQuery({ priceMin: "1000", priceMax: "5000", sort: "price-desc" })).toEqual({
+      filters: {},
+      priceMin: 1000,
+      priceMax: 5000,
+      sort: "price_desc"
+    });
+
+    expect(normalizeCatalogSort("new")).toBe("newest");
+  });
+
+  test("keeps the expected DB filter mappings, including pendant support via type filter", () => {
+    expect(FILTER_COLUMN_BY_KEY).toMatchObject({
+      type: "filter_type",
+      metal: "filter_metal",
+      stoneType: "filter_stone_type",
+      stoneShape: "filter_stone_shape",
+      stoneColor: "filter_stone_color",
+      stoneSize: "filter_stone_size",
+      ringSize: "filter_ring_size",
+      ringType: "filter_ring_type",
+      braceletLength: "filter_bracelet_length"
     });
   });
 });

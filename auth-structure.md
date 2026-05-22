@@ -1,0 +1,79 @@
+- generic [ref=e3] [box=0,0,1521,1264]:
+  - banner [ref=e4] [box=0,0,1521,73]:
+    - generic [ref=e5] [box=150,0,1220,72]:
+      - link "Aurora Atelier" [ref=e6] [cursor=pointer] [box=150,17,190,39]:
+        - /url: /
+      - navigation "Primary navigation" [ref=e7] [box=380,19,810,35]:
+        - link "Колекція" [ref=e8] [cursor=pointer] [box=380,19,85,35]:
+          - /url: /catalog
+        - link "Конструктор" [ref=e9] [cursor=pointer] [box=469,19,111,35]:
+          - /url: /constructor
+      - generic [ref=e10] [box=1230,15,140,42]:
+        - button "Перемкнути мову" [ref=e11] [cursor=pointer] [box=1230,15,42,42]:
+          - generic [ref=e12] [box=1232,23,38,26]: EN
+        - link "Кошик" [ref=e13] [cursor=pointer] [box=1279,15,42,42]:
+          - /url: /cart
+          - img [ref=e14] [box=1289,25,22,22]
+        - link "Акаунт" [ref=e17] [cursor=pointer] [box=1328,15,42,42]:
+          - /url: /auth
+          - img [ref=e18] [box=1338,25,22,22]
+  - main [ref=e21] [box=0,0,1521,1038]:
+    - generic [ref=e22] [box=80,112,1360,886]:
+      - generic [ref=e24] [box=80,112,679,886]:
+        - generic [ref=e25] [box=113,145,613,134]:
+          - generic [ref=e26] [box=113,145,613,28]:
+            - generic [ref=e27] [box=113,145,73,28]: Акаунт
+            - paragraph [ref=e28] [box=477,149,249,21]: Приватний кабінет клієнта
+          - generic [ref=e29] [box=113,189,340,58]:
+            - button "Вхід" [ref=e30] [cursor=pointer] [box=119,195,161,46]
+            - button "Реєстрація" [ref=e31] [cursor=pointer] [box=286,195,161,46]
+        - generic [ref=e32] [box=113,304,540,660]:
+          - generic [ref=e33] [box=113,304,540,124]:
+            - heading "Вхід до акаунта" [level=1] [ref=e34] [box=113,304,540,57]
+            - paragraph [ref=e35] [box=113,373,540,56]: Увійдіть, щоб продовжити оформлення, переглядати свої резерви та зберігати всі оновлення ательє в одному місці.
+          - generic "Auth flow highlights" [ref=e36] [box=113,470,540,40]:
+            - generic [ref=e37] [box=113,470,185,40]: Статуси замовлень
+            - generic [ref=e38] [box=309,470,241,40]: Продовження оформлення
+          - generic [ref=e39] [box=113,532,540,291]:
+            - generic [ref=e40] [box=113,532,540,85]
+            - generic [ref=e43] [box=113,633,540,114]
+            - button "Увійти" [ref=e47] [cursor=pointer] [box=113,767,540,56]
+          - generic [ref=e50] [box=113,845,540,120]:
+            - generic [ref=e52] [box=367,845,32,20]: або
+            - generic "Продовжити з Google" [ref=e54] [box=130,898,506,50]
+      - complementary [ref=e55] [box=791,112,649,886]:
+        - img "Aurora Atelier" [ref=e56] [box=792,113,648,884]
+        - generic [ref=e58] [box=792,113,648,884]:
+          - generic [ref=e59] [box=827,148,197,127]: Індивідуальний сервіс
+          - heading "Створіть свій виріб" [level=2] [ref=e60] [box=827,291,577,134]
+          - paragraph [ref=e61] [box=827,441,448,170]: Спокійний клієнтський простір для відстеження етапів ательє, підтвердження доставки та повернення до зарезервованих виробів.
+          - generic [ref=e62] [box=827,626,577,335]:
+            - article [ref=e63] [box=827,626,281,171]
+            - article [ref=e70] [box=1123,626,281,171]
+            - article [ref=e80] [box=827,812,281,150]
+            - article [ref=e88] [box=1123,812,281,150]
+  - contentinfo [ref=e95] [box=0,1038,1521,227]:
+    - generic [ref=e96] [box=150,1038,1220,169]:
+      - generic [ref=e97] [box=182,1086,410,45]:
+        - generic [ref=e98] [box=182,1086,410,31]: Aurora Atelier
+        - paragraph [box=182,1131,410,0]
+      - generic [ref=e99] [box=654,1086,684,84]:
+        - generic [ref=e100] [box=654,1086,208,84]:
+          - heading [level=4] [box=654,1086,208,0]
+          - link [box=654,1101,208,0]:
+            - /url: /catalog
+          - link [box=654,1110,208,0]:
+            - /url: /constructor
+        - generic [ref=e101] [box=893,1086,208,84]:
+          - heading "Акаунт" [level=4] [ref=e102] [box=893,1086,208,12]
+          - link "Мої замовлення" [ref=e103] [cursor=pointer] [box=893,1113,208,24]:
+            - /url: /orders
+          - link "Акаунт" [ref=e104] [cursor=pointer] [box=893,1146,208,24]:
+            - /url: /account
+        - generic [ref=e105] [box=1131,1086,208,84]:
+          - heading [level=4] [box=1131,1086,208,0]
+          - link "auroraatelier.mail@gmail.com" [ref=e106] [cursor=pointer] [box=1131,1110,208,24]:
+            - /url: mailto:auroraatelier.mail@gmail.com
+    - generic [ref=e107] [box=150,1208,1220,56]:
+      - generic [ref=e108] [box=182,1225,126,20]: © 2026 Aurora Atelier
+      - generic [ref=e109] [box=1220,1225,118,20]: Створено в Харкові
