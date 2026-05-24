@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { accountApi, adminCatalogApi, adminOrdersApi, authApi, cartApi, catalogApi, constructorApi, ordersApi } from "./api";
 import {
+  ABOUT_PAGE_CONTENT,
   CONSTRUCTOR_SLOT_CONFIGS,
   CONSTRUCTOR_STONE_MEDIA,
   FALLBACK_PRODUCT_IMAGE,
@@ -1108,8 +1109,10 @@ function Header() {
   }, []);
 
   const links = [
+    [copy.navHome, "/"],
     [copy.navCollection, "/catalog"],
-    [copy.navConstructor, "/constructor"]
+    [copy.navConstructor, "/constructor"],
+    [copy.navAbout, "/about"]
   ];
   const localeLabel = locale === "uk" ? "EN" : "UK";
 
@@ -4468,6 +4471,237 @@ function CareAndFaq() {
   );
 }
 
+function AboutVisual({ src, alt, className = "", fallbackClassName = "" }) {
+  const [hidden, setHidden] = useState(false);
+
+  return (
+    <div className={`${className}${hidden ? " is-fallback" : ""}`}>
+      {!hidden && src ? <img src={src} alt={alt} loading="lazy" onError={() => setHidden(true)} /> : null}
+      <div className={`about-visual-fallback ${fallbackClassName}`.trim()} aria-hidden={hidden ? "false" : "true"}>
+        <span className="about-visual-fallback-line" />
+        <span className="about-visual-fallback-line short" />
+      </div>
+    </div>
+  );
+}
+
+function AboutPage() {
+  const { locale } = useI18n();
+  const copy = ABOUT_PAGE_CONTENT[locale] || ABOUT_PAGE_CONTENT.en;
+  const [heroVideoUnavailable, setHeroVideoUnavailable] = useState(false);
+  const [heroPosterHidden, setHeroPosterHidden] = useState(false);
+  const [heroVideoReady, setHeroVideoReady] = useState(false);
+  const galleryItems = [
+    {
+      ...copy.gallery.items[0],
+      src: REFERENCE_IMAGES.about?.workshopOverview,
+      className: "about-gallery-card is-large"
+    },
+    {
+      ...copy.gallery.items[1],
+      src: REFERENCE_IMAGES.about?.artisanDetail,
+      className: "about-gallery-card is-medium"
+    },
+    {
+      ...copy.gallery.items[2],
+      src: REFERENCE_IMAGES.about?.materialsTable,
+      className: "about-gallery-card is-medium"
+    },
+    {
+      ...copy.gallery.items[3],
+      src: REFERENCE_IMAGES.about?.packaging,
+      className: "about-gallery-card is-tall"
+    }
+  ];
+
+  function handleAboutAnchorClick(event, href) {
+    if (!href?.startsWith("#")) return;
+    event.preventDefault();
+    const target = document.querySelector(href);
+    if (!target) return;
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  return (
+    <>
+      <Header />
+      <main className="about-main" data-locale={locale}>
+        <section className="about-hero section">
+          <div className="section-inner about-hero-shell">
+            <div className="about-hero-media-wrap">
+              <div className={`about-hero-media${heroVideoUnavailable ? " is-video-fallback" : ""}`}>
+                {!heroPosterHidden ? (
+                  <img
+                    className={`about-hero-poster${heroVideoReady ? " is-hidden" : ""}`}
+                    src={REFERENCE_IMAGES.about?.heroPoster}
+                    alt=""
+                    aria-hidden="true"
+                    onError={() => setHeroPosterHidden(true)}
+                  />
+                ) : null}
+                {!heroVideoUnavailable ? (
+                  <video
+                    className="about-hero-video"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="auto"
+                    poster={REFERENCE_IMAGES.about?.heroPoster}
+                    onLoadedData={() => setHeroVideoReady(true)}
+                    onPlaying={() => setHeroVideoReady(true)}
+                    onError={() => {
+                      setHeroVideoUnavailable(true);
+                      setHeroVideoReady(false);
+                    }}
+                  >
+                    <source src={REFERENCE_IMAGES.about?.heroVideo} type="video/mp4" />
+                  </video>
+                ) : null}
+                <div className="about-hero-overlay" />
+                <div className="about-hero-atmosphere" aria-hidden="true">
+                  <span>atelier</span>
+                  <span>process</span>
+                  <span>materials</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="about-hero-panel">
+              <p className="eyebrow">{copy.hero.eyebrow}</p>
+              <h1 className="about-hero-title">{copy.hero.title}</h1>
+              <p className="about-hero-text">{copy.hero.text}</p>
+              <div className="about-hero-actions">
+                <a className="button" href="/catalog">{copy.hero.primaryCta}</a>
+                <a className="button button-ghost" href="/constructor">{copy.hero.secondaryCta}</a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="about-section section">
+          <div className="section-inner about-story-grid">
+            <div className="about-story-copy">
+              <h2 className="section-title about-story-title">{copy.whoWeAre.title}</h2>
+              {copy.whoWeAre.paragraphs.map((paragraph) => (
+                <p className="about-story-text" key={paragraph}>{paragraph}</p>
+              ))}
+              <aside className="about-quote-card">
+                <span className="about-quote-mark">“</span>
+                <p>{copy.whoWeAre.quote}</p>
+              </aside>
+            </div>
+
+            <div className="about-story-media-stack">
+              <AboutVisual
+                src={REFERENCE_IMAGES.about?.clientConsultation || REFERENCE_IMAGES.about?.workshopOverview}
+                alt={copy.whoWeAre.title}
+                className="about-story-media"
+                fallbackClassName="is-warm"
+              />
+            </div>
+          </div>
+        </section>
+
+        <section className="about-section section about-create-section">
+          <div className="section-inner">
+            <div className="section-heading about-section-heading">
+              <h2 className="section-title">{copy.create.title}</h2>
+            </div>
+            <div className="about-create-grid" role="list" aria-label={copy.create.title}>
+              {copy.create.cards.map((card, index) => (
+                <article className="about-create-card" key={card.title} role="listitem">
+                  <span className="about-create-index">{`0${index + 1}`}</span>
+                  <h3 className="about-create-title">{card.title}</h3>
+                  <p className="about-create-text">{card.text}</p>
+                  <a
+                    className="about-inline-link"
+                    href={card.href}
+                    onClick={(event) => handleAboutAnchorClick(event, card.href)}
+                  >
+                    <span>{card.cta}</span>
+                    <ChevronRight aria-hidden="true" />
+                  </a>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="about-section section about-process-section" id="about-process">
+          <div className="section-inner">
+            <div className="section-heading about-process-heading">
+              <p className="eyebrow">{copy.process.eyebrow}</p>
+              <h2 className="section-title">{copy.process.title}</h2>
+            </div>
+            <div className="about-process-grid" role="list" aria-label={copy.process.title}>
+              {copy.process.steps.map((step) => (
+                <article className="about-process-card" key={step.number} role="listitem">
+                  <div className="about-process-top">
+                    <span className="about-process-number">{step.number}</span>
+                    <span className="about-process-line" aria-hidden="true" />
+                  </div>
+                  <h3 className="about-process-title">{step.title}</h3>
+                  <p className="about-process-text">{step.text}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="about-section section about-gallery-section">
+          <div className="section-inner">
+            <div className="section-heading about-section-heading">
+              <h2 className="section-title">{copy.gallery.title}</h2>
+            </div>
+            <div className="about-gallery-grid" role="list" aria-label={copy.gallery.title}>
+              {galleryItems.map((item) => (
+                <figure className={item.className} key={item.key} role="listitem">
+                  <AboutVisual src={item.src} alt={item.caption} className="about-gallery-media" fallbackClassName="is-soft" />
+                  <figcaption className="about-gallery-caption">{item.caption}</figcaption>
+                </figure>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="about-section section about-principles-section">
+          <div className="section-inner">
+            <div className="section-heading about-section-heading">
+              <h2 className="section-title">{copy.principles.title}</h2>
+            </div>
+            <div className="about-principles-grid" role="list" aria-label={copy.principles.title}>
+              {copy.principles.items.map((item) => (
+                <article className="about-principle-card" key={item.number} role="listitem">
+                  <span className="about-principle-number">{item.number}</span>
+                  <h3 className="about-principle-title">{item.title}</h3>
+                  <p className="about-principle-text">{item.text}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="about-section section about-final-cta">
+          <div className="section-inner">
+            <div className="about-final-shell">
+              <div className="about-final-copy">
+                <h2 className="about-final-title">{copy.cta.title}</h2>
+                <p className="about-final-text">{copy.cta.text}</p>
+              </div>
+              <div className="about-final-actions">
+                <a className="button" href="/catalog">{copy.cta.primaryCta}</a>
+                <a className="button button-ghost" href="/constructor">{copy.cta.secondaryCta}</a>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+      <Footer />
+    </>
+  );
+}
+
 function Footer() {
   const { locale } = useI18n();
   const copy = referenceCopy(locale);
@@ -4484,7 +4718,8 @@ function Footer() {
           <div className="site-footer-column">
             <h4 className="site-footer-title">{copy.footerCollections}</h4>
             <a className="site-footer-link" href="/catalog">{copy.readyPieces}</a>
-            <a className="site-footer-link" href="/constructor">{copy.constructor}</a>
+            <a className="site-footer-link" href="/constructor">{copy.navConstructor}</a>
+            <a className="site-footer-link" href="/about">{copy.footerAbout}</a>
           </div>
           <div className="site-footer-column">
             <h4 className="site-footer-title">{locale === "uk" ? "Акаунт" : "Account"}</h4>
@@ -8125,6 +8360,10 @@ function App() {
 
   if (window.location.pathname === "/catalog") {
     return <CatalogPage />;
+  }
+
+  if (window.location.pathname === "/about") {
+    return <AboutPage />;
   }
 
   return <HomePage />;

@@ -18,6 +18,16 @@ export const REFERENCE_IMAGES = {
     "/assets/images/product-heart.png",
     "/assets/images/product-moon.png"
   ],
+  about: {
+    heroVideo: "/assets/videos/about-hero-atelier.mp4",
+    craftDetailVideo: "/assets/videos/about-craft-detail.mp4",
+    heroPoster: "/assets/images/about-hero-poster.jpg",
+    workshopOverview: "/assets/images/about-workshop-overview.jpg",
+    artisanDetail: "/assets/images/about-artisan-detail.jpg",
+    materialsTable: "/assets/images/about-materials-table.jpg",
+    clientConsultation: "/assets/images/about-client-consultation.jpg",
+    packaging: "/assets/images/about-packaging.jpg"
+  },
   homePaths: {
     collection: "/assets/images/home-path-collection.png",
     constructor: "/assets/images/home-path-constructor.png"
@@ -48,10 +58,229 @@ export const REFERENCE_IMAGES = {
   }
 };
 
+export const ABOUT_PAGE_CONTENT = {
+  uk: {
+    hero: {
+      eyebrow: "ПРО AURORA ATELIER",
+      title: "Невелика ювелірна майстерня з увагою до кожної деталі",
+      text:
+        "Aurora Atelier — це камерна авторська майстерня, де прикраси народжуються з поєднання форми, матеріалів і особистого змісту. Ми створюємо готові вироби для колекції та даємо можливість зібрати власну прикрасу в онлайн-конструкторі — у спокійній естетиці, з увагою до деталей і відчуттям справжньої майстерності.",
+      primaryCta: "До колекції",
+      secondaryCta: "Створити прикрасу"
+    },
+    whoWeAre: {
+      title: "Майстерня, а не масовий магазин",
+      paragraphs: [
+        "Aurora Atelier створена як невелика ювелірна майстерня для тих, хто шукає не випадкову прикрасу, а річ із характером і сенсом. Нам близька стримана естетика: чисті форми, теплі метали, виважені пропорції та камені, що працюють не на ефектність, а на відчуття.",
+        "Ми не мислимо прикрасу як швидкий товар. Для нас це поєднання ідеї, матеріалу та людини, яка буде її носити. Саме тому в Aurora Atelier поруч існують готова колекція і конструктор — щоб кожен міг знайти або створити виріб, що відгукується саме йому."
+      ],
+      quote: "Для нас прикраса — це не просто декоративний акцент, а тиха форма особистої історії."
+    },
+    create: {
+      title: "Що ми створюємо",
+      cards: [
+        {
+          title: "Готова колекція",
+          text: "У колекції Aurora Atelier зібрані каблучки, сережки, браслети та підвіски, створені в нашій фірмовій естетиці — м’яка розкіш, чистий силует і делікатна виразність.",
+          cta: "Перейти до колекції",
+          href: "/catalog"
+        },
+        {
+          title: "Конструктор прикрас",
+          text: "Онлайн-конструктор дозволяє обрати тип прикраси, метал, камінь і гравіювання, щоб створити виріб, який відповідає саме вашому смаку та настрою.",
+          cta: "Відкрити конструктор",
+          href: "/constructor"
+        },
+        {
+          title: "Авторський підхід",
+          text: "Ми поєднуємо цифрову зручність із підходом майстерні: увага до деталей, зрозумілий процес вибору та уважна підготовка кожного виробу перед передачею клієнту.",
+          cta: "Як ми працюємо",
+          href: "#about-process"
+        }
+      ]
+    },
+    process: {
+      eyebrow: "ЯК МИ ПРАЦЮЄМО",
+      title: "Шлях прикраси від вибору до готового виробу",
+      steps: [
+        {
+          number: "01",
+          title: "Ідея та вибір",
+          text: "Ви можете почати з готової прикраси з колекції або створити власний дизайн у конструкторі."
+        },
+        {
+          number: "02",
+          title: "Матеріали та деталі",
+          text: "Метал, камінь, форма та додаткові елементи поєднуються в цілісну композицію майбутнього виробу."
+        },
+        {
+          number: "03",
+          title: "Миттєвий розрахунок",
+          text: "Після вибору параметрів конструктор одразу показує фінальну конфігурацію та вартість прикраси, щоб ви могли перейти до замовлення без додаткових уточнень."
+        },
+        {
+          number: "04",
+          title: "Фінальна підготовка",
+          text: "Перед передачею клієнту виріб проходить уважну перевірку, акуратне пакування та підготовку до відправлення."
+        }
+      ]
+    },
+    gallery: {
+      title: "Усередині майстерні",
+      items: [
+        { key: "workshopOverview", caption: "Простір, де народжуються ідеї" },
+        { key: "artisanDetail", caption: "Уважна робота з деталями" },
+        { key: "materialsTable", caption: "Матеріали, що визначають характер прикраси" },
+        { key: "packaging", caption: "Пакування як частина досвіду" }
+      ]
+    },
+    principles: {
+      title: "Принципи Aurora Atelier",
+      items: [
+        {
+          number: "01",
+          title: "Особистий сенс",
+          text: "Ми віримо, що прикраса має відгукуватися людині не лише візуально, а й емоційно."
+        },
+        {
+          number: "02",
+          title: "Стримана естетика",
+          text: "Наш підхід — це тиха розкіш без надмірності: чисті лінії, м’який блиск і виважені пропорції."
+        },
+        {
+          number: "03",
+          title: "Повага до матеріалу",
+          text: "Ми цінуємо природну красу металу, каменю та форми, не перевантажуючи виріб зайвими елементами."
+        },
+        {
+          number: "04",
+          title: "Зручність сучасного вибору",
+          text: "Ми поєднуємо атмосферу майстерні з цифровим досвідом, щоб вибір прикраси був зрозумілим і приємним."
+        }
+      ]
+    },
+    cta: {
+      title: "Оберіть готову прикрасу або створіть власну",
+      text: "Aurora Atelier поєднує готову колекцію та можливість персонального вибору. Ви можете знайти виріб, який уже відповідає вашому стилю, або перейти в конструктор і зібрати прикрасу з матеріалів та деталей, близьких саме вам.",
+      primaryCta: "До колекції",
+      secondaryCta: "Створити прикрасу"
+    }
+  },
+  en: {
+    hero: {
+      eyebrow: "ABOUT AURORA ATELIER",
+      title: "A small jewelry atelier shaped by detail and intention",
+      text:
+        "Aurora Atelier is a small independent jewelry atelier where each piece begins with a balance of form, material, and personal meaning. We create finished pieces for our collection and also offer the freedom to design your own jewelry through an online constructor — all within a calm aesthetic and a thoughtful, craftsmanship-led approach.",
+      primaryCta: "Explore the Collection",
+      secondaryCta: "Design Your Piece"
+    },
+    whoWeAre: {
+      title: "An atelier, not a mass-market store",
+      paragraphs: [
+        "Aurora Atelier was created as a small jewelry atelier for people looking for more than a decorative purchase. We are drawn to a restrained aesthetic: clean forms, warm metals, balanced proportions, and gemstones chosen not for excess, but for feeling.",
+        "We do not think of jewelry as a fast product. To us, it is a connection between an idea, a material, and the person who will wear it. That is why Aurora Atelier brings together both a ready collection and a personal design constructor — so each client can either find or create a piece that feels truly their own."
+      ],
+      quote: "To us, jewelry is not only a visual accent, but a quiet form of personal story."
+    },
+    create: {
+      title: "What We Create",
+      cards: [
+        {
+          title: "Ready Collection",
+          text: "The Aurora Atelier collection brings together rings, earrings, bracelets, and pendants created in our signature aesthetic — soft luxury, clean silhouettes, and delicate expression.",
+          cta: "Explore Collection",
+          href: "/catalog"
+        },
+        {
+          title: "Jewelry Constructor",
+          text: "Our online constructor lets you choose the jewelry type, metal, gemstone, and engraving to create a piece that reflects your personal taste and mood.",
+          cta: "Open Constructor",
+          href: "/constructor"
+        },
+        {
+          title: "Atelier Approach",
+          text: "We combine digital convenience with an atelier mindset: attention to detail, a clear design process, and thoughtful preparation of every piece before it reaches the client.",
+          cta: "How We Work",
+          href: "#about-process"
+        }
+      ]
+    },
+    process: {
+      eyebrow: "HOW WE WORK",
+      title: "The path from selection to finished jewelry",
+      steps: [
+        {
+          number: "01",
+          title: "Idea and selection",
+          text: "You can begin with a finished piece from the collection or create your own design in the constructor."
+        },
+        {
+          number: "02",
+          title: "Materials and details",
+          text: "Metal, gemstone, shape, and selected details are brought together into one coherent design."
+        },
+        {
+          number: "03",
+          title: "Instant calculation",
+          text: "After you choose the options, the constructor immediately shows the final configuration and price, so you can move to checkout without additional clarification."
+        },
+        {
+          number: "04",
+          title: "Final preparation",
+          text: "Before reaching the client, each piece is carefully checked, packaged, and prepared for delivery."
+        }
+      ]
+    },
+    gallery: {
+      title: "Inside the Atelier",
+      items: [
+        { key: "workshopOverview", caption: "A space where ideas take shape" },
+        { key: "artisanDetail", caption: "Careful work with fine details" },
+        { key: "materialsTable", caption: "Materials that define the character of a piece" },
+        { key: "packaging", caption: "Packaging as part of the experience" }
+      ]
+    },
+    principles: {
+      title: "Aurora Atelier Principles",
+      items: [
+        {
+          number: "01",
+          title: "Personal meaning",
+          text: "We believe jewelry should resonate not only visually, but emotionally."
+        },
+        {
+          number: "02",
+          title: "Refined restraint",
+          text: "Our approach is quiet luxury without excess: clean lines, gentle shine, and thoughtful proportions."
+        },
+        {
+          number: "03",
+          title: "Respect for materials",
+          text: "We value the natural beauty of metal, gemstone, and form, without overloading a piece with unnecessary elements."
+        },
+        {
+          number: "04",
+          title: "Modern ease of choice",
+          text: "We combine the atmosphere of an atelier with a digital experience that makes choosing jewelry clear and enjoyable."
+        }
+      ]
+    },
+    cta: {
+      title: "Choose a finished piece or create your own",
+      text: "Aurora Atelier brings together a ready collection and the freedom of personal design. You can select a piece that already fits your style or move to the constructor and create jewelry shaped by the materials and details that feel right for you.",
+      primaryCta: "Explore Collection",
+      secondaryCta: "Design Your Piece"
+    }
+  }
+};
+
 export const REFERENCE_COPY = {
   uk: {
+    navHome: "Головна",
     navCollection: "Колекція",
     navConstructor: "Конструктор",
+    navAbout: "Про нас",
     heroSlides: [
       {
         eyebrow: "Авторська ювелірна майстерня",
@@ -229,11 +458,19 @@ export const REFERENCE_COPY = {
     constructorPreview: "Попередній перегляд",
     constructorTrustLeft: "10–21 день виготовлення",
     constructorTrustRight: "Безкоштовна доставка",
-    required: "* обов'язково"
+    required: "* обов'язково",
+    footerText: "Авторські прикраси для особистих ритуалів, важливих подарунків і щоденної елегантності.",
+    footerCollections: "Колекції",
+    readyPieces: "Готові вироби",
+    footerAbout: "Про нас",
+    contact: "Контакти",
+    kharkivAtelier: "Харківське ательє"
   },
   en: {
+    navHome: "Home",
     navCollection: "Collection",
     navConstructor: "Constructor",
+    navAbout: "About",
     heroSlides: [
       {
         eyebrow: "Signature handcrafted jewelry atelier",
@@ -411,7 +648,13 @@ export const REFERENCE_COPY = {
     constructorPreview: "Preview",
     constructorTrustLeft: "10–21 day production",
     constructorTrustRight: "Free shipping",
-    required: "* required"
+    required: "* required",
+    footerText: "Quietly expressive jewelry made for personal rituals, meaningful gifts and everyday elegance.",
+    footerCollections: "Collections",
+    readyPieces: "Ready pieces",
+    footerAbout: "About",
+    contact: "Contact",
+    kharkivAtelier: "Kharkiv atelier"
   }
 };
 

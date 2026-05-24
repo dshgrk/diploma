@@ -8,6 +8,7 @@ function sendReactApp(res) {
 function registerPageRoutes(app) {
   app.get("/", (req, res) => sendReactApp(res));
   app.get("/catalog", (req, res) => sendReactApp(res));
+  app.get("/about", (req, res) => sendReactApp(res));
   app.get("/auth", (req, res) => sendReactApp(res));
   app.get("/account", (req, res) => sendReactApp(res));
   app.get("/products/:slug", (req, res) => sendReactApp(res));
