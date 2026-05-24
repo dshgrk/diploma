@@ -2385,6 +2385,7 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 500; color: var(
   display: grid;
   align-content: start;
   gap: 0.55rem;
+  min-width: 0;
 }
 .site-footer-title {
   margin: 0 0 0.35rem;
@@ -2405,6 +2406,11 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 500; color: var(
 }
 .site-footer-link {
   transition: color 0.18s ease;
+}
+.site-footer-email {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 .site-footer-link:hover {
   color: #fffaf4;
@@ -6433,6 +6439,10 @@ body {
     align-items: flex-start;
   }
 
+  .site-footer-email {
+    max-width: 22rem;
+  }
+
   .trust-item-react,
   .catalog-trust-grid div {
     border-right: 0;
@@ -6502,6 +6512,12 @@ body {
   .account-history-total {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+@media (max-width: 520px) {
+  .site-footer-email {
+    max-width: 100%;
   }
 }
 
@@ -6843,7 +6859,8 @@ body {
   box-shadow: 0 32px 76px rgba(22, 14, 9, 0.12);
 }
 .about-gallery-media {
-  height: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 .about-story-media img,
 .about-gallery-media img {
@@ -6977,13 +6994,14 @@ body {
 .about-gallery-grid {
   display: grid;
   grid-template-columns: 1.1fr 0.9fr 0.72fr;
-  grid-template-rows: minmax(220px, 1fr) minmax(220px, 1fr);
+  grid-template-rows: minmax(252px, 1fr) minmax(252px, 1fr);
   gap: 1rem;
 }
 .about-gallery-card {
   display: flex;
   flex-direction: column;
   gap: 0.7rem;
+  min-width: 0;
 }
 .about-gallery-card.is-large {
   grid-column: 1 / 2;
@@ -6996,6 +7014,7 @@ body {
 .about-gallery-card.is-medium:nth-child(3) {
   grid-column: 2 / 3;
   grid-row: 2 / 3;
+  transform: translateY(2.1rem);
 }
 .about-gallery-card.is-tall {
   grid-column: 3 / 4;
@@ -7005,7 +7024,11 @@ body {
 .about-gallery-card.is-tall .about-gallery-media {
   min-height: 100%;
 }
+.about-gallery-card.is-medium .about-gallery-media {
+  min-height: 0;
+}
 .about-gallery-caption {
+  flex: 0 0 auto;
   color: var(--ink);
   font-size: 0.92rem;
   line-height: 1.54;
@@ -7081,6 +7104,7 @@ body {
   .about-gallery-card.is-tall {
     grid-column: auto;
     grid-row: auto;
+    transform: none;
   }
   .about-gallery-media {
     min-height: 280px;

@@ -57,7 +57,7 @@ import "./styles.css";
 const LOCAL_STORAGE_KEY = "aurora-locale";
 const GUEST_CART_STORAGE_KEY = "aurora-guest-cart";
 const POST_AUTH_REDIRECT_KEY = "aurora-post-auth-redirect";
-const HOME_HERO_VIDEO = "/assets/images/home-hero-main.mp4";
+const HOME_HERO_VIDEO = "/assets/videos/home-hero-main.mp4";
 const HOME_HERO_POSTER = "/assets/images/aurora-jewelry-hero.png";
 const LOCALE_LABELS = {
   uk: "UK",
@@ -1110,9 +1110,9 @@ function Header() {
 
   const links = [
     [copy.navHome, "/"],
+    [copy.navAbout, "/about"],
     [copy.navCollection, "/catalog"],
-    [copy.navConstructor, "/constructor"],
-    [copy.navAbout, "/about"]
+    [copy.navConstructor, "/constructor"]
   ];
   const localeLabel = locale === "uk" ? "EN" : "UK";
 
@@ -4705,7 +4705,12 @@ function AboutPage() {
 function Footer() {
   const { locale } = useI18n();
   const copy = referenceCopy(locale);
-  const year = new Date().getFullYear();
+  const navigationTitle = locale === "uk" ? "Навігація" : "Navigation";
+  const accountTitle = locale === "uk" ? "Акаунт" : "Account";
+  const ordersTitle = locale === "uk" ? "Мої замовлення" : "My orders";
+  const contactAtelierLabel = locale === "uk" ? "Ательє у Харкові" : "Atelier in Kharkiv";
+  const footerOriginLabel = locale === "uk" ? "Створено в Харкові" : "Made in Kharkiv";
+
   return (
     <footer className="site-footer">
       <div className="section-inner site-footer-inner">
@@ -4716,27 +4721,30 @@ function Footer() {
 
         <div className="site-footer-columns">
           <div className="site-footer-column">
-            <h4 className="site-footer-title">{copy.footerCollections}</h4>
-            <a className="site-footer-link" href="/catalog">{copy.readyPieces}</a>
+            <h4 className="site-footer-title">{navigationTitle}</h4>
+            <a className="site-footer-link" href="/">{copy.navHome}</a>
+            <a className="site-footer-link" href="/about">{copy.navAbout}</a>
+            <a className="site-footer-link" href="/catalog">{copy.navCollection}</a>
             <a className="site-footer-link" href="/constructor">{copy.navConstructor}</a>
-            <a className="site-footer-link" href="/about">{copy.footerAbout}</a>
           </div>
           <div className="site-footer-column">
-            <h4 className="site-footer-title">{locale === "uk" ? "Акаунт" : "Account"}</h4>
-            <a className="site-footer-link" href="/orders">{locale === "uk" ? "Мої замовлення" : "My orders"}</a>
-            <a className="site-footer-link" href="/account">{locale === "uk" ? "Акаунт" : "Account"}</a>
+            <h4 className="site-footer-title">{accountTitle}</h4>
+            <a className="site-footer-link" href="/orders">{ordersTitle}</a>
+            <a className="site-footer-link" href="/account">{accountTitle}</a>
           </div>
           <div className="site-footer-column">
             <h4 className="site-footer-title">{copy.contact}</h4>
-            <span className="site-footer-text">{copy.kharkivAtelier}</span>
-            <a className="site-footer-link" href="mailto:auroraatelier.mail@gmail.com">auroraatelier.mail@gmail.com</a>
+            <span className="site-footer-text">{contactAtelierLabel}</span>
+            <a className="site-footer-link site-footer-email" href="mailto:auroraatelier.mail@gmail.com">
+              auroraatelier.mail@gmail.com
+            </a>
           </div>
         </div>
       </div>
 
       <div className="section-inner site-footer-bottom">
-        <span className="site-footer-meta">© {year} Aurora Atelier</span>
-        <span className="site-footer-meta">{locale === "uk" ? "Створено в Харкові" : "Made in Kharkiv"}</span>
+        <span className="site-footer-meta">© 2026 Aurora Atelier</span>
+        <span className="site-footer-meta">{footerOriginLabel}</span>
       </div>
     </footer>
   );

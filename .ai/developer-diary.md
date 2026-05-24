@@ -178,3 +178,13 @@
 - Для `About` закреплён locale-aware layout pattern через `data-locale` на корневом `<main>`: английская версия требует отдельной настройки hero/final CTA, type scale и промежуточных desktop breakpoints (`~1280 / 1180`), иначе длинные EN-кнопки и заголовки ломают ритм, хотя украинская версия выглядит нормально.
 - Для `About` hero зафиксирован новый паттерн `editorial light first-screen`: фото/видео мастерской должно доминировать как одна большая плоскость, а текстовая ivory-card — мягко перекрывать visual справа, оставаясь уже и легче по массе, чем в прежнем `50/50` split-layout.
 - При локальной визуальной проверке `/about` на `localhost:3000` страница обычно берётся из собранной статики `public/react-app`, поэтому после CSS-правок hero/landing-секций нужно делать `npm run build`, иначе браузер может показывать старую композицию и вводить в заблуждение.
+
+### 2026-05-24 - Уточнена структура footer
+
+- Для footer `Aurora Atelier` в `client/src/main.jsx` закреплена логика `brand + navigation + account + contacts`: навигационная колонка не должна называться `Колекції`, если внутри смешаны общие ссылки (`Головна`, `Колекція`, `Конструктор`, `Про нас`).
+- Для footer email `auroraatelier.mail@gmail.com` в `client/src/styles.css` нужно сохранять безопасный wrap (`overflow-wrap`) и mobile-first stacking без горизонтального скролла.
+
+### 2026-05-24 - Нормализованы about-изображения в PNG
+
+- В `public/assets/images` about-изображения для публичной страницы приведены к `.png`; `client/src/content.js` должен ссылаться на `about-hero-poster.png`, `about-workshop-overview.png`, `about-artisan-detail.png`, `about-materials-table.png`, `about-client-consultation.png`, `about-packaging.png`, чтобы не смешивать старые `.jpg`-пути с актуальными файлами.
+- Hero-видео главной страницы должно ссылаться на `/assets/videos/home-hero-main.mp4` из `client/src/main.jsx`; после смены пути нужно пересобирать клиент, потому что старые hash-бандлы в `public/react-app/assets` могут ещё лежать рядом как неактуальные артефакты поиска.

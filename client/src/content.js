@@ -21,12 +21,12 @@ export const REFERENCE_IMAGES = {
   about: {
     heroVideo: "/assets/videos/about-hero-atelier.mp4",
     craftDetailVideo: "/assets/videos/about-craft-detail.mp4",
-    heroPoster: "/assets/images/about-hero-poster.jpg",
-    workshopOverview: "/assets/images/about-workshop-overview.jpg",
-    artisanDetail: "/assets/images/about-artisan-detail.jpg",
-    materialsTable: "/assets/images/about-materials-table.jpg",
-    clientConsultation: "/assets/images/about-client-consultation.jpg",
-    packaging: "/assets/images/about-packaging.jpg"
+    heroPoster: "/assets/images/about-hero-poster.png",
+    workshopOverview: "/assets/images/about-workshop-overview.png",
+    artisanDetail: "/assets/images/about-artisan-detail.png",
+    materialsTable: "/assets/images/about-materials-table.png",
+    clientConsultation: "/assets/images/about-client-consultation.png",
+    packaging: "/assets/images/about-packaging.png"
   },
   homePaths: {
     collection: "/assets/images/home-path-collection.png",
