@@ -170,7 +170,7 @@
       "scale_x": 1.45,
       "scale_y": 1.53,
       "diameter": 19.9,
-      "layer_mode": "below",
+      "layer_mode": "above",
       "is_active": true
     },
     {
@@ -180,8 +180,8 @@
       "label_uk": "Ліворуч",
       "label_en": "Left",
       "sort_order": 2,
-      "x": 25.8542930885273,
-      "y": 47.6414363096853,
+      "x": 25.031230154922678,
+      "y": 43.432307216986764,
       "scale_x": 1,
       "scale_y": 1.17,
       "diameter": 12.8,
