@@ -14,3 +14,10 @@ tmp_pptxgen_pkg/
 *.png
 .gitautosync.pid
 .gitautosync.log
+!db/dev-memory.sqlite3
+!public/assets/generated/
+!public/assets/generated/**
+!public/assets/images/
+!public/assets/images/**
+!public/assets/products/
+!public/assets/products/**

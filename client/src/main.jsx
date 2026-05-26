@@ -2502,6 +2502,15 @@ function ConstructorSlots({ locale, typeCode, slots = [], selections, values, on
 
   const activeValueCode = activeSlotCode ? selections?.[activeSlotCode] || "none" : "none";
   const activeSlot = slots.find((slot) => slot.code === activeSlotCode) || null;
+  const orderedSlots = useMemo(() => {
+    if (typeCode !== "ring") return slots;
+    const preferredOrder = ["left", "center", "right"];
+    const ordered = preferredOrder
+      .map((code) => slots.find((slot) => slot.code === code))
+      .filter(Boolean);
+    const remaining = slots.filter((slot) => !preferredOrder.includes(slot.code));
+    return [...ordered, ...remaining];
+  }, [slots, typeCode]);
 
   return (
     <div className="stone-slots-wrap">
@@ -2511,7 +2520,7 @@ function ConstructorSlots({ locale, typeCode, slots = [], selections, values, on
         </span>
       </div>
       <div className={`slots-row slots-row-${typeCode}`}>
-        {slots.map((slot) => {
+        {orderedSlots.map((slot) => {
           const isActive = activeSlotCode === slot.code;
           const label = localizedConstructorValue(slot, locale, ["label"]);
           const selectedValue = values.find((item) => item.code === selections?.[slot.code]) || null;
@@ -6541,6 +6550,14 @@ function StudioConstructorSlots({ locale, slots, stones, selections, onSelectSlo
   const activeSlot = slots.find((slot) => String(slot.id) === String(activeSlotId)) || null;
   const activeStoneCode = activeSlot ? selections?.[activeSlot.code] || "none" : "none";
   const selectedCount = slots.filter((slot) => selections?.[slot.code] && selections?.[slot.code] !== "none").length;
+  const orderedSlots = useMemo(() => {
+    const preferredOrder = ["left", "center", "right"];
+    const ordered = preferredOrder
+      .map((code) => slots.find((slot) => slot.code === code))
+      .filter(Boolean);
+    const remaining = slots.filter((slot) => !preferredOrder.includes(slot.code));
+    return ordered.length ? [...ordered, ...remaining] : slots;
+  }, [slots]);
 
   return (
     <div className="stone-slots-wrap">
@@ -6548,7 +6565,7 @@ function StudioConstructorSlots({ locale, slots, stones, selections, onSelectSlo
         <span className="stone-count-badge">{selectedCount}/{slots.length} {locale === "en" ? "slots" : "слотів"}</span>
       </div>
       <div className="slots-row">
-        {slots.map((slot) => {
+        {orderedSlots.map((slot) => {
           const selectedStone = stones.find((stone) => stone.code === selections?.[slot.code]) || null;
           const isActive = String(activeSlotId) === String(slot.id);
           return (
