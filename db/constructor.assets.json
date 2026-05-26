@@ -159,6 +159,84 @@
         "stone"
       ],
       "created_at": "seed"
+    },
+    {
+      "id": 14,
+      "kind": "jewelry-base",
+      "path": "/assets/generated/ring-solitaire.png",
+      "width": 0,
+      "height": 0,
+      "label": "Ring solitaire",
+      "tags": [
+        "ring",
+        "solitaire"
+      ],
+      "created_at": "seed"
+    },
+    {
+      "id": 15,
+      "kind": "jewelry-base",
+      "path": "/assets/generated/ring-duet.png",
+      "width": 0,
+      "height": 0,
+      "label": "Ring duet",
+      "tags": [
+        "ring",
+        "duet"
+      ],
+      "created_at": "seed"
+    },
+    {
+      "id": 16,
+      "kind": "jewelry-base",
+      "path": "/assets/generated/bracelet-line.png",
+      "width": 0,
+      "height": 0,
+      "label": "Bracelet line",
+      "tags": [
+        "bracelet",
+        "line"
+      ],
+      "created_at": "seed"
+    },
+    {
+      "id": 17,
+      "kind": "jewelry-base",
+      "path": "/assets/generated/bracelet-duet.png",
+      "width": 0,
+      "height": 0,
+      "label": "Bracelet duet",
+      "tags": [
+        "bracelet",
+        "duet"
+      ],
+      "created_at": "seed"
+    },
+    {
+      "id": 18,
+      "kind": "jewelry-base",
+      "path": "/assets/generated/earrings-stud.png",
+      "width": 0,
+      "height": 0,
+      "label": "Earrings stud",
+      "tags": [
+        "earrings",
+        "stud"
+      ],
+      "created_at": "seed"
+    },
+    {
+      "id": 19,
+      "kind": "jewelry-base",
+      "path": "/assets/generated/earrings-arc.png",
+      "width": 0,
+      "height": 0,
+      "label": "Earrings arc",
+      "tags": [
+        "earrings",
+        "arc"
+      ],
+      "created_at": "seed"
     }
   ]
 }

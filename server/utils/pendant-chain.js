@@ -1,6 +1,6 @@
 const { createHttpError } = require("./http-error");
 
-const CHAIN_PRICES_UAH = {
+const READY_CHAIN_PRICES_UAH = {
   Silver: {
     none: 0,
     "40cm": 1300,
@@ -21,6 +21,27 @@ const CHAIN_PRICES_UAH = {
   }
 };
 
+const CONSTRUCTOR_CHAIN_PRICES_UAH = {
+  Silver: {
+    none: 0,
+    "40cm": 1800,
+    "45cm": 2100,
+    "50cm": 2400
+  },
+  Gold: {
+    none: 0,
+    "40cm": 3400,
+    "45cm": 3900,
+    "50cm": 4400
+  },
+  "Rose Gold": {
+    none: 0,
+    "40cm": 2900,
+    "45cm": 3300,
+    "50cm": 3700
+  }
+};
+
 const CHAIN_OPTION_LENGTHS = {
   none: null,
   "40cm": 40,
@@ -28,7 +49,7 @@ const CHAIN_OPTION_LENGTHS = {
   "50cm": 50
 };
 
-const VALID_CHAIN_METALS = new Set(Object.keys(CHAIN_PRICES_UAH));
+const VALID_CHAIN_METALS = new Set(Object.keys(READY_CHAIN_PRICES_UAH));
 
 function normalizePendantType(productOrType) {
   const rawValue =
@@ -65,7 +86,7 @@ function normalizeConstructorChainMetal(materialCode) {
   return null;
 }
 
-function buildPendantChainSelection(chainOption, chainMetal) {
+function buildPendantChainSelection(chainOption, chainMetal, priceMap = READY_CHAIN_PRICES_UAH) {
   const normalizedOption = normalizeChainOption(chainOption);
   if (!normalizedOption) {
     throw createHttpError(422, "INVALID_CONFIGURATION_VALUE", "Unsupported chain option", {
@@ -95,18 +116,18 @@ function buildPendantChainSelection(chainOption, chainMetal) {
     option: normalizedOption,
     length: CHAIN_OPTION_LENGTHS[normalizedOption],
     metal: chainMetal,
-    price: Number(CHAIN_PRICES_UAH[chainMetal][normalizedOption] || 0)
+    price: Number(priceMap?.[chainMetal]?.[normalizedOption] || 0)
   };
 }
 
 function resolveReadyProductChainConfiguration(product, configuration = {}) {
   if (!normalizePendantType(product)) return null;
-  return buildPendantChainSelection(extractRequestedChainOption(configuration), normalizeCatalogChainMetal(product?.filter_metal));
+  return buildPendantChainSelection(extractRequestedChainOption(configuration), normalizeCatalogChainMetal(product?.filter_metal), READY_CHAIN_PRICES_UAH);
 }
 
 function resolveCustomDesignChainConfiguration(jewelryType, configuration = {}) {
   if (!normalizePendantType(jewelryType)) return null;
-  return buildPendantChainSelection(extractRequestedChainOption(configuration), normalizeConstructorChainMetal(configuration?.material));
+  return buildPendantChainSelection(extractRequestedChainOption(configuration), normalizeConstructorChainMetal(configuration?.material), CONSTRUCTOR_CHAIN_PRICES_UAH);
 }
 
 function calculateReadyProductUnitPrice(product, configuration = {}) {
@@ -116,7 +137,8 @@ function calculateReadyProductUnitPrice(product, configuration = {}) {
 
 module.exports = {
   CHAIN_OPTION_LENGTHS,
-  CHAIN_PRICES_UAH,
+  READY_CHAIN_PRICES_UAH,
+  CONSTRUCTOR_CHAIN_PRICES_UAH,
   calculateReadyProductUnitPrice,
   extractRequestedChainOption,
   normalizeCatalogChainMetal,

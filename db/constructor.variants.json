@@ -10,7 +10,34 @@
       "subtype": "trinity",
       "base_asset_id": 1,
       "is_active": true,
-      "sort_order": 1
+      "sort_order": 1,
+      "price_delta": 1900
+    },
+    {
+      "id": 102,
+      "type_id": 1,
+      "code": "ring-solitaire",
+      "name_uk": "Каблучка Solitaire",
+      "name_en": "Solitaire Ring",
+      "group": "ring",
+      "subtype": "solitaire",
+      "base_asset_id": 14,
+      "is_active": true,
+      "sort_order": 2,
+      "price_delta": 300
+    },
+    {
+      "id": 103,
+      "type_id": 1,
+      "code": "ring-duet",
+      "name_uk": "Каблучка Duet",
+      "name_en": "Duet Ring",
+      "group": "ring",
+      "subtype": "duet",
+      "base_asset_id": 15,
+      "is_active": true,
+      "sort_order": 3,
+      "price_delta": 1100
     },
     {
       "id": 201,
@@ -22,7 +49,34 @@
       "subtype": "orbit",
       "base_asset_id": 2,
       "is_active": true,
-      "sort_order": 1
+      "sort_order": 1,
+      "price_delta": 900
+    },
+    {
+      "id": 202,
+      "type_id": 2,
+      "code": "bracelet-line",
+      "name_uk": "Браслет Line",
+      "name_en": "Line Bracelet",
+      "group": "bracelet",
+      "subtype": "line",
+      "base_asset_id": 16,
+      "is_active": true,
+      "sort_order": 2,
+      "price_delta": 1300
+    },
+    {
+      "id": 203,
+      "type_id": 2,
+      "code": "bracelet-duet",
+      "name_uk": "Браслет Duet",
+      "name_en": "Duet Bracelet",
+      "group": "bracelet",
+      "subtype": "duet",
+      "base_asset_id": 17,
+      "is_active": true,
+      "sort_order": 3,
+      "price_delta": 300
     },
     {
       "id": 301,
@@ -34,7 +88,8 @@
       "subtype": "heart",
       "base_asset_id": 3,
       "is_active": true,
-      "sort_order": 1
+      "sort_order": 1,
+      "price_delta": 0
     },
     {
       "id": 302,
@@ -46,7 +101,8 @@
       "subtype": "moon",
       "base_asset_id": 4,
       "is_active": true,
-      "sort_order": 2
+      "sort_order": 2,
+      "price_delta": 500
     },
     {
       "id": 303,
@@ -58,7 +114,8 @@
       "subtype": "drop",
       "base_asset_id": 5,
       "is_active": true,
-      "sort_order": 3
+      "sort_order": 3,
+      "price_delta": 900
     },
     {
       "id": 401,
@@ -70,7 +127,34 @@
       "subtype": "drop",
       "base_asset_id": 6,
       "is_active": true,
-      "sort_order": 1
+      "sort_order": 1,
+      "price_delta": 900
+    },
+    {
+      "id": 402,
+      "type_id": 4,
+      "code": "earrings-stud",
+      "name_uk": "Сережки Stud",
+      "name_en": "Stud Earrings",
+      "group": "earrings",
+      "subtype": "stud",
+      "base_asset_id": 18,
+      "is_active": true,
+      "sort_order": 2,
+      "price_delta": 300
+    },
+    {
+      "id": 403,
+      "type_id": 4,
+      "code": "earrings-arc",
+      "name_uk": "Сережки Arc",
+      "name_en": "Arc Earrings",
+      "group": "earrings",
+      "subtype": "arc",
+      "base_asset_id": 19,
+      "is_active": true,
+      "sort_order": 3,
+      "price_delta": 1400
     }
   ],
   "slots": [
@@ -81,8 +165,8 @@
       "label_uk": "Центр",
       "label_en": "Center",
       "sort_order": 1,
-      "x": 50.24622259099309,
-      "y": 48.00739981460584,
+      "x": 50.5831291242865,
+      "y": 47.4676819917484,
       "scale_x": 1.45,
       "scale_y": 1.53,
       "diameter": 18,
@@ -111,11 +195,56 @@
       "label_uk": "Праворуч",
       "label_en": "Right",
       "sort_order": 3,
-      "x": 74.72854690693028,
-      "y": 47.12853827391843,
+      "x": 76.1663146915798,
+      "y": 47.52570373708538,
       "scale_x": 1.14,
       "scale_y": 1.45,
       "diameter": 12,
+      "layer_mode": "below",
+      "is_active": true
+    },
+    {
+      "id": 1004,
+      "variant_id": 102,
+      "code": "center",
+      "label_uk": "?????",
+      "label_en": "Center",
+      "sort_order": 1,
+      "x": 49.6,
+      "y": 49,
+      "scale_x": 1.13,
+      "scale_y": 1.13,
+      "diameter": 18,
+      "layer_mode": "above",
+      "is_active": true
+    },
+    {
+      "id": 1005,
+      "variant_id": 103,
+      "code": "left",
+      "label_uk": "???????",
+      "label_en": "Left",
+      "sort_order": 1,
+      "x": 36.2,
+      "y": 44.2,
+      "scale_x": 1.42,
+      "scale_y": 1.42,
+      "diameter": 16,
+      "layer_mode": "below",
+      "is_active": true
+    },
+    {
+      "id": 1006,
+      "variant_id": 103,
+      "code": "right",
+      "label_uk": "????????",
+      "label_en": "Right",
+      "sort_order": 2,
+      "x": 63.8,
+      "y": 44.2,
+      "scale_x": 1.42,
+      "scale_y": 1.42,
+      "diameter": 16,
       "layer_mode": "below",
       "is_active": true
     },
@@ -210,6 +339,81 @@
       "is_active": true
     },
     {
+      "id": 2007,
+      "variant_id": 202,
+      "code": "left",
+      "label_uk": "???????",
+      "label_en": "Left",
+      "sort_order": 1,
+      "x": 30,
+      "y": 50.6,
+      "scale_x": 1.18,
+      "scale_y": 1.18,
+      "diameter": 14,
+      "layer_mode": "below",
+      "is_active": true
+    },
+    {
+      "id": 2008,
+      "variant_id": 202,
+      "code": "center",
+      "label_uk": "?????",
+      "label_en": "Center",
+      "sort_order": 2,
+      "x": 50,
+      "y": 50.6,
+      "scale_x": 1.28,
+      "scale_y": 1.28,
+      "diameter": 15,
+      "layer_mode": "below",
+      "is_active": true
+    },
+    {
+      "id": 2009,
+      "variant_id": 202,
+      "code": "right",
+      "label_uk": "????????",
+      "label_en": "Right",
+      "sort_order": 3,
+      "x": 70,
+      "y": 50.6,
+      "scale_x": 1.18,
+      "scale_y": 1.18,
+      "diameter": 14,
+      "layer_mode": "below",
+      "is_active": true
+    },
+    {
+      "id": 2010,
+      "variant_id": 203,
+      "code": "left",
+      "label_uk": "???????",
+      "label_en": "Left",
+      "sort_order": 1,
+      "x": 44.2,
+      "y": 50.5,
+      "scale_x": 1.2,
+      "scale_y": 1.2,
+      "diameter": 15,
+      "layer_mode": "below",
+      "is_active": true
+    },
+    {
+      "id": 2011,
+      "variant_id": 203,
+      "code": "right",
+      "label_uk": "????????",
+      "label_en": "Right",
+      "sort_order": 2,
+      "x": 55.8,
+      "y": 50.5,
+      "scale_x": 1.2,
+      "scale_y": 1.2,
+      "diameter": 15,
+      "layer_mode": "below",
+      "is_active": true
+    },
+    {
       "id": 3001,
       "variant_id": 301,
       "code": "pendant",
@@ -286,16 +490,76 @@
     },
     {
       "id": 4003,
+      "variant_id": 402,
+      "code": "left",
+      "label_uk": "????",
+      "label_en": "Left",
+      "sort_order": 1,
+      "x": 35.4,
+      "y": 48.1,
+      "scale_x": 1.5,
+      "scale_y": 1.5,
+      "diameter": 16,
+      "layer_mode": "below",
+      "is_active": true
+    },
+    {
+      "id": 4004,
+      "variant_id": 402,
+      "code": "right",
+      "label_uk": "?????",
+      "label_en": "Right",
+      "sort_order": 2,
+      "x": 64.6,
+      "y": 48.1,
+      "scale_x": 1.5,
+      "scale_y": 1.5,
+      "diameter": 16,
+      "layer_mode": "below",
+      "is_active": true
+    },
+    {
+      "id": 4005,
+      "variant_id": 403,
+      "code": "left",
+      "label_uk": "????",
+      "label_en": "Left",
+      "sort_order": 1,
+      "x": 34.4,
+      "y": 64.6,
+      "scale_x": 1.42,
+      "scale_y": 1.42,
+      "diameter": 15,
+      "layer_mode": "below",
+      "is_active": true
+    },
+    {
+      "id": 4006,
+      "variant_id": 403,
+      "code": "right",
+      "label_uk": "?????",
+      "label_en": "Right",
+      "sort_order": 2,
+      "x": 65.6,
+      "y": 64.6,
+      "scale_x": 1.42,
+      "scale_y": 1.42,
+      "diameter": 15,
+      "layer_mode": "below",
+      "is_active": true
+    },
+    {
+      "id": 4007,
       "variant_id": 101,
-      "code": "center-copy",
-      "label_uk": "Центр копія",
-      "label_en": "Center copy",
+      "code": "right-copy",
+      "label_uk": "Праворуч копія",
+      "label_en": "Right copy",
       "sort_order": 4,
-      "x": 39.160545928725845,
-      "y": 18.86042134161879,
-      "scale_x": 1.49,
-      "scale_y": 1.58,
-      "diameter": 18,
+      "x": 40.7898548973692,
+      "y": 14.163543846668325,
+      "scale_x": 1.43,
+      "scale_y": 1.45,
+      "diameter": 12,
       "layer_mode": "below",
       "is_active": false
     }
@@ -312,7 +576,7 @@
     {
       "variant_id": 101,
       "stone_id": 2,
-      "price_delta": 180,
+      "price_delta": 800,
       "is_default": true,
       "is_enabled": true,
       "sort_order": 2
@@ -320,7 +584,7 @@
     {
       "variant_id": 101,
       "stone_id": 3,
-      "price_delta": 160,
+      "price_delta": 650,
       "is_default": false,
       "is_enabled": true,
       "sort_order": 3
@@ -328,7 +592,7 @@
     {
       "variant_id": 101,
       "stone_id": 4,
-      "price_delta": 210,
+      "price_delta": 1300,
       "is_default": false,
       "is_enabled": true,
       "sort_order": 4
@@ -336,7 +600,7 @@
     {
       "variant_id": 101,
       "stone_id": 5,
-      "price_delta": 260,
+      "price_delta": 2100,
       "is_default": false,
       "is_enabled": true,
       "sort_order": 5
@@ -344,7 +608,7 @@
     {
       "variant_id": 101,
       "stone_id": 8,
-      "price_delta": 320,
+      "price_delta": 4500,
       "is_default": false,
       "is_enabled": true,
       "sort_order": 6
@@ -352,7 +616,119 @@
     {
       "variant_id": 101,
       "stone_id": 6,
+      "price_delta": 3200,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 6
+    },
+    {
+      "variant_id": 102,
+      "stone_id": 1,
       "price_delta": 0,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 1
+    },
+    {
+      "variant_id": 102,
+      "stone_id": 2,
+      "price_delta": 800,
+      "is_default": true,
+      "is_enabled": true,
+      "sort_order": 2
+    },
+    {
+      "variant_id": 102,
+      "stone_id": 3,
+      "price_delta": 650,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 3
+    },
+    {
+      "variant_id": 102,
+      "stone_id": 4,
+      "price_delta": 1300,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 4
+    },
+    {
+      "variant_id": 102,
+      "stone_id": 5,
+      "price_delta": 2100,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 5
+    },
+    {
+      "variant_id": 102,
+      "stone_id": 8,
+      "price_delta": 4500,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 6
+    },
+    {
+      "variant_id": 102,
+      "stone_id": 6,
+      "price_delta": 3200,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 6
+    },
+    {
+      "variant_id": 103,
+      "stone_id": 1,
+      "price_delta": 0,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 1
+    },
+    {
+      "variant_id": 103,
+      "stone_id": 2,
+      "price_delta": 800,
+      "is_default": true,
+      "is_enabled": true,
+      "sort_order": 2
+    },
+    {
+      "variant_id": 103,
+      "stone_id": 3,
+      "price_delta": 650,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 3
+    },
+    {
+      "variant_id": 103,
+      "stone_id": 4,
+      "price_delta": 1300,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 4
+    },
+    {
+      "variant_id": 103,
+      "stone_id": 5,
+      "price_delta": 2100,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 5
+    },
+    {
+      "variant_id": 103,
+      "stone_id": 8,
+      "price_delta": 4500,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 6
+    },
+    {
+      "variant_id": 103,
+      "stone_id": 6,
+      "price_delta": 3200,
       "is_default": false,
       "is_enabled": true,
       "sort_order": 6
@@ -368,7 +744,7 @@
     {
       "variant_id": 201,
       "stone_id": 2,
-      "price_delta": 180,
+      "price_delta": 800,
       "is_default": true,
       "is_enabled": true,
       "sort_order": 2
@@ -376,7 +752,7 @@
     {
       "variant_id": 201,
       "stone_id": 3,
-      "price_delta": 160,
+      "price_delta": 650,
       "is_default": false,
       "is_enabled": true,
       "sort_order": 3
@@ -384,7 +760,7 @@
     {
       "variant_id": 201,
       "stone_id": 4,
-      "price_delta": 210,
+      "price_delta": 1300,
       "is_default": false,
       "is_enabled": true,
       "sort_order": 4
@@ -392,7 +768,7 @@
     {
       "variant_id": 201,
       "stone_id": 5,
-      "price_delta": 260,
+      "price_delta": 2100,
       "is_default": false,
       "is_enabled": true,
       "sort_order": 5
@@ -400,7 +776,7 @@
     {
       "variant_id": 201,
       "stone_id": 7,
-      "price_delta": 140,
+      "price_delta": 500,
       "is_default": false,
       "is_enabled": false,
       "sort_order": 6
@@ -408,7 +784,7 @@
     {
       "variant_id": 201,
       "stone_id": 6,
-      "price_delta": 0,
+      "price_delta": 3200,
       "is_default": false,
       "is_enabled": true,
       "sort_order": 6
@@ -416,7 +792,135 @@
     {
       "variant_id": 201,
       "stone_id": 8,
-      "price_delta": 320,
+      "price_delta": 4500,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 7
+    },
+    {
+      "variant_id": 202,
+      "stone_id": 1,
+      "price_delta": 0,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 1
+    },
+    {
+      "variant_id": 202,
+      "stone_id": 2,
+      "price_delta": 800,
+      "is_default": true,
+      "is_enabled": true,
+      "sort_order": 2
+    },
+    {
+      "variant_id": 202,
+      "stone_id": 3,
+      "price_delta": 650,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 3
+    },
+    {
+      "variant_id": 202,
+      "stone_id": 4,
+      "price_delta": 1300,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 4
+    },
+    {
+      "variant_id": 202,
+      "stone_id": 5,
+      "price_delta": 2100,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 5
+    },
+    {
+      "variant_id": 202,
+      "stone_id": 7,
+      "price_delta": 500,
+      "is_default": false,
+      "is_enabled": false,
+      "sort_order": 6
+    },
+    {
+      "variant_id": 202,
+      "stone_id": 6,
+      "price_delta": 3200,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 6
+    },
+    {
+      "variant_id": 202,
+      "stone_id": 8,
+      "price_delta": 4500,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 7
+    },
+    {
+      "variant_id": 203,
+      "stone_id": 1,
+      "price_delta": 0,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 1
+    },
+    {
+      "variant_id": 203,
+      "stone_id": 2,
+      "price_delta": 800,
+      "is_default": true,
+      "is_enabled": true,
+      "sort_order": 2
+    },
+    {
+      "variant_id": 203,
+      "stone_id": 3,
+      "price_delta": 650,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 3
+    },
+    {
+      "variant_id": 203,
+      "stone_id": 4,
+      "price_delta": 1300,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 4
+    },
+    {
+      "variant_id": 203,
+      "stone_id": 5,
+      "price_delta": 2100,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 5
+    },
+    {
+      "variant_id": 203,
+      "stone_id": 7,
+      "price_delta": 500,
+      "is_default": false,
+      "is_enabled": false,
+      "sort_order": 6
+    },
+    {
+      "variant_id": 203,
+      "stone_id": 6,
+      "price_delta": 3200,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 6
+    },
+    {
+      "variant_id": 203,
+      "stone_id": 8,
+      "price_delta": 4500,
       "is_default": false,
       "is_enabled": true,
       "sort_order": 7
@@ -432,7 +936,7 @@
     {
       "variant_id": 301,
       "stone_id": 2,
-      "price_delta": 180,
+      "price_delta": 800,
       "is_default": true,
       "is_enabled": true,
       "sort_order": 2
@@ -440,7 +944,7 @@
     {
       "variant_id": 301,
       "stone_id": 3,
-      "price_delta": 160,
+      "price_delta": 650,
       "is_default": false,
       "is_enabled": true,
       "sort_order": 3
@@ -448,7 +952,7 @@
     {
       "variant_id": 301,
       "stone_id": 4,
-      "price_delta": 210,
+      "price_delta": 1300,
       "is_default": false,
       "is_enabled": true,
       "sort_order": 4
@@ -456,7 +960,7 @@
     {
       "variant_id": 301,
       "stone_id": 5,
-      "price_delta": 260,
+      "price_delta": 2100,
       "is_default": false,
       "is_enabled": true,
       "sort_order": 5
@@ -464,7 +968,7 @@
     {
       "variant_id": 301,
       "stone_id": 8,
-      "price_delta": 320,
+      "price_delta": 4500,
       "is_default": false,
       "is_enabled": true,
       "sort_order": 6
@@ -480,7 +984,7 @@
     {
       "variant_id": 302,
       "stone_id": 2,
-      "price_delta": 180,
+      "price_delta": 800,
       "is_default": true,
       "is_enabled": true,
       "sort_order": 2
@@ -488,7 +992,7 @@
     {
       "variant_id": 302,
       "stone_id": 3,
-      "price_delta": 160,
+      "price_delta": 650,
       "is_default": false,
       "is_enabled": true,
       "sort_order": 3
@@ -496,7 +1000,7 @@
     {
       "variant_id": 302,
       "stone_id": 4,
-      "price_delta": 210,
+      "price_delta": 1300,
       "is_default": false,
       "is_enabled": true,
       "sort_order": 4
@@ -504,7 +1008,7 @@
     {
       "variant_id": 302,
       "stone_id": 5,
-      "price_delta": 260,
+      "price_delta": 2100,
       "is_default": false,
       "is_enabled": true,
       "sort_order": 5
@@ -512,7 +1016,7 @@
     {
       "variant_id": 302,
       "stone_id": 8,
-      "price_delta": 320,
+      "price_delta": 4500,
       "is_default": false,
       "is_enabled": true,
       "sort_order": 6
@@ -528,7 +1032,7 @@
     {
       "variant_id": 303,
       "stone_id": 2,
-      "price_delta": 180,
+      "price_delta": 800,
       "is_default": true,
       "is_enabled": true,
       "sort_order": 2
@@ -536,7 +1040,7 @@
     {
       "variant_id": 303,
       "stone_id": 3,
-      "price_delta": 160,
+      "price_delta": 650,
       "is_default": false,
       "is_enabled": true,
       "sort_order": 3
@@ -544,7 +1048,7 @@
     {
       "variant_id": 303,
       "stone_id": 4,
-      "price_delta": 210,
+      "price_delta": 1300,
       "is_default": false,
       "is_enabled": true,
       "sort_order": 4
@@ -552,7 +1056,7 @@
     {
       "variant_id": 303,
       "stone_id": 5,
-      "price_delta": 260,
+      "price_delta": 2100,
       "is_default": false,
       "is_enabled": true,
       "sort_order": 5
@@ -560,7 +1064,7 @@
     {
       "variant_id": 303,
       "stone_id": 8,
-      "price_delta": 320,
+      "price_delta": 4500,
       "is_default": false,
       "is_enabled": true,
       "sort_order": 6
@@ -568,7 +1072,7 @@
     {
       "variant_id": 303,
       "stone_id": 6,
-      "price_delta": 0,
+      "price_delta": 3200,
       "is_default": false,
       "is_enabled": true,
       "sort_order": 6
@@ -584,7 +1088,7 @@
     {
       "variant_id": 401,
       "stone_id": 2,
-      "price_delta": 180,
+      "price_delta": 800,
       "is_default": true,
       "is_enabled": true,
       "sort_order": 2
@@ -592,7 +1096,7 @@
     {
       "variant_id": 401,
       "stone_id": 3,
-      "price_delta": 160,
+      "price_delta": 650,
       "is_default": false,
       "is_enabled": true,
       "sort_order": 3
@@ -600,7 +1104,7 @@
     {
       "variant_id": 401,
       "stone_id": 4,
-      "price_delta": 210,
+      "price_delta": 1300,
       "is_default": false,
       "is_enabled": true,
       "sort_order": 4
@@ -608,7 +1112,7 @@
     {
       "variant_id": 401,
       "stone_id": 5,
-      "price_delta": 260,
+      "price_delta": 2100,
       "is_default": false,
       "is_enabled": true,
       "sort_order": 5
@@ -616,7 +1120,103 @@
     {
       "variant_id": 401,
       "stone_id": 8,
-      "price_delta": 320,
+      "price_delta": 4500,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 6
+    },
+    {
+      "variant_id": 402,
+      "stone_id": 1,
+      "price_delta": 0,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 1
+    },
+    {
+      "variant_id": 402,
+      "stone_id": 2,
+      "price_delta": 800,
+      "is_default": true,
+      "is_enabled": true,
+      "sort_order": 2
+    },
+    {
+      "variant_id": 402,
+      "stone_id": 3,
+      "price_delta": 650,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 3
+    },
+    {
+      "variant_id": 402,
+      "stone_id": 4,
+      "price_delta": 1300,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 4
+    },
+    {
+      "variant_id": 402,
+      "stone_id": 5,
+      "price_delta": 2100,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 5
+    },
+    {
+      "variant_id": 402,
+      "stone_id": 8,
+      "price_delta": 4500,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 6
+    },
+    {
+      "variant_id": 403,
+      "stone_id": 1,
+      "price_delta": 0,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 1
+    },
+    {
+      "variant_id": 403,
+      "stone_id": 2,
+      "price_delta": 800,
+      "is_default": true,
+      "is_enabled": true,
+      "sort_order": 2
+    },
+    {
+      "variant_id": 403,
+      "stone_id": 3,
+      "price_delta": 650,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 3
+    },
+    {
+      "variant_id": 403,
+      "stone_id": 4,
+      "price_delta": 1300,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 4
+    },
+    {
+      "variant_id": 403,
+      "stone_id": 5,
+      "price_delta": 2100,
+      "is_default": false,
+      "is_enabled": true,
+      "sort_order": 5
+    },
+    {
+      "variant_id": 403,
+      "stone_id": 8,
+      "price_delta": 4500,
       "is_default": false,
       "is_enabled": true,
       "sort_order": 6

@@ -685,6 +685,7 @@ export const CONSTRUCTOR_STONE_MEDIA = {
   rose_quartz: "/assets/generated/rose_quartz.png",
   garnet: "/assets/generated/garnet.png",
   opal: "/assets/generated/opal.png",
+  diamond: "/assets/generated/diamind.png",
   none: "/assets/preview/stone-none.svg",
   heart_charm: "/assets/generated/heart_charm.png"
 };

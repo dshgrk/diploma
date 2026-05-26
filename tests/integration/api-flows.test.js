@@ -184,6 +184,32 @@ describe("api flows", () => {
     expect(response.body.data.types.some((type) => type.code === "bracelet")).toBe(true);
     expect(Array.isArray(response.body.data.variants)).toBe(true);
     expect(response.body.data.variants.length).toBeGreaterThan(0);
+    expect(response.body.data.variants.map((variant) => variant.code)).toEqual(
+      expect.arrayContaining([
+        "ring-trinity",
+        "ring-solitaire",
+        "ring-duet",
+        "bracelet-orbit",
+        "bracelet-line",
+        "bracelet-duet",
+        "pendant-heart",
+        "pendant-moon",
+        "pendant-drop",
+        "earrings-drop",
+        "earrings-stud",
+        "earrings-arc"
+      ])
+    );
+    expect(response.body.data.variants.find((variant) => variant.code === "ring-solitaire")?.price_delta).toBe(300);
+    expect(response.body.data.slotsByVariant["102"].map((slot) => slot.code)).toEqual(["center"]);
+    expect(response.body.data.slotsByVariant["103"].map((slot) => slot.code)).toEqual(["left", "right"]);
+    expect(response.body.data.slotsByVariant["202"].map((slot) => slot.code)).toEqual(["left", "center", "right"]);
+    expect(response.body.data.slotsByVariant["203"].map((slot) => slot.code)).toEqual(["left", "right"]);
+    expect(response.body.data.slotsByVariant["402"].map((slot) => slot.code)).toEqual(["left", "right"]);
+    expect(response.body.data.slotsByVariant["403"].map((slot) => slot.code)).toEqual(["left", "right"]);
+    expect(
+      response.body.data.variantStoneMatrix.filter((entry) => entry.variant_id === 102).map((entry) => entry.stone_id).sort((left, right) => left - right)
+    ).toEqual([1, 2, 3, 4, 5, 6, 8]);
   });
 
   test("checkout endpoint rejects request without required agreements", async () => {

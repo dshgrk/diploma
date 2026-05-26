@@ -1,4 +1,4 @@
-export const CHAIN_PRICES_UAH = {
+export const READY_CHAIN_PRICES_UAH = {
   Silver: {
     none: 0,
     "40cm": 1300,
@@ -16,6 +16,27 @@ export const CHAIN_PRICES_UAH = {
     "40cm": 1750,
     "45cm": 1950,
     "50cm": 2150
+  }
+};
+
+export const CONSTRUCTOR_CHAIN_PRICES_UAH = {
+  Silver: {
+    none: 0,
+    "40cm": 1800,
+    "45cm": 2100,
+    "50cm": 2400
+  },
+  Gold: {
+    none: 0,
+    "40cm": 3400,
+    "45cm": 3900,
+    "50cm": 4400
+  },
+  "Rose Gold": {
+    none: 0,
+    "40cm": 2900,
+    "45cm": 3300,
+    "50cm": 3700
   }
 };
 
@@ -64,7 +85,7 @@ export function getPendantChainOptionLabel(option, locale = "uk") {
 
 export function normalizeCatalogChainMetal(rawMetal) {
   const normalized = String(rawMetal || "").trim();
-  return Object.prototype.hasOwnProperty.call(CHAIN_PRICES_UAH, normalized) ? normalized : null;
+  return Object.prototype.hasOwnProperty.call(READY_CHAIN_PRICES_UAH, normalized) ? normalized : null;
 }
 
 export function normalizeConstructorChainMetal(materialCode) {
@@ -76,7 +97,7 @@ export function normalizeConstructorChainMetal(materialCode) {
   return null;
 }
 
-export function buildPendantChainSelection(chainOption, chainMetal) {
+export function buildPendantChainSelection(chainOption, chainMetal, priceMap = READY_CHAIN_PRICES_UAH) {
   const normalizedOption = normalizePendantChainOption(chainOption) || "none";
   if (normalizedOption === "none") {
     return {
@@ -91,18 +112,18 @@ export function buildPendantChainSelection(chainOption, chainMetal) {
     option: normalizedOption,
     length: CHAIN_OPTION_LENGTHS[normalizedOption],
     metal: chainMetal || null,
-    price: chainMetal ? Number(CHAIN_PRICES_UAH?.[chainMetal]?.[normalizedOption] || 0) : 0
+    price: chainMetal ? Number(priceMap?.[chainMetal]?.[normalizedOption] || 0) : 0
   };
 }
 
 export function resolveReadyProductPendantChain(product, chainOption) {
   if (!normalizePendantType(product)) return null;
-  return buildPendantChainSelection(chainOption, normalizeCatalogChainMetal(product?.filters?.metal || product?.filter_metal));
+  return buildPendantChainSelection(chainOption, normalizeCatalogChainMetal(product?.filters?.metal || product?.filter_metal), READY_CHAIN_PRICES_UAH);
 }
 
 export function resolveCustomDesignPendantChain(typeOrCode, configuration = {}) {
   if (!normalizePendantType(typeOrCode)) return null;
-  return buildPendantChainSelection(extractPendantChainOption(configuration), normalizeConstructorChainMetal(configuration?.material));
+  return buildPendantChainSelection(extractPendantChainOption(configuration), normalizeConstructorChainMetal(configuration?.material), CONSTRUCTOR_CHAIN_PRICES_UAH);
 }
 
 export function getPendantChainSummary(chain, locale = "uk") {

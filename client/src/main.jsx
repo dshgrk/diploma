@@ -19,7 +19,6 @@ import {
 import { accountApi, adminCatalogApi, adminOrdersApi, authApi, cartApi, catalogApi, constructorApi, ordersApi } from "./api";
 import {
   ABOUT_PAGE_CONTENT,
-  CONSTRUCTOR_SLOT_CONFIGS,
   CONSTRUCTOR_STONE_MEDIA,
   FALLBACK_PRODUCT_IMAGE,
   REFERENCE_IMAGES,
@@ -50,7 +49,7 @@ import {
   resolveCustomDesignPendantChain,
   resolveReadyProductPendantChain
 } from "./pendant-chain";
-import { buildStoneCodeMap, JewelryPreview, previewStoneStyle } from "./jewelry-preview";
+import { buildMaterialAwareBaseAssetCandidates, buildStoneCodeMap, JewelryPreview, previewStoneStyle } from "./jewelry-preview";
 import { formatCurrency } from "./utils";
 import "./styles.css";
 
@@ -119,9 +118,9 @@ const GENERATED_STONE_ASSETS = [
 ];
 
 const GENERATED_LAYOUT_BASES = {
-  ring: ["/assets/generated/ring.png"],
-  bracelet: ["/assets/generated/bracelet.png"],
-  earrings: ["/assets/generated/earrings.png"],
+  ring: ["/assets/generated/ring.png", "/assets/generated/ring-solitaire.png", "/assets/generated/ring-duet.png"],
+  bracelet: ["/assets/generated/bracelet.png", "/assets/generated/bracelet-line.png", "/assets/generated/bracelet-duet.png"],
+  earrings: ["/assets/generated/earrings.png", "/assets/generated/earrings-stud.png", "/assets/generated/earrings-arc.png"],
   pendant: {
     heart: ["/assets/generated/pendant1.png"],
     moon: ["/assets/generated/pendant2.png"],
@@ -2483,25 +2482,26 @@ function resolvePrimaryStoneCode(slots, selections) {
   return Object.entries(counts).sort((left, right) => right[1] - left[1])[0]?.[0] || orderedCodes[0] || "";
 }
 
-function ConstructorSlots({ locale, typeCode, selections, values, onSelectSlot, mediaMap }) {
-  const [activeSlot, setActiveSlot] = useState(null);
+function ConstructorSlots({ locale, typeCode, slots = [], selections, values, onSelectSlot, mediaMap }) {
+  const [activeSlotCode, setActiveSlotCode] = useState(null);
   const panelRef = React.useRef(null);
-  const slots = CONSTRUCTOR_SLOT_CONFIGS[typeCode] || [];
+  const slotSignature = slots.map((slot) => slot.code).join("|");
   const displayedCount = slots.filter((slot) => {
-    const selectedValue = values.find((item) => item.code === selections?.[slot.id]) || null;
+    const selectedValue = values.find((item) => item.code === selections?.[slot.code]) || null;
     return Boolean(selectedValue && selectedValue.code !== "none");
   }).length;
 
   useEffect(() => {
-    setActiveSlot(null);
-  }, [typeCode]);
+    setActiveSlotCode(null);
+  }, [typeCode, slotSignature]);
 
   useEffect(() => {
-    if (!activeSlot || !panelRef.current) return;
+    if (!activeSlotCode || !panelRef.current) return;
     panelRef.current.scrollIntoView({ block: "nearest", behavior: "smooth" });
-  }, [activeSlot]);
+  }, [activeSlotCode]);
 
-  const activeValueCode = activeSlot ? selections?.[activeSlot] || "none" : "none";
+  const activeValueCode = activeSlotCode ? selections?.[activeSlotCode] || "none" : "none";
+  const activeSlot = slots.find((slot) => slot.code === activeSlotCode) || null;
 
   return (
     <div className="stone-slots-wrap">
@@ -2512,19 +2512,20 @@ function ConstructorSlots({ locale, typeCode, selections, values, onSelectSlot, 
       </div>
       <div className={`slots-row slots-row-${typeCode}`}>
         {slots.map((slot) => {
-          const isActive = activeSlot === slot.id;
-          const label = locale === "uk" ? slot.labelUk : slot.labelEn;
-          const selectedValue = values.find((item) => item.code === selections?.[slot.id]) || null;
+          const isActive = activeSlotCode === slot.code;
+          const label = localizedConstructorValue(slot, locale, ["label"]);
+          const selectedValue = values.find((item) => item.code === selections?.[slot.code]) || null;
           const hasSelection = Boolean(selectedValue && selectedValue.code !== "none");
+          const slotSize = Number(slot?.diameter || 0) >= 15 ? "lg" : "sm";
           return (
-            <div className="slot-container" key={slot.id}>
+            <div className="slot-container" key={slot.id || slot.code}>
               <button
                 type="button"
-                className={`stone-slot stone-slot-${slot.size}${hasSelection ? " slot-filled" : " slot-empty"}${isActive ? " slot-active" : ""}`}
-                onClick={() => setActiveSlot(isActive ? null : slot.id)}
+                className={`stone-slot stone-slot-${slotSize}${hasSelection ? " slot-filled" : " slot-empty"}${isActive ? " slot-active" : ""}`}
+                onClick={() => setActiveSlotCode(isActive ? null : slot.code)}
                 title={label}
               >
-                {hasSelection ? <ConstructorGem value={selectedValue} size={slot.size} mediaMap={mediaMap} /> : <span className="slot-add-icon">+</span>}
+                {hasSelection ? <ConstructorGem value={selectedValue} size={slotSize} mediaMap={mediaMap} /> : <span className="slot-add-icon">+</span>}
               </button>
               <span className="slot-label">{label}</span>
               {hasSelection ? <span className="slot-stone-name">{selectedValue.label}</span> : null}
@@ -2537,7 +2538,7 @@ function ConstructorSlots({ locale, typeCode, selections, values, onSelectSlot, 
         <div className="stone-picker-panel" ref={panelRef}>
           <p className="stone-picker-title">
             {locale === "uk" ? "Оберіть камінь для" : "Choose stone for"}{" "}
-            <strong>{locale === "uk" ? slots.find((slot) => slot.id === activeSlot)?.labelUk : slots.find((slot) => slot.id === activeSlot)?.labelEn}</strong>
+            <strong>{localizedConstructorValue(activeSlot, locale, ["label"])}</strong>
           </p>
           <div className="stone-picker-grid">
             {values.map((item) => {
@@ -2549,9 +2550,9 @@ function ConstructorSlots({ locale, typeCode, selections, values, onSelectSlot, 
                   key={item.id}
                   className={`stone-pick-btn${isCurrent ? " current" : ""}`}
                   onClick={() => {
-                  onSelectSlot(activeSlot, item.code);
-                  setActiveSlot(null);
-                }}
+                    onSelectSlot(activeSlot.code, item.code);
+                    setActiveSlotCode(null);
+                  }}
                 >
                   <span className={`stone-pick-media${canPreviewImage ? " has-image" : ""}`} style={canPreviewImage ? stoneBackgroundStyle(item.code, "picker", mediaMap) : undefined} />
                   <span className="stone-pick-meta">
@@ -2573,92 +2574,17 @@ function ConstructorSlots({ locale, typeCode, selections, values, onSelectSlot, 
   );
 }
 
-function ConstructorVisualPreview({ typeCode, materialCode, slotSelections, shapeValue, engraving, layoutConfig, stoneMediaMap }) {
-  const getStoneImage = (slotId) => {
-    const stoneCode = slotSelections?.[slotId];
-    return stoneCode ? stoneMediaMap?.[stoneCode] || CONSTRUCTOR_STONE_MEDIA[stoneCode] || CONSTRUCTOR_STONE_MEDIA.pearl : null;
-  };
-  const previewBases = layoutConfig?.bases || CONSTRUCTOR_PREVIEW_BASES;
-  const previewPositions = layoutConfig?.positions || CONSTRUCTOR_PREVIEW_SLOT_POSITIONS;
-
-  if (typeCode === "bracelet") {
-    return (
-      <div className="visual-preview-art visual-preview-bracelet">
-        <img className="jewelry-preview-base" src={previewBases.bracelet} alt="" aria-hidden="true" />
-        <div className="bracelet-orbit">
-          {(CONSTRUCTOR_SLOT_CONFIGS.bracelet || []).map((slot) => {
-            const stoneCode = slotSelections?.[slot.id];
-            const stoneImage = getStoneImage(slot.id);
-            const position = previewPositions.bracelet[slot.id];
-            return (
-              <span
-                className={`bracelet-slot${stoneImage ? " has-image" : ""}${stoneCode === "heart_charm" ? " bracelet-slot-charm" : ""}`}
-                key={slot.id}
-                style={{
-                  left: position.left,
-                  top: position.top,
-                  ...(stoneImage ? stoneBackgroundStyle(stoneCode, "preview", stoneMediaMap) : {})
-                }}
-              />
-            );
-          })}
-        </div>
-      </div>
-    );
-  }
-
-  if (typeCode === "pendant") {
-    const pendantStoneImage = getStoneImage("pendant");
-    const pendantShape = shapeValue === "moon" || shapeValue === "drop" ? shapeValue : "heart";
-    const pendantBases = previewBases.pendant || CONSTRUCTOR_PREVIEW_BASES.pendant;
-    const pendantBase = pendantBases[pendantShape] || pendantBases.heart;
-    const position = previewPositions.pendant[pendantShape];
-    return (
-      <div className="visual-preview-art visual-preview-pendant">
-        <img className={`jewelry-preview-base jewelry-preview-pendant-base jewelry-preview-pendant-${pendantShape}`} src={pendantBase} alt="" aria-hidden="true" />
-        <div className="pendant-preview-overlay">
-          {pendantStoneImage ? <span className="pendant-stone has-image" style={{ left: position.left, top: position.top, ...stoneBackgroundStyle(slotSelections?.pendant, "preview", stoneMediaMap) }} /> : <span className="pendant-stone" style={{ left: position.left, top: position.top }} />}
-        </div>
-      </div>
-    );
-  }
-
-  const ringLeftImage = getStoneImage("left");
-  const ringCenterImage = getStoneImage("center");
-  const ringRightImage = getStoneImage("right");
-  const ringPositions = previewPositions.ring;
-  if (typeCode === "ring") {
-    return (
-      <div className="visual-preview-art visual-preview-ring">
-        <img className="jewelry-preview-base" src={previewBases.ring} alt="" aria-hidden="true" />
-        <div className="ring-preview-overlay">
-          <span className={`ring-side-stone${ringLeftImage ? " has-image" : ""}`} style={{ left: ringPositions.left.left, top: ringPositions.left.top, ...(ringLeftImage ? stoneBackgroundStyle(slotSelections?.left, "preview", stoneMediaMap) : {}) }} />
-          <span className={`ring-center-stone${ringCenterImage ? " has-image" : ""}`} style={{ left: ringPositions.center.left, top: ringPositions.center.top, ...(ringCenterImage ? stoneBackgroundStyle(slotSelections?.center, "preview", stoneMediaMap) : {}) }} />
-          <span className={`ring-side-stone${ringRightImage ? " has-image" : ""}`} style={{ left: ringPositions.right.left, top: ringPositions.right.top, ...(ringRightImage ? stoneBackgroundStyle(slotSelections?.right, "preview", stoneMediaMap) : {}) }} />
-        </div>
-      </div>
-    );
-  }
-
-  if (typeCode === "earrings") {
-    const leftPosition = previewPositions.earrings.left;
-    const rightPosition = previewPositions.earrings.right;
-    return (
-      <div className="visual-preview-art visual-preview-earrings">
-        <img className="jewelry-preview-base jewelry-preview-earrings-base" src={previewBases.earrings} alt="" aria-hidden="true" />
-        <div className="earrings-preview-overlay">
-          <span className={`earring-drop${getStoneImage("left") ? " has-image" : ""}`} style={{ left: leftPosition.left, top: leftPosition.top, ...(getStoneImage("left") ? stoneBackgroundStyle(slotSelections?.left, "preview", stoneMediaMap) : {}) }} />
-          <span className={`earring-drop${getStoneImage("right") ? " has-image" : ""}`} style={{ left: rightPosition.left, top: rightPosition.top, ...(getStoneImage("right") ? stoneBackgroundStyle(slotSelections?.right, "preview", stoneMediaMap) : {}) }} />
-        </div>
-      </div>
-    );
-  }
-
-  const fallbackStoneImage = getStoneImage("pendant");
+function ConstructorVisualPreview({ variant, slots = [], stonesByCode = {}, selections = {}, engraving = "", materialCode = "" }) {
   return (
-    <div className="visual-preview-art visual-preview-generic">
-      {fallbackStoneImage ? <span className="pendant-stone has-image" style={{ backgroundImage: `url(${fallbackStoneImage})`, borderColor: stroke }} /> : <span className="pendant-stone" style={{ borderColor: stroke }} />}
-      {engraving ? <div className="preview-engraving">{engraving}</div> : null}
+    <div className="constructor-preview-art">
+      <JewelryPreview
+        variant={variant}
+        slots={slots}
+        stonesByCode={stonesByCode}
+        selections={selections}
+        engraving={engraving}
+        materialCode={materialCode}
+      />
     </div>
   );
 }
@@ -2667,7 +2593,6 @@ function ConstructorPage() {
   const [config, setConfig] = useState(null);
   const [jewelryTypeId, setJewelryTypeId] = useState("");
   const [configuration, setConfiguration] = useState({});
-  const [slotSelections, setSlotSelections] = useState({});
   const [calculation, setCalculation] = useState(null);
   const [loadError, setLoadError] = useState("");
   const [toast, setToast] = useState("");
@@ -2675,6 +2600,13 @@ function ConstructorPage() {
   const [isCalculating, setIsCalculating] = useState(false);
   const { locale, t } = useI18n();
   const copy = referenceCopy(locale);
+  const modelLabel = locale === "uk" ? "Модель" : "Model";
+  const materialLabel = locale === "uk" ? "Матеріал" : "Material";
+  const sizeLabel = locale === "uk" ? "Розмір" : "Size";
+  const stoneLabel = locale === "uk" ? "Камені" : "Stones";
+  const engravingLabel = locale === "uk" ? "Гравіювання" : "Engraving";
+  const requiredLabel = copy.required;
+  const noVariantsText = locale === "uk" ? "Моделі скоро з’являться" : "Variants are coming soon";
 
   useEffect(() => {
     let active = true;
@@ -2684,7 +2616,7 @@ function ConstructorPage() {
       .then((data) => {
         if (!active) return;
         setConfig(data);
-        setJewelryTypeId(String(data.jewelry_types?.[0]?.id || ""));
+        setJewelryTypeId(String(data.types?.[0]?.id || ""));
       })
       .catch((error) => {
         if (active) setLoadError(error.message);
@@ -2695,8 +2627,52 @@ function ConstructorPage() {
     };
   }, []);
 
+  const types = config?.types || [];
+  const variants = config?.variants || [];
+  const stones = config?.stones || [];
+  const variantStoneMatrix = config?.variantStoneMatrix || [];
+  const currentType = types.find((item) => String(item.id) === String(jewelryTypeId)) || types[0] || null;
+  const typeVariants = useMemo(
+    () => variants
+      .filter((item) => String(item.type_id) === String(currentType?.id))
+      .sort((left, right) => Number(left.sort_order || 0) - Number(right.sort_order || 0)),
+    [variants, currentType]
+  );
+  const currentVariant = typeVariants.find((item) => String(item.id) === String(configuration.variant_id)) || typeVariants[0] || null;
+  const currentSlots = useMemo(
+    () => (
+      currentVariant
+        ? [...(config?.slotsByVariant?.[currentVariant.id] || [])].sort((left, right) => Number(left.sort_order || 0) - Number(right.sort_order || 0))
+        : []
+    ),
+    [config, currentVariant]
+  );
+  const stonesById = useMemo(() => Object.fromEntries(stones.map((stone) => [String(stone.id), stone])), [stones]);
+  const stoneValues = useMemo(
+    () => (
+      currentVariant
+        ? variantStoneMatrix
+          .filter((item) => String(item.variant_id) === String(currentVariant.id) && item.is_enabled !== false)
+          .sort((left, right) => Number(left.sort_order || 0) - Number(right.sort_order || 0))
+          .map((entry) => {
+            const stone = stonesById[String(entry.stone_id)];
+            return stone ? { ...stone, price_delta: Number(entry.price_delta || 0), is_default: Boolean(entry.is_default) } : null;
+          })
+          .filter(Boolean)
+        : []
+    ),
+    [currentVariant, stonesById, variantStoneMatrix]
+  );
+  const stoneValuesByCode = useMemo(() => Object.fromEntries(stoneValues.map((item) => [item.code, item])), [stoneValues]);
+  const stonesByCode = useMemo(() => buildStoneCodeMap(stoneValues), [stoneValues]);
+  const stoneMediaMap = useMemo(() => resolveStoneMediaMap(stoneValues), [stoneValues]);
+  const slotSelections = configuration.stone_slots && typeof configuration.stone_slots === "object" ? configuration.stone_slots : {};
+  const selectedMaterial = currentType?.materials?.find((item) => item.code === configuration.material) || null;
+  const selectedSize = currentType?.size_options?.find((item) => item.code === configuration.size) || null;
+  const engravingEnabled = Boolean(currentType?.engraving?.enabled);
+
   useEffect(() => {
-    if (!jewelryTypeId) return undefined;
+    if (!jewelryTypeId || !currentVariant?.id) return undefined;
     let active = true;
     setIsCalculating(true);
 
@@ -2721,7 +2697,7 @@ function ConstructorPage() {
       active = false;
       window.clearTimeout(timer);
     };
-  }, [jewelryTypeId, configuration]);
+  }, [jewelryTypeId, currentVariant, configuration]);
 
   useEffect(() => {
     if (!toast) return undefined;
@@ -2729,77 +2705,91 @@ function ConstructorPage() {
     return () => window.clearTimeout(timer);
   }, [toast]);
 
-  const currentType = config?.jewelry_types?.find((item) => String(item.id) === String(jewelryTypeId));
-  const activeOptions = config?.options?.filter((option) => String(option.jewelry_type_id) === String(jewelryTypeId)) || [];
-  const valuesByOptionId = useMemo(() => {
-    return (config?.values || []).reduce((accumulator, value) => {
-      accumulator[value.design_option_id] = accumulator[value.design_option_id] || [];
-      accumulator[value.design_option_id].push(value);
-      return accumulator;
-    }, {});
-  }, [config]);
-
-  const selectedSummary = activeOptions
-    .map((option) => {
-      const selected = configuration[option.code];
-      if (!selected) return null;
-      if (option.code === "stone" && configuration.stone_slots && Object.keys(configuration.stone_slots).length) return null;
-      if (option.input_type === "text") return [option.label, selected];
-      const foundValue = (valuesByOptionId[option.id] || []).find((value) => value.code === selected);
-      return [option.label, foundValue?.label || selected];
-    })
-    .filter(Boolean);
-
   const missingRequired = calculation?.missing_required || [];
   const isValid = Boolean(calculation?.is_valid);
-  const optionByCode = useMemo(() => Object.fromEntries(activeOptions.map((option) => [option.code, option])), [activeOptions]);
-  const materialOption = optionByCode.material;
-  const sizeOption = optionByCode.size;
-  const shapeOption = optionByCode.shape;
-  const stoneOption = optionByCode.stone;
-  const engravingOption = optionByCode.engraving_text;
-  const materialValues = materialOption ? valuesByOptionId[materialOption.id] || [] : [];
-  const sizeValues = sizeOption ? valuesByOptionId[sizeOption.id] || [] : [];
-  const shapeValues = shapeOption ? valuesByOptionId[shapeOption.id] || [] : [];
-  const stoneValues = stoneOption ? valuesByOptionId[stoneOption.id] || [] : [];
-  const currentSlots = CONSTRUCTOR_SLOT_CONFIGS[currentType?.code || "ring"] || [];
-  const stoneValuesByCode = useMemo(() => Object.fromEntries(stoneValues.map((item) => [item.code, item])), [stoneValues]);
-  const stoneMediaMap = React.useMemo(() => resolveStoneMediaMap(stoneValues), [stoneValues]);
-  const selectedShape = shapeValues.find((item) => item.code === configuration.shape) || null;
+  const selectedSummary = [
+    currentVariant ? [modelLabel, localizedConstructorValue(currentVariant, locale, ["name"])] : null,
+    selectedMaterial ? [materialLabel, localizedConstructorValue(selectedMaterial, locale, ["label"])] : null,
+    selectedSize ? [sizeLabel, localizedConstructorValue(selectedSize, locale, ["label"])] : null
+  ].filter(Boolean);
   const selectedSlotSummary = currentSlots
     .map((slot) => {
-      const stoneCode = slotSelections[slot.id];
+      const stoneCode = slotSelections[slot.code];
       const stone = stoneValuesByCode[stoneCode];
       if (!stone || stone.code === "none") return null;
       return {
-        id: slot.id,
-        label: locale === "uk" ? slot.labelUk : slot.labelEn,
-        value: stone.label
+        id: slot.id || slot.code,
+        label: localizedConstructorValue(slot, locale, ["label"]),
+        value: localizedConstructorValue(stone, locale, ["label"])
       };
     })
     .filter(Boolean);
 
   useEffect(() => {
-    if (!activeOptions.length) return;
-    const defaultCodes = ["material", "size", "shape"];
+    if (!currentType) return;
 
     setConfiguration((current) => {
       let changed = false;
       const next = { ...current };
+      const defaultVariant = typeVariants[0] || null;
 
-      for (const code of defaultCodes) {
-        const option = optionByCode[code];
-        if (!option || next[code]) continue;
-        const values = valuesByOptionId[option.id] || [];
-        const firstValue = values[0];
-        if (!firstValue) continue;
-        next[code] = firstValue.code;
+      if (defaultVariant && !typeVariants.some((item) => String(item.id) === String(next.variant_id))) {
+        next.variant_id = Number(defaultVariant.id);
+        changed = true;
+      }
+
+      const materials = currentType.materials || [];
+      if (materials.length && !materials.some((item) => item.code === next.material)) {
+        next.material = materials[0].code;
+        changed = true;
+      }
+
+      const sizes = currentType.size_options || [];
+      if (sizes.length) {
+        const defaultSize = sizes.find((item) => item.is_default) || sizes[0];
+        if (!sizes.some((item) => item.code === next.size) && defaultSize) {
+          next.size = defaultSize.code;
+          changed = true;
+        }
+      } else if (next.size) {
+        delete next.size;
+        changed = true;
+      }
+
+      if (!engravingEnabled && next.engraving_text) {
+        delete next.engraving_text;
+        changed = true;
+      }
+
+      const allowedSlotCodes = new Set(currentSlots.map((slot) => slot.code));
+      const allowedStoneCodes = new Set(stoneValues.map((stone) => stone.code));
+      const sanitizedSlotSelections = Object.fromEntries(
+        Object.entries(current.stone_slots || {}).filter(
+          ([slotCode, stoneCode]) => allowedSlotCodes.has(slotCode) && allowedStoneCodes.has(stoneCode)
+        )
+      );
+      if (JSON.stringify(sanitizedSlotSelections) !== JSON.stringify(current.stone_slots || {})) {
+        next.stone_slots = sanitizedSlotSelections;
+        changed = true;
+      } else if (!next.stone_slots && currentSlots.length) {
+        next.stone_slots = sanitizedSlotSelections;
+        changed = true;
+      }
+
+      const primaryStoneCode = resolvePrimaryStoneCode(currentSlots, sanitizedSlotSelections);
+      if (primaryStoneCode) {
+        if (next.stone !== primaryStoneCode) {
+          next.stone = primaryStoneCode;
+          changed = true;
+        }
+      } else if (next.stone) {
+        delete next.stone;
         changed = true;
       }
 
       return changed ? next : current;
     });
-  }, [activeOptions, optionByCode, valuesByOptionId]);
+  }, [currentType, currentSlots, engravingEnabled, stoneValues, typeVariants]);
 
   function updateConfiguration(code, value) {
     setConfiguration((current) => ({
@@ -2808,29 +2798,37 @@ function ConstructorPage() {
     }));
   }
 
-  function updateSlotSelection(slotId, stoneCode) {
-    setSlotSelections((current) => {
-      const next = { ...current };
+  function updateSlotSelection(slotCode, stoneCode) {
+    setConfiguration((current) => {
+      const next = { ...(current.stone_slots || {}) };
       if (!stoneCode || stoneCode === "none") {
-        delete next[slotId];
+        delete next[slotCode];
       } else {
-        next[slotId] = stoneCode;
+        next[slotCode] = stoneCode;
       }
 
       const primaryStoneCode = resolvePrimaryStoneCode(currentSlots, next);
-      setConfiguration((currentConfiguration) => ({
-        ...currentConfiguration,
-        stone: primaryStoneCode,
+      const nextConfiguration = {
+        ...current,
         stone_slots: next
-      }));
-      return next;
+      };
+      if (primaryStoneCode) nextConfiguration.stone = primaryStoneCode;
+      else delete nextConfiguration.stone;
+      return nextConfiguration;
     });
   }
 
   function handleTypeChange(event) {
     setJewelryTypeId(event.target.value);
     setConfiguration({});
-    setSlotSelections({});
+    setCalculation(null);
+  }
+
+  function handleVariantChange(variantId) {
+    setConfiguration((current) => ({
+      ...current,
+      variant_id: Number(variantId)
+    }));
     setCalculation(null);
   }
 
@@ -2893,7 +2891,7 @@ function ConstructorPage() {
                 <div className="constructor-section">
                   <p className="constructor-label">{t("jewelryType")}</p>
                   <div className="type-grid">
-                    {config.jewelry_types.map((item) => {
+                    {types.map((item) => {
                       const isActive = String(item.id) === String(jewelryTypeId);
                       return (
                         <button key={item.id} className={`type-btn${isActive ? " active" : ""}`} type="button" onClick={() => handleTypeChange({ target: { value: String(item.id) } })}>
@@ -2905,16 +2903,48 @@ function ConstructorPage() {
                   </div>
                 </div>
 
-                {materialOption ? (
+                <div className="constructor-section">
+                  <div className="constructor-section-head">
+                    <p className="constructor-label">{modelLabel}</p>
+                    <span className="required-badge">{requiredLabel}</span>
+                  </div>
+                  {typeVariants.length ? (
+                    <div className="constructor-variant-grid">
+                      {typeVariants.map((variant) => {
+                        const isActive = String(variant.id) === String(currentVariant?.id);
+                        return (
+                          <button
+                            key={variant.id}
+                            className={`constructor-variant-btn${isActive ? " active" : ""}`}
+                            type="button"
+                            onClick={() => handleVariantChange(variant.id)}
+                          >
+                            <span className="constructor-variant-art">
+                              {variant.base_asset_url ? <img src={variant.base_asset_url} alt="" aria-hidden="true" /> : null}
+                            </span>
+                            <span className="constructor-variant-copy">
+                              <strong>{localizedConstructorValue(variant, locale, ["name"])}</strong>
+                              <small>{variant.code}</small>
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="constructor-empty-copy">{noVariantsText}</p>
+                  )}
+                </div>
+
+                {currentType?.materials?.length ? (
                   <div className="constructor-section">
                     <div className="constructor-section-head">
-                      <p className="constructor-label">{materialOption.label}</p>
-                      {materialOption.is_required ? <span className="required-badge">{copy.required}</span> : null}
+                      <p className="constructor-label">{materialLabel}</p>
+                      <span className="required-badge">{requiredLabel}</span>
                     </div>
                     <div className="material-list">
-                      {materialValues.map((item) => (
+                      {currentType.materials.map((item) => (
                         <button
-                          key={item.id}
+                          key={item.code}
                           className={`material-btn${configuration.material === item.code ? " active" : ""}`}
                           type="button"
                           onClick={() => updateConfiguration("material", item.code)}
@@ -2928,38 +2958,16 @@ function ConstructorPage() {
                   </div>
                 ) : null}
 
-                {shapeOption ? (
+                {currentSlots.length ? (
                   <div className="constructor-section">
                     <div className="constructor-section-head">
-                      <p className="constructor-label">{shapeOption.label}</p>
-                      {shapeOption.is_required ? <span className="required-badge">{copy.required}</span> : null}
-                    </div>
-                    <div className="material-list">
-                      {shapeValues.map((item) => (
-                        <button
-                          key={item.id}
-                          className={`material-btn material-btn-shape${configuration.shape === item.code ? " active" : ""}`}
-                          type="button"
-                          onClick={() => updateConfiguration("shape", item.code)}
-                        >
-                          <span className={`shape-chip shape-chip-${item.code}`} />
-                          <span className="material-name">{item.label}</span>
-                          {item.price_delta ? <span>{item.price_delta > 0 ? `+${item.price_delta}` : item.price_delta}</span> : null}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
-
-                {stoneOption ? (
-                  <div className="constructor-section">
-                    <div className="constructor-section-head">
-                      <p className="constructor-label">{stoneOption.label}</p>
-                      {stoneOption.is_required ? <span className="required-badge">{copy.required}</span> : null}
+                      <p className="constructor-label">{stoneLabel}</p>
+                      <span className="required-badge">{requiredLabel}</span>
                     </div>
                     <ConstructorSlots
                       locale={locale}
                       typeCode={currentType?.code || "ring"}
+                      slots={currentSlots}
                       selections={slotSelections}
                       values={stoneValues}
                       onSelectSlot={updateSlotSelection}
@@ -2968,16 +2976,16 @@ function ConstructorPage() {
                   </div>
                 ) : null}
 
-                {sizeOption ? (
+                {currentType?.size_options?.length ? (
                   <div className="constructor-section">
                     <div className="constructor-section-head">
-                      <p className="constructor-label">{sizeOption.label}</p>
-                      {sizeOption.is_required ? <span className="required-badge">{copy.required}</span> : null}
+                      <p className="constructor-label">{sizeLabel}</p>
+                      <span className="required-badge">{requiredLabel}</span>
                     </div>
                     <div className="size-grid">
-                      {sizeValues.map((item) => (
+                      {currentType.size_options.map((item) => (
                         <button
-                          key={item.id}
+                          key={item.code}
                           className={`size-btn${configuration.size === item.code ? " active" : ""}`}
                           type="button"
                           onClick={() => updateConfiguration("size", item.code)}
@@ -2994,21 +3002,23 @@ function ConstructorPage() {
                   </div>
                 ) : null}
 
-                {engravingOption ? (
+                {engravingEnabled ? (
                   <div className="constructor-section">
                     <div className="constructor-section-head">
-                      <p className="constructor-label">{engravingOption.label}</p>
+                      <p className="constructor-label">{engravingLabel}</p>
                     </div>
                     <div className="field">
                       <input
                         type="text"
                         className="field-input"
                         value={configuration.engraving_text || ""}
-                        maxLength={24}
+                        maxLength={Number(currentType?.engraving?.max_length || 24)}
                         placeholder={t("engravingPlaceholder")}
                         onChange={(event) => updateConfiguration("engraving_text", event.target.value)}
                       />
-                      <span className="field-counter">{String(configuration.engraving_text || "").length}/24</span>
+                      <span className="field-counter">
+                        {String(configuration.engraving_text || "").length}/{Number(currentType?.engraving?.max_length || 24)}
+                      </span>
                     </div>
                   </div>
                 ) : null}
@@ -3020,14 +3030,13 @@ function ConstructorPage() {
                     <p className="constructor-label" style={{ marginBottom: "1.5rem", textAlign: "center" }}>{copy.constructorPreview}</p>
                     <div className="preview-canvas">
                       <ConstructorVisualPreview
-                        typeCode={currentType?.code || "ring"}
-                        materialCode={configuration.material}
-                      slotSelections={slotSelections}
-                      shapeValue={selectedShape?.code}
-                      engraving={configuration.engraving_text || ""}
-                      layoutConfig={config?.layouts}
-                      stoneMediaMap={stoneMediaMap}
-                    />
+                        variant={currentVariant}
+                        slots={currentSlots}
+                        stonesByCode={stonesByCode}
+                        selections={slotSelections}
+                        engraving={configuration.engraving_text || ""}
+                        materialCode={configuration.material || ""}
+                      />
                     </div>
                     {selectedSummary.length ? (
                       <div className="preview-stones-list">
@@ -3049,7 +3058,6 @@ function ConstructorPage() {
                         ))}
                       </div>
                     ) : null}
-                    {configuration.engraving_text ? <div className="preview-engraving">"{configuration.engraving_text}"</div> : null}
                   </div>
 
                   <div className="summary-card">
@@ -3424,6 +3432,191 @@ function statusClassName(status, overdue = false) {
   if (status === "in_progress") return "status-pill progress";
   if (status === "completed") return "status-pill completed";
   return "status-pill pending";
+}
+
+const ADMIN_LOCALE = LOCALE_FORMATS.uk;
+const ADMIN_ORDER_STATUS_COPY = {
+  awaitingPayment: "Очікує оплату",
+  confirmed: "Підтверджено",
+  inProgress: "У роботі",
+  completed: "Завершено"
+};
+
+const ADMIN_UI = {
+  shell: {
+    navAria: "Навігація адмінки",
+    orders: "Замовлення",
+    products: "Товари",
+    constructor: "Конструктор",
+    site: "Сайт"
+  },
+  common: {
+    save: "Зберегти",
+    saving: "Збереження...",
+    delete: "Видалити",
+    confirmDelete: "Підтвердити видалення",
+    cancel: "Скасувати",
+    open: "Відкрити",
+    back: "Назад",
+    new: "Нове",
+    archive: "Архівувати",
+    active: "Активно",
+    noStone: "Без каменю",
+    preview: "Попередній перегляд"
+  },
+  login: {
+    title: "Адмін-простір",
+    subtitle: "Керуйте замовленнями, товарами та параметрами конструктора в єдиному робочому інтерфейсі.",
+    email: "Електронна пошта",
+    password: "Пароль",
+    submit: "Увійти",
+    submitting: "Вхід..."
+  },
+  orders: {
+    title: "Замовлення",
+    subtitle: "Спокійна робоча панель для контролю виробництва, оплати й доставки.",
+    total: "Усього замовлень",
+    revenue: "Виторг",
+    average: "Середній чек",
+    overdue: "Прострочені",
+    searchPlaceholder: "Пошук за замовленням, клієнтом або email",
+    allStatuses: "Усі статуси",
+    order: "Замовлення",
+    customer: "Клієнт",
+    status: "Статус",
+    payment: "Оплата",
+    totalAmount: "Сума"
+  },
+  orderDetail: {
+    fallbackTitle: "Деталі замовлення",
+    subtitle: "Переглядайте досьє замовлення та переводьте його між доступними статусами.",
+    loading: "Завантаження замовлення",
+    status: "Статус",
+    commentPlaceholder: "Коментар для відкату статусу або внутрішня примітка",
+    moveTo: "Перевести в",
+    items: "Позиції",
+    timeline: "Хронологія",
+    productType: "Тип виробу"
+  },
+  products: {
+    title: "Товари",
+    subtitle: "Повний редактор каталогу: картка товару, фільтри, головне зображення та стан активності.",
+    listTitle: "Товари",
+    new: "Новий товар",
+    create: "Створити товар",
+    edit: "Редагувати товар",
+    imageUploaded: "Зображення завантажено",
+    created: "Товар створено",
+    updated: "Товар оновлено",
+    archived: "Товар архівовано",
+    jewelryType: "Тип прикраси",
+    slug: "Слаг",
+    price: "Ціна",
+    nameUk: "Назва UK",
+    nameEn: "Назва EN",
+    descriptionUk: "Опис UK",
+    descriptionEn: "Опис EN",
+    primaryImageAsset: "Головний асет зображення",
+    linkedVariant: "Пов’язаний варіант",
+    assetLibrary: "Бібліотека асетів",
+    imageAltUk: "Alt-текст зображення UK",
+    imageAltEn: "Alt-текст зображення EN",
+    uploadImage: "Завантажити зображення",
+    catalogFilters: "Фільтри каталогу",
+    previewName: "Назва для попереднього перегляду"
+  }
+};
+
+const ADMIN_TYPE_CODE_LABELS = {
+  ring: "Каблучка",
+  bracelet: "Браслет",
+  pendant: "Підвіска",
+  earrings: "Сережки"
+};
+
+const ADMIN_PRODUCT_FILTER_LABELS = {
+  type: "Тип",
+  metal: "Метал",
+  stoneType: "Камінь",
+  stoneShape: "Огранювання",
+  stoneColor: "Колір каменю",
+  stoneSize: "Розмір каменю",
+  ringSize: "Розмір каблучки",
+  ringType: "Стиль каблучки",
+  braceletLength: "Довжина браслета"
+};
+
+const ADMIN_PRODUCT_FILTER_VALUE_LABELS = {
+  type: {
+    Ring: "Каблучка",
+    Bracelet: "Браслет",
+    Pendant: "Підвіска",
+    Earrings: "Сережки"
+  },
+  metal: {
+    Gold: "Золото",
+    Silver: "Срібло",
+    "Rose Gold": "Рожеве золото",
+    Steel: "Сталь"
+  },
+  stoneType: {
+    Diamond: "Діамант",
+    Emerald: "Смарагд",
+    Sapphire: "Сапфір",
+    None: "Без каменю"
+  },
+  stoneShape: {
+    Round: "Круг",
+    Oval: "Овал",
+    Princess: "Принцеса"
+  },
+  stoneColor: {
+    White: "Білий",
+    Green: "Зелений",
+    Blue: "Синій"
+  },
+  ringType: {
+    Classic: "Класична",
+    Fashion: "Модна",
+    Statement: "Акцентна"
+  }
+};
+
+const ADMIN_ASSET_KIND_LABELS = {
+  "jewelry-base": "База прикраси",
+  stone: "Камінь",
+  product: "Товар",
+  other: "Інше"
+};
+
+function adminOrderStatusLabel(status) {
+  return orderStatusLabel(status, (key) => ADMIN_ORDER_STATUS_COPY[key] || key);
+}
+
+function adminPaymentStateLabel(state) {
+  if (state === "paid") return "Оплачено";
+  if (state === "unpaid") return "Не оплачено";
+  return state || "—";
+}
+
+function adminTypeCodeLabel(code) {
+  return ADMIN_TYPE_CODE_LABELS[code] || code || "";
+}
+
+function adminProductFilterLabel(key) {
+  return ADMIN_PRODUCT_FILTER_LABELS[key] || key;
+}
+
+function adminProductFilterValueLabel(key, value) {
+  return ADMIN_PRODUCT_FILTER_VALUE_LABELS[key]?.[value] || value;
+}
+
+function adminAssetKindLabel(kind) {
+  return ADMIN_ASSET_KIND_LABELS[kind] || kind;
+}
+
+function adminLocalizedEntry(primary, fallback, finalValue = "") {
+  return primary || fallback || finalValue;
 }
 
 function OrdersPage() {
@@ -4350,6 +4543,7 @@ function Bespoke() {
                       stonesByCode={stonesByCode}
                       selections={showcase.selections}
                       engraving={showcase.engraving}
+                      materialCode={showcase.material?.code || ""}
                     />
                   </div>
                 ) : (
@@ -5245,11 +5439,11 @@ function AdminShell({ children, title, subtitle }) {
             <h1>{title}</h1>
             {subtitle ? <p>{subtitle}</p> : null}
           </div>
-          <nav className="admin-react-nav" aria-label="Admin navigation">
-            <a href="/admin/orders">Orders</a>
-            <a href="/admin/products">Products</a>
-            <a href="/admin/constructor">Constructor</a>
-            <a href="/">Site</a>
+          <nav className="admin-react-nav" aria-label={ADMIN_UI.shell.navAria}>
+            <a href="/admin/orders">{ADMIN_UI.shell.orders}</a>
+            <a href="/admin/products">{ADMIN_UI.shell.products}</a>
+            <a href="/admin/constructor">{ADMIN_UI.shell.constructor}</a>
+            <a href="/">{ADMIN_UI.shell.site}</a>
           </nav>
         </div>
       </header>
@@ -5284,20 +5478,20 @@ function AdminLoginPage() {
     <main className="admin-login-react">
       <section className="admin-login-panel">
         <a className="admin-brand" href="/">Aurora Atelier</a>
-        <h1>Admin workspace</h1>
-        <p>Manage orders, products and constructor values from the new React surface.</p>
+        <h1>{ADMIN_UI.login.title}</h1>
+        <p>{ADMIN_UI.login.subtitle}</p>
         <form className="admin-form-grid" onSubmit={handleSubmit}>
           <label>
-            <span>Email</span>
+            <span>{ADMIN_UI.login.email}</span>
             <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
           </label>
           <label>
-            <span>Password</span>
+            <span>{ADMIN_UI.login.password}</span>
             <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} required />
           </label>
           {error ? <p className="admin-error">{error}</p> : null}
           <button className="button" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Signing in..." : "Sign in"}
+            {isSubmitting ? ADMIN_UI.login.submitting : ADMIN_UI.login.submit}
           </button>
         </form>
       </section>
@@ -5321,7 +5515,7 @@ function AdminOrdersPage() {
   const [data, setData] = useState(null);
   const [filters, setFilters] = useState({ status: "", search: "" });
   const [error, setError] = useState("");
-  const { localeFormat: locale } = useI18n();
+  const locale = ADMIN_LOCALE;
 
   useEffect(() => {
     let active = true;
@@ -5350,37 +5544,37 @@ function AdminOrdersPage() {
   const summary = data?.summary || {};
 
   return (
-    <AdminShell title="Orders" subtitle="A quiet control room for production, payment and delivery status.">
+    <AdminShell title={ADMIN_UI.orders.title} subtitle={ADMIN_UI.orders.subtitle}>
       {error ? <p className="admin-error">{error}</p> : null}
       <div className="admin-metric-grid">
-        <AdminMetric label="Total orders" value={summary.total_orders ?? 0} />
-        <AdminMetric label="Revenue" value={formatCurrency(summary.revenue_total || 0, "UAH", locale)} />
-        <AdminMetric label="Average order" value={formatCurrency(summary.average_order_value || 0, "UAH", locale)} />
-        <AdminMetric label="Overdue" value={summary.overdue_orders ?? 0} />
+        <AdminMetric label={ADMIN_UI.orders.total} value={summary.total_orders ?? 0} />
+        <AdminMetric label={ADMIN_UI.orders.revenue} value={formatCurrency(summary.revenue_total || 0, "UAH", locale)} />
+        <AdminMetric label={ADMIN_UI.orders.average} value={formatCurrency(summary.average_order_value || 0, "UAH", locale)} />
+        <AdminMetric label={ADMIN_UI.orders.overdue} value={summary.overdue_orders ?? 0} />
       </div>
       <div className="admin-toolbar">
         <input
           value={filters.search}
           onChange={(event) => setFilters((current) => ({ ...current, search: event.target.value }))}
-          placeholder="Search orders, customer, email"
+          placeholder={ADMIN_UI.orders.searchPlaceholder}
         />
         <select value={filters.status} onChange={(event) => setFilters((current) => ({ ...current, status: event.target.value }))}>
-          <option value="">All statuses</option>
-          <option value="created_pending_payment">Reservation created</option>
-          <option value="confirmed">Confirmed</option>
-          <option value="in_progress">In progress</option>
-          <option value="completed">Completed</option>
+          <option value="">{ADMIN_UI.orders.allStatuses}</option>
+          <option value="created_pending_payment">{adminOrderStatusLabel("created_pending_payment")}</option>
+          <option value="confirmed">{adminOrderStatusLabel("confirmed")}</option>
+          <option value="in_progress">{adminOrderStatusLabel("in_progress")}</option>
+          <option value="completed">{adminOrderStatusLabel("completed")}</option>
         </select>
       </div>
       <div className="admin-table-wrap">
         <table className="admin-table">
           <thead>
             <tr>
-              <th>Order</th>
-              <th>Customer</th>
-              <th>Status</th>
-              <th>Payment</th>
-              <th>Total</th>
+              <th>{ADMIN_UI.orders.order}</th>
+              <th>{ADMIN_UI.orders.customer}</th>
+              <th>{ADMIN_UI.orders.status}</th>
+              <th>{ADMIN_UI.orders.payment}</th>
+              <th>{ADMIN_UI.orders.totalAmount}</th>
               <th />
             </tr>
           </thead>
@@ -5392,10 +5586,10 @@ function AdminOrdersPage() {
                   <strong>{order.customer_name}</strong>
                   <span>{order.email}</span>
                 </td>
-                <td><span className={statusClassName(order.status, order.overdue)}>{orderStatusLabel(order.status, (key) => key)}</span></td>
-                <td>{order.payment_state}</td>
+                <td><span className={statusClassName(order.status, order.overdue)}>{adminOrderStatusLabel(order.status)}</span></td>
+                <td>{adminPaymentStateLabel(order.payment_state)}</td>
                 <td>{formatCurrency(order.total_amount, order.currency, locale)}</td>
-                <td><a className="small-button" href={`/admin/orders/${order.id}`}>Open</a></td>
+                <td><a className="small-button" href={`/admin/orders/${order.id}`}>{ADMIN_UI.common.open}</a></td>
               </tr>
             ))}
           </tbody>
@@ -5411,7 +5605,7 @@ function AdminOrderDetailPage() {
   const [comment, setComment] = useState("");
   const [error, setError] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
-  const { localeFormat: locale } = useI18n();
+  const locale = ADMIN_LOCALE;
 
   async function loadOrder() {
     try {
@@ -5446,9 +5640,9 @@ function AdminOrderDetailPage() {
   }
 
   return (
-    <AdminShell title={order?.order_number || "Order details"} subtitle="Review the order dossier and move it through adjacent statuses.">
+    <AdminShell title={order?.order_number || ADMIN_UI.orderDetail.fallbackTitle} subtitle={ADMIN_UI.orderDetail.subtitle}>
       {error ? <p className="admin-error">{error}</p> : null}
-      {!order ? <div className="empty-state-react"><h2>Loading order</h2></div> : (
+      {!order ? <div className="empty-state-react"><h2>{ADMIN_UI.orderDetail.loading}</h2></div> : (
         <div className="admin-detail-grid">
           <section className="admin-panel">
             <h2>{order.customer_name}</h2>
@@ -5457,25 +5651,25 @@ function AdminOrderDetailPage() {
             <strong>{formatCurrency(order.total_amount, order.currency, locale)}</strong>
           </section>
           <section className="admin-panel">
-            <h2>Status</h2>
-            <span className={statusClassName(order.status, order.overdue)}>{order.status}</span>
-            <textarea value={comment} onChange={(event) => setComment(event.target.value)} placeholder="Comment for rollback or internal note" />
+            <h2>{ADMIN_UI.orderDetail.status}</h2>
+            <span className={statusClassName(order.status, order.overdue)}>{adminOrderStatusLabel(order.status)}</span>
+            <textarea value={comment} onChange={(event) => setComment(event.target.value)} placeholder={ADMIN_UI.orderDetail.commentPlaceholder} />
             <div className="admin-action-row">
               {(order.available_statuses || []).map((status) => (
                 <button className="button button-ghost" key={status} type="button" disabled={isUpdating} onClick={() => updateStatus(status)}>
-                  Move to {status.replaceAll("_", " ")}
+                  {ADMIN_UI.orderDetail.moveTo} {adminOrderStatusLabel(status).toLowerCase()}
                 </button>
               ))}
             </div>
           </section>
           <section className="admin-panel wide">
-            <h2>Items</h2>
+            <h2>{ADMIN_UI.orderDetail.items}</h2>
             <div className="order-items-list">
               {order.items.map((item) => (
                 <div key={item.id}>
-                  <span>{item.title} x {item.quantity}</span>
+                  <span>{item.title} × {item.quantity}</span>
                   {item.item_type === "custom_design" && item.jewelry_type_code ? (
-                    <p>{`Тип виробу: ${item.jewelry_type_code === "pendant" ? "підвіска" : item.jewelry_type_code}`}</p>
+                    <p>{`${ADMIN_UI.orderDetail.productType}: ${adminTypeCodeLabel(item.jewelry_type_code)}`}</p>
                   ) : null}
                   {getPendantChainDisplay(item, locale, {}, { includeMetal: true }) ? (
                     <p>{getPendantChainDisplay(item, locale, {}, { includeMetal: true }).text}</p>
@@ -5489,11 +5683,11 @@ function AdminOrderDetailPage() {
             </div>
           </section>
           <section className="admin-panel wide">
-            <h2>Timeline</h2>
+            <h2>{ADMIN_UI.orderDetail.timeline}</h2>
             <div className="timeline-react">
               {order.history.map((entry) => (
                 <article className="timeline-react-item" key={entry.id}>
-                  <strong>{entry.new_status}</strong>
+                  <strong>{adminOrderStatusLabel(entry.new_status)}</strong>
                   <span>{formatOrderDate(entry.created_at, locale)}</span>
                   {entry.comment ? <p>{entry.comment}</p> : null}
                 </article>
@@ -5614,7 +5808,7 @@ function readFileAsDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(String(reader.result || ""));
-    reader.onerror = () => reject(new Error("Image upload failed"));
+    reader.onerror = () => reject(new Error("Не вдалося завантажити зображення"));
     reader.readAsDataURL(file);
   });
 }
@@ -5717,7 +5911,7 @@ function AdminProductsPage() {
   const [notice, setNotice] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const { localeFormat: locale } = useI18n();
+  const locale = ADMIN_LOCALE;
 
   useEffect(() => {
     let active = true;
@@ -5770,7 +5964,7 @@ function AdminProductsPage() {
       const dataUrl = await readFileAsDataUrl(file);
       const uploaded = await adminCatalogApi.uploadProductImage({ file_name: file.name, data_url: dataUrl });
       setForm((current) => ({ ...current, image_asset_path: uploaded.asset_path }));
-      setNotice("Image uploaded");
+      setNotice(ADMIN_UI.products.imageUploaded);
     } catch (uploadError) {
       setError(uploadError.message);
     } finally {
@@ -5803,7 +5997,7 @@ function AdminProductsPage() {
         ? await adminCatalogApi.createProduct(payload)
         : await adminCatalogApi.updateProduct(selectedProductId, payload);
       await refreshProducts(saved.id);
-      setNotice(selectedProductId === "new" ? "Product created" : "Product updated");
+      setNotice(selectedProductId === "new" ? ADMIN_UI.products.created : ADMIN_UI.products.updated);
     } catch (saveError) {
       setError(saveError.message);
     } finally {
@@ -5818,7 +6012,7 @@ function AdminProductsPage() {
     try {
       await adminCatalogApi.deactivateProduct(selectedProductId);
       await refreshProducts(selectedProductId);
-      setNotice("Product archived");
+      setNotice(ADMIN_UI.products.archived);
     } catch (saveError) {
       setError(saveError.message);
     } finally {
@@ -5833,14 +6027,14 @@ function AdminProductsPage() {
   const imageAssets = assets.filter((asset) => asset.kind === "product" || asset.kind === "jewelry-base" || asset.kind === "other");
 
   return (
-    <AdminShell title="Products" subtitle="Full catalog editor: product details, filters, hero image and activation state.">
+    <AdminShell title={ADMIN_UI.products.title} subtitle={ADMIN_UI.products.subtitle}>
       {error ? <p className="admin-error">{error}</p> : null}
       {notice ? <p className="admin-success">{notice}</p> : null}
       <div className="admin-editor-grid">
         <aside className="admin-panel admin-sidebar">
           <div className="admin-panel-head">
-            <h2>Products</h2>
-            <button type="button" className="small-button" onClick={() => setSelectedProductId("new")}>New</button>
+            <h2>{ADMIN_UI.products.listTitle}</h2>
+            <button type="button" className="small-button" onClick={() => setSelectedProductId("new")}>{ADMIN_UI.common.new}</button>
           </div>
           <div className="admin-list-stack">
             {products.map((product) => (
@@ -5852,8 +6046,8 @@ function AdminProductsPage() {
               >
                 <img src={product.image?.asset_path || FALLBACK_PRODUCT_IMAGE} alt="" />
                 <div>
-                  <strong>{product.name_en || product.name_uk}</strong>
-                  <span>{product.jewelry_type_name_en || product.jewelry_type_code}</span>
+                  <strong>{adminLocalizedEntry(product.name_uk, product.name_en)}</strong>
+                  <span>{adminLocalizedEntry(product.jewelry_type_name_uk, product.jewelry_type_name_en, adminTypeCodeLabel(product.jewelry_type_code))}</span>
                 </div>
               </button>
             ))}
@@ -5862,25 +6056,25 @@ function AdminProductsPage() {
 
         <section className="admin-panel wide">
           <div className="admin-panel-head">
-            <h2>{selectedProductId === "new" ? "New product" : "Edit product"}</h2>
+            <h2>{selectedProductId === "new" ? ADMIN_UI.products.create : ADMIN_UI.products.edit}</h2>
             <div className="admin-inline-actions">
               {selectedProductId !== "new" ? (
                 <button type="button" className="small-button button-danger" disabled={isSaving} onClick={handleDeactivate}>
-                  Archive
+                  {ADMIN_UI.common.archive}
                 </button>
               ) : null}
               <button type="button" className="small-button" disabled={isSaving} onClick={handleSaveProduct}>
-                {isSaving ? "Saving..." : "Save"}
+                {isSaving ? ADMIN_UI.common.saving : ADMIN_UI.common.save}
               </button>
             </div>
           </div>
 
           <div className="admin-form-grid">
             <label>
-              <span>Jewelry type</span>
+              <span>{ADMIN_UI.products.jewelryType}</span>
               <select value={form.jewelry_type_id} onChange={(event) => updateField("jewelry_type_id", event.target.value)}>
                 {jewelryTypes.map((type) => (
-                  <option key={type.id} value={type.id}>{type.name_en}</option>
+                  <option key={type.id} value={type.id}>{adminLocalizedEntry(type.name_uk, type.name_en, adminTypeCodeLabel(type.code))}</option>
                 ))}
               </select>
             </label>
@@ -5889,44 +6083,44 @@ function AdminProductsPage() {
               <input value={form.sku} onChange={(event) => updateField("sku", event.target.value)} />
             </label>
             <label>
-              <span>Slug</span>
+              <span>{ADMIN_UI.products.slug}</span>
               <input value={form.slug} onChange={(event) => updateField("slug", event.target.value)} />
             </label>
             <label>
-              <span>Price</span>
+              <span>{ADMIN_UI.products.price}</span>
               <input type="number" value={form.price} onChange={(event) => updateField("price", event.target.value)} />
             </label>
             <label>
-              <span>Name UK</span>
+              <span>{ADMIN_UI.products.nameUk}</span>
               <input value={form.name_uk} onChange={(event) => updateField("name_uk", event.target.value)} />
             </label>
             <label>
-              <span>Name EN</span>
+              <span>{ADMIN_UI.products.nameEn}</span>
               <input value={form.name_en} onChange={(event) => updateField("name_en", event.target.value)} />
             </label>
             <label className="full">
-              <span>Description UK</span>
+              <span>{ADMIN_UI.products.descriptionUk}</span>
               <textarea rows={4} value={form.description_uk} onChange={(event) => updateField("description_uk", event.target.value)} />
             </label>
             <label className="full">
-              <span>Description EN</span>
+              <span>{ADMIN_UI.products.descriptionEn}</span>
               <textarea rows={4} value={form.description_en} onChange={(event) => updateField("description_en", event.target.value)} />
             </label>
             <label className="full">
-              <span>Primary image asset</span>
+              <span>{ADMIN_UI.products.primaryImageAsset}</span>
               <input value={form.image_asset_path} onChange={(event) => updateField("image_asset_path", event.target.value)} />
             </label>
             <label>
-              <span>Linked variant</span>
+              <span>{ADMIN_UI.products.linkedVariant}</span>
               <select value={form.variant_id} onChange={(event) => updateField("variant_id", event.target.value)}>
                 <option value="">-</option>
                 {availableVariants.map((variant) => (
-                  <option key={variant.id} value={variant.id}>{variant.name_en}</option>
+                  <option key={variant.id} value={variant.id}>{adminLocalizedEntry(variant.name_uk, variant.name_en, variant.code)}</option>
                 ))}
               </select>
             </label>
             <label>
-              <span>Asset library</span>
+              <span>{ADMIN_UI.products.assetLibrary}</span>
               <select value={form.asset_id} onChange={(event) => updateField("asset_id", event.target.value)}>
                 <option value="">-</option>
                 {imageAssets.map((asset) => (
@@ -5935,33 +6129,33 @@ function AdminProductsPage() {
               </select>
             </label>
             <label>
-              <span>Image alt UK</span>
+              <span>{ADMIN_UI.products.imageAltUk}</span>
               <input value={form.image_alt_uk} onChange={(event) => updateField("image_alt_uk", event.target.value)} />
             </label>
             <label>
-              <span>Image alt EN</span>
+              <span>{ADMIN_UI.products.imageAltEn}</span>
               <input value={form.image_alt_en} onChange={(event) => updateField("image_alt_en", event.target.value)} />
             </label>
             <label className="admin-upload-field">
-              <span>Upload image</span>
+              <span>{ADMIN_UI.products.uploadImage}</span>
               <input type="file" accept="image/png,image/jpeg" disabled={isUploading} onChange={handleImageUpload} />
             </label>
             <label className="admin-toggle">
               <input type="checkbox" checked={form.is_active} onChange={(event) => updateField("is_active", event.target.checked)} />
-              <span>Active</span>
+              <span>{ADMIN_UI.common.active}</span>
             </label>
           </div>
 
           <div className="admin-subsection">
-            <h3>Catalog filters</h3>
+            <h3>{ADMIN_UI.products.catalogFilters}</h3>
             <div className="admin-form-grid compact">
               {Object.entries(ADMIN_PRODUCT_FILTERS).map(([key, values]) => (
                 <label key={key}>
-                  <span>{key}</span>
+                  <span>{adminProductFilterLabel(key)}</span>
                   <select value={form[key] || ""} onChange={(event) => updateField(key, event.target.value)}>
                     <option value="">-</option>
                     {values.map((value) => (
-                      <option key={value} value={value}>{value}</option>
+                      <option key={value} value={value}>{adminProductFilterValueLabel(key, value)}</option>
                     ))}
                   </select>
                 </label>
@@ -5970,9 +6164,9 @@ function AdminProductsPage() {
           </div>
 
           <div className="admin-product-preview">
-            <img src={form.image_asset_path || FALLBACK_PRODUCT_IMAGE} alt={form.name_en || form.name_uk || "Preview"} />
+            <img src={form.image_asset_path || FALLBACK_PRODUCT_IMAGE} alt={form.name_uk || form.name_en || ADMIN_UI.common.preview} />
             <div>
-              <strong>{form.name_en || "Preview name"}</strong>
+              <strong>{form.name_uk || form.name_en || ADMIN_UI.products.previewName}</strong>
               <span>{formatCurrency(Number(form.price || 0), form.currency || "UAH", locale)}</span>
             </div>
           </div>
@@ -6482,6 +6676,7 @@ function CartItemPreview({ item, constructorConfig }) {
         stonesByCode={stonesByCode}
         selections={selections}
         engraving={item.configuration?.engraving_text || ""}
+        materialCode={item.configuration?.material || ""}
       />
     </div>
   );
@@ -6860,7 +7055,14 @@ function ConstructorStudioPage() {
                     <p className="constructor-label" style={{ marginBottom: "1.5rem", textAlign: "center" }}>{copy.constructorPreview}</p>
                     <div className="preview-canvas">
                       {currentVariant ? (
-                        <JewelryPreview variant={currentVariant} slots={currentSlots} stonesByCode={stonesByCode} selections={configuration.stone_slots || {}} engraving={configuration.engraving_text || ""} />
+                        <JewelryPreview
+                          variant={currentVariant}
+                          slots={currentSlots}
+                          stonesByCode={stonesByCode}
+                          selections={configuration.stone_slots || {}}
+                          engraving={configuration.engraving_text || ""}
+                          materialCode={configuration.material || ""}
+                        />
                       ) : (
                         <div className="admin-cardish studio-empty-block">
                           <h3>{locale === "en" ? "Empty preview" : "Порожній перегляд"}</h3>
@@ -7051,6 +7253,7 @@ function createStudioVariantDraft(typeId, order = 1) {
     name_en: "",
     group: "",
     subtype: "",
+    price_delta: 0,
     base_asset_id: null,
     is_active: true,
     sort_order: order
@@ -7248,6 +7451,20 @@ function StudioAdminConstructorPage() {
     return variant?.base_asset_id ? assetsById[variant.base_asset_id]?.path || null : null;
   }
 
+  function variantAdminPreviewCandidates(variant, preferredMaterials = ["gold", "silver", "rose_gold"]) {
+    if (!variant) return [];
+    const previewVariant = { ...variant, base_asset_url: variantBaseAssetUrl(variant) };
+    return [
+      ...new Set(
+        preferredMaterials.flatMap((materialCode) => buildMaterialAwareBaseAssetCandidates(previewVariant, materialCode))
+      )
+    ];
+  }
+
+  function variantAdminPreviewAssetUrl(variant, preferredMaterials = ["gold", "silver", "rose_gold"]) {
+    return variantAdminPreviewCandidates(variant, preferredMaterials)[0] || variantBaseAssetUrl(variant);
+  }
+
   const currentVariantPreview = currentVariantAdmin ? { ...currentVariantAdmin, base_asset_url: variantBaseAssetUrl(currentVariantAdmin) } : null;
 
   async function saveType() {
@@ -7261,7 +7478,7 @@ function StudioAdminConstructorPage() {
       await loadStudio({ selectedTypeId: saved.id });
       setSelectedTypeId(String(saved.id));
       setJewelryStep("variants");
-      setNotice("Type saved");
+      setNotice("Тип збережено");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -7281,7 +7498,7 @@ function StudioAdminConstructorPage() {
       await loadStudio({ selectedTypeId: selectedTypeId, selectedVariantId: saved.id });
       setSelectedVariantId(String(saved.id));
       setJewelryStep("editor");
-      setNotice("Variant saved");
+      setNotice("Варіант збережено");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -7300,7 +7517,7 @@ function StudioAdminConstructorPage() {
         : await adminCatalogApi.createSlot(payload);
       await loadStudio({ selectedTypeId, selectedVariantId, selectedSlotId: saved.id });
       setSelectedSlotId(String(saved.id));
-      setNotice("Slot saved");
+      setNotice("Слот збережено");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -7322,7 +7539,7 @@ function StudioAdminConstructorPage() {
     try {
       await adminCatalogApi.deactivateSlot(currentSlotAdmin.id);
       await loadStudio({ selectedTypeId, selectedVariantId, selectedSlotId: "" });
-      setNotice("Slot removed");
+      setNotice("Слот видалено");
       setSelectedSlotId("");
     } catch (err) {
       setError(err.message);
@@ -7348,7 +7565,7 @@ function StudioAdminConstructorPage() {
         y: Math.min(95, Number(currentSlotAdmin.y || 50) + 4)
       });
       await loadStudio();
-      setNotice("Slot duplicated");
+      setNotice("Слот дубльовано");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -7366,7 +7583,7 @@ function StudioAdminConstructorPage() {
         : await adminCatalogApi.createStone(stoneForm2);
       await loadStudio({ selectedStoneId: saved.id, selectedTypeId, selectedVariantId });
       setSelectedStoneId(String(saved.id));
-      setNotice("Stone saved");
+      setNotice("Камінь збережено");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -7381,7 +7598,7 @@ function StudioAdminConstructorPage() {
     try {
       await adminCatalogApi.deactivateStone(stoneForm2.id);
       await loadStudio({ selectedStoneId: "", selectedTypeId, selectedVariantId });
-      setNotice("Stone deleted");
+      setNotice("Камінь видалено");
       setSelectedStoneId("");
       setStoneStep("list");
       setPendingDelete(null);
@@ -7406,7 +7623,7 @@ function StudioAdminConstructorPage() {
         data_url: dataUrl
       });
       await loadStudio();
-      setNotice("Asset uploaded");
+      setNotice("Асет завантажено");
       event.target.value = "";
     } catch (err) {
       setError(err.message);
@@ -7421,7 +7638,7 @@ function StudioAdminConstructorPage() {
       await adminCatalogApi.deleteAsset(asset.id);
       await loadStudio({ selectedTypeId, selectedVariantId, selectedStoneId });
       setPendingDelete(null);
-      setNotice("Asset deleted");
+      setNotice("Асет видалено");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -7487,7 +7704,7 @@ function StudioAdminConstructorPage() {
       await loadStudio({ selectedTypeId, selectedVariantId: "", selectedSlotId: "" });
       setJewelryStep("variants");
       setEditorSubview("basic");
-      setNotice("Variant deleted");
+      setNotice("Варіант видалено");
       setPendingDelete(null);
     } catch (err) {
       setError(err.message);
@@ -7505,7 +7722,7 @@ function StudioAdminConstructorPage() {
       await loadStudio({ selectedTypeId: "", selectedVariantId: "", selectedSlotId: "" });
       setJewelryStep("types");
       setEditorSubview("basic");
-      setNotice("Type deleted");
+      setNotice("Тип видалено");
       setPendingDelete(null);
     } catch (err) {
       setError(err.message);
@@ -7562,17 +7779,17 @@ function StudioAdminConstructorPage() {
   }
 
   const workspaceSections = [
-    { key: "jewelry", label: "Украшения", description: "Формы, варианты, слоты и предпросмотр." },
-    { key: "stones", label: "Камни", description: "Полная библиотека всех доступных камней." },
-    { key: "assets", label: "Ассеты", description: "База изображений украшений, камней и витрины." },
-    { key: "pricing", label: "Цены", description: "Доступность камней и цены по вариантам." }
+    { key: "jewelry", label: "Прикраси", description: "Форми, варіанти, слоти й попередній перегляд." },
+    { key: "stones", label: "Камені", description: "Повна бібліотека всіх доступних каменів." },
+    { key: "assets", label: "Асети", description: "База зображень прикрас, каменів і вітрини." },
+    { key: "pricing", label: "Ціни", description: "Доступність каменів і ціни за варіантами." }
   ];
 
   const jewelryTypes = [
-    ["ring", "Кольца"],
-    ["bracelet", "Браслеты"],
-    ["pendant", "Подвески"],
-    ["earrings", "Серьги"]
+    ["ring", "Каблучки"],
+    ["bracelet", "Браслети"],
+    ["pendant", "Підвіски"],
+    ["earrings", "Сережки"]
   ];
   const selectedTypeCard = jewelryTypes.find(([code]) => code === currentTypeAdmin?.code);
   const currentStoneUsage = stoneForm2?.id ? allMatrix.filter((item) => String(item.stone_id) === String(stoneForm2.id) && item.is_enabled !== false) : [];
@@ -7642,18 +7859,18 @@ function StudioAdminConstructorPage() {
     }));
   }
 
-  const breadcrumb = ["Constructor"];
+  const breadcrumb = ["Конструктор"];
   if (section === "jewelry") {
-    breadcrumb.push("Украшения");
+    breadcrumb.push("Прикраси");
     if (jewelryStep !== "types" && currentTypeAdmin) breadcrumb.push(selectedTypeCard?.[1] || currentTypeAdmin.name_uk || currentTypeAdmin.name_en);
-    if (jewelryStep === "editor" && currentVariantAdmin) breadcrumb.push(currentVariantAdmin.name_en);
+    if (jewelryStep === "editor" && currentVariantAdmin) breadcrumb.push(adminLocalizedEntry(currentVariantAdmin.name_uk, currentVariantAdmin.name_en, currentVariantAdmin.code));
   } else if (section === "stones") {
-    breadcrumb.push("Камни");
-    if (stoneStep === "editor" && stoneForm2) breadcrumb.push(stoneForm2.name_en || stoneForm2.code || "Новый камень");
+    breadcrumb.push("Камені");
+    if (stoneStep === "editor" && stoneForm2) breadcrumb.push(adminLocalizedEntry(stoneForm2.name_uk, stoneForm2.name_en, stoneForm2.code || "Новий камінь"));
   } else if (section === "assets") {
-    breadcrumb.push("Ассеты");
+    breadcrumb.push("Асети");
   } else if (section === "pricing") {
-    breadcrumb.push("Цены");
+    breadcrumb.push("Ціни");
   }
 
   function renderPricingMatrix(currentVariant, stonesList, matrix, onUpdate, onOpenStones, onOpenPricing) {
@@ -7662,12 +7879,12 @@ function StudioAdminConstructorPage() {
       <>
         <div className="admin-panel-head">
           <div>
-            <h2>Разрешённые камни</h2>
-            <p className="admin-panel-copy">Какие камни доступны для этого варианта и сколько каждый стоит.</p>
+            <h2>Дозволені камені</h2>
+            <p className="admin-panel-copy">Які камені доступні для цього варіанта і скільки коштує кожен.</p>
           </div>
           <div className="admin-chip-row">
-            <button type="button" className="small-button button-secondary-strong" onClick={onOpenStones}>Открыть библиотеку камней</button>
-            <button type="button" className="small-button button-secondary-strong" onClick={onOpenPricing}>Перейти в раздел цен</button>
+            <button type="button" className="small-button button-secondary-strong" onClick={onOpenStones}>Відкрити бібліотеку каменів</button>
+            <button type="button" className="small-button button-secondary-strong" onClick={onOpenPricing}>Перейти до розділу цін</button>
           </div>
         </div>
         <div className="admin-list-stack">
@@ -7684,12 +7901,12 @@ function StudioAdminConstructorPage() {
               <div className="admin-layout-row" key={"matrix-" + stone.id}>
                 <div className="admin-stone-row is-active" style={{ gridTemplateColumns: "56px 1fr", border: 0, padding: 0, background: "transparent" }}>
                   <span className="admin-stone-thumb" style={stone.asset_url ? { backgroundImage: 'url(' + stone.asset_url + ')', backgroundSize: "90%", backgroundPosition: "center center", backgroundRepeat: "no-repeat" } : undefined} />
-                  <div><strong>{stone.name_en}</strong><span>{stone.code}</span></div>
+                  <div><strong>{adminLocalizedEntry(stone.name_uk, stone.name_en, stone.code)}</strong><span>{stone.code}</span></div>
                 </div>
                 <div className="admin-layout-inputs">
-                  <label><span>Enabled</span><input type="checkbox" checked={entry.is_enabled} onChange={(e) => onUpdate(entry, { is_enabled: e.target.checked })} /></label>
-                  <label><span>Default</span><input type="checkbox" checked={entry.is_default} onChange={(e) => onUpdate(entry, { is_default: e.target.checked, is_enabled: true })} /></label>
-                  <label><span>Price</span><input type="number" value={entry.price_delta} onChange={(e) => onUpdate(entry, { price_delta: Number(e.target.value), is_enabled: true })} /></label>
+                  <label><span>Увімкнено</span><input type="checkbox" checked={entry.is_enabled} onChange={(e) => onUpdate(entry, { is_enabled: e.target.checked })} /></label>
+                  <label><span>За замовчуванням</span><input type="checkbox" checked={entry.is_default} onChange={(e) => onUpdate(entry, { is_default: e.target.checked, is_enabled: true })} /></label>
+                  <label><span>Ціна</span><input type="number" value={entry.price_delta} onChange={(e) => onUpdate(entry, { price_delta: Number(e.target.value), is_enabled: true })} /></label>
                 </div>
               </div>
             );
@@ -7704,7 +7921,7 @@ function StudioAdminConstructorPage() {
       <section className="studio-home-grid">
         {workspaceSections.map((item) => (
           <button key={item.key} type="button" className="studio-home-card" onClick={() => openSection(item.key)}>
-            <span className="studio-kicker">Workspace</span>
+            <span className="studio-kicker">Робочий простір</span>
             <strong>{item.label}</strong>
             <p>{item.description}</p>
           </button>
@@ -7718,27 +7935,27 @@ function StudioAdminConstructorPage() {
       <>
         <div className="admin-panel-head">
           <div>
-            <h2>Типы украшений</h2>
-            <p className="admin-panel-copy">Выбери тип, чтобы управлять его вариантами, параметрами и пустыми состояниями каталога.</p>
+            <h2>Типи прикрас</h2>
+            <p className="admin-panel-copy">Оберіть тип, щоб керувати його варіантами, параметрами й порожніми станами каталогу.</p>
           </div>
           <div className="admin-chip-row">
-            <button type="button" className="small-button is-active" onClick={startNewType}>Создать тип</button>
+            <button type="button" className="small-button is-active" onClick={startNewType}>Створити тип</button>
           </div>
         </div>
         {types.length ? (
           <section className="studio-home-grid">
             {types.map((type) => (
               <button key={type.id} type="button" className="studio-home-card" onClick={() => openType(type.id)}>
-                <span className="studio-kicker">Тип украшения</span>
+                <span className="studio-kicker">Тип прикраси</span>
                 <strong>{jewelryTypes.find(([code]) => code === type.code)?.[1] || type.name_uk || type.name_en}</strong>
-                <p>{(studio?.variants || []).filter((item) => String(item.type_id) === String(type.id)).length} вариантов</p>
+                <p>{(studio?.variants || []).filter((item) => String(item.type_id) === String(type.id)).length} варіантів</p>
               </button>
             ))}
           </section>
         ) : (
           <div className="admin-cardish studio-empty-block">
-            <h3>Каталог пока пуст</h3>
-            <p className="studio-empty-copy">Создай первый тип украшения, и мы сразу дадим ему редактор вариантов и параметров.</p>
+            <h3>Каталог поки порожній</h3>
+            <p className="studio-empty-copy">Створіть перший тип прикраси, і ми одразу відкриємо для нього редактор варіантів та параметрів.</p>
           </div>
         )}
       </>
@@ -7750,23 +7967,23 @@ function StudioAdminConstructorPage() {
       <>
         <div className="admin-panel-head">
           <div>
-            <h2>{selectedTypeCard?.[1] || currentTypeAdmin?.name_uk || "Тип украшения"}</h2>
-            <p className="admin-panel-copy">Добавляй новые варианты внутри типа и настраивай сами параметры типа отдельно от визуальных вариантов.</p>
+            <h2>{selectedTypeCard?.[1] || currentTypeAdmin?.name_uk || "Тип прикраси"}</h2>
+            <p className="admin-panel-copy">Додавайте нові варіанти всередині типу й налаштовуйте параметри типу окремо від візуальних варіантів.</p>
           </div>
           <div className="admin-chip-row">
-            <button type="button" className="small-button button-secondary-strong" onClick={() => setJewelryStep("types")}>Назад к типам</button>
+            <button type="button" className="small-button button-secondary-strong" onClick={() => setJewelryStep("types")}>Назад до типів</button>
             <button type="button" className="small-button button-secondary-strong" disabled={!currentTypeAdmin} onClick={() => {
               setJewelryStep("editor");
               setEditorSubview("basic");
-            }}>Параметры типа</button>
-            <button type="button" className="small-button is-active" disabled={!currentTypeAdmin} onClick={startNewVariant}>Создать вариант</button>
+            }}>Параметри типу</button>
+            <button type="button" className="small-button is-active" disabled={!currentTypeAdmin} onClick={startNewVariant}>Створити варіант</button>
             {isDeletePending("type", currentTypeAdmin?.id) ? (
               <>
-                <button type="button" className="small-button button-danger is-confirm" disabled={isSaving} onClick={deleteTypeAdmin}>Подтвердить удаление</button>
-                <button type="button" className="small-button button-secondary-strong" disabled={isSaving} onClick={cancelDelete}>Отмена</button>
+                <button type="button" className="small-button button-danger is-confirm" disabled={isSaving} onClick={deleteTypeAdmin}>Підтвердити видалення</button>
+                <button type="button" className="small-button button-secondary-strong" disabled={isSaving} onClick={cancelDelete}>Скасувати</button>
               </>
             ) : (
-              <button type="button" className="small-button button-danger" disabled={!currentTypeAdmin || isSaving} onClick={() => requestDelete("type", currentTypeAdmin?.id)}>Удалить тип</button>
+              <button type="button" className="small-button button-danger" disabled={!currentTypeAdmin || isSaving} onClick={() => requestDelete("type", currentTypeAdmin?.id)}>Видалити тип</button>
             )}
           </div>
         </div>
@@ -7774,14 +7991,29 @@ function StudioAdminConstructorPage() {
           <section className="studio-variant-grid">
             {variants.map((variant) => {
               const slotCount = allSlots.filter((slot) => String(slot.variant_id) === String(variant.id) && slot.is_active !== false).length;
-              const assetPath = variant.base_asset_id ? assetsById[variant.base_asset_id]?.path : null;
+              const assetPath = variantAdminPreviewAssetUrl(variant);
+              const assetCandidates = variantAdminPreviewCandidates(variant);
+              const previewVariant = { ...variant, base_asset_url: variantBaseAssetUrl(variant) };
               return (
                 <button key={variant.id} type="button" className="studio-variant-card" onClick={() => openVariant(variant.id)}>
-                  <div className="studio-variant-art">{assetPath ? <img src={assetPath} alt={variant.name_en} /> : <span>No asset</span>}</div>
+                  <div className="studio-variant-art">
+                    {assetPath ? (
+                      <JewelryPreview
+                        variant={previewVariant}
+                        slots={[]}
+                        stonesByCode={{}}
+                        selections={{}}
+                        engraving=""
+                        baseAssetCandidates={assetCandidates}
+                      />
+                    ) : (
+                      <span>Немає асета</span>
+                    )}
+                  </div>
                   <div className="studio-variant-copy">
                     <span className="studio-kicker">{selectedTypeCard?.[1] || currentTypeAdmin?.name_uk}</span>
-                    <strong>{variant.name_en || variant.name_uk || variant.code}</strong>
-                    <p>{slotCount} slots</p>
+                    <strong>{adminLocalizedEntry(variant.name_uk, variant.name_en, variant.code)}</strong>
+                    <p>{slotCount} слотів</p>
                   </div>
                 </button>
               );
@@ -7789,14 +8021,14 @@ function StudioAdminConstructorPage() {
           </section>
         ) : (
           <div className="admin-cardish studio-empty-block">
-            <h3>У этого типа пока нет вариантов</h3>
-            <p className="studio-empty-copy">Создай новый вариант внутри типа, как у подвесок с сердцем, месяцем или каплей.</p>
+            <h3>У цього типу поки немає варіантів</h3>
+            <p className="studio-empty-copy">Створіть новий варіант усередині типу, як у підвісок із серцем, місяцем або краплею.</p>
             <div className="admin-chip-row">
-              <button type="button" className="small-button is-active" onClick={startNewVariant}>Создать первый вариант</button>
+              <button type="button" className="small-button is-active" onClick={startNewVariant}>Створити перший варіант</button>
               <button type="button" className="small-button button-secondary-strong" onClick={() => {
                 setJewelryStep("editor");
                 setEditorSubview("basic");
-              }}>Открыть параметры типа</button>
+              }}>Відкрити параметри типу</button>
             </div>
           </div>
         )}
@@ -7809,11 +8041,11 @@ function StudioAdminConstructorPage() {
     return (
       <>
         <div className="studio-subnav">
-          {[
-            ["slots", "Слоты"],
-            ["basic", "Основное"],
-            ["matrix", "Разрешённые камни"],
-            ["preview", "Превью"]
+          {[ 
+            ["slots", "Слоти"],
+            ["basic", "Основне"],
+            ["matrix", "Дозволені камені"],
+            ["preview", "Попередній перегляд"]
           ].map(([key, label]) => (
             <button key={key} type="button" className={"small-button" + (editorSubview === key ? " is-active" : "")} onClick={() => setEditorSubview(key)}>{label}</button>
           ))}
@@ -7824,30 +8056,30 @@ function StudioAdminConstructorPage() {
           <>
             <div className="admin-panel-head">
               <div>
-                <h2>Jewelry editor</h2>
-                <p className="admin-panel-copy">Настройка посадочных мест камней для варианта {currentVariantAdmin.name_en}.</p>
+                <h2>Редактор прикраси</h2>
+                <p className="admin-panel-copy">Налаштування посадкових місць каменів для варіанта {adminLocalizedEntry(currentVariantAdmin.name_uk, currentVariantAdmin.name_en, currentVariantAdmin.code)}.</p>
               </div>
               <div className="admin-chip-row">
-                <button type="button" className="small-button button-secondary-strong" onClick={() => openSection("stones")}>Все камни</button>
-                <button type="button" className="small-button button-secondary-strong" onClick={startNewSlot}>Новый слот</button>
-                <button type="button" className="small-button button-secondary-strong" disabled={!currentSlotAdmin?.id || isSaving} onClick={duplicateCurrentSlot}>Дублировать слот</button>
-                <button type="button" className="small-button button-secondary-strong" disabled={!currentSlotAdmin?.id || isSaving} onClick={deleteSlotAdmin}>Удалить слот</button>
-                <button type="button" className={`small-button button-save-slot${slotDraftDirty ? " is-dirty" : ""}`} disabled={isSaving || !slotDraftDirty} onClick={saveSlot}>{isSaving ? "Saving..." : "Save slot"}</button>
+                <button type="button" className="small-button button-secondary-strong" onClick={() => openSection("stones")}>Усі камені</button>
+                <button type="button" className="small-button button-secondary-strong" onClick={startNewSlot}>Новий слот</button>
+                <button type="button" className="small-button button-secondary-strong" disabled={!currentSlotAdmin?.id || isSaving} onClick={duplicateCurrentSlot}>Дублювати слот</button>
+                <button type="button" className="small-button button-secondary-strong" disabled={!currentSlotAdmin?.id || isSaving} onClick={deleteSlotAdmin}>Видалити слот</button>
+                <button type="button" className={`small-button button-save-slot${slotDraftDirty ? " is-dirty" : ""}`} disabled={isSaving || !slotDraftDirty} onClick={saveSlot}>{isSaving ? "Збереження..." : "Зберегти слот"}</button>
               </div>
             </div>
             <div className="studio-editor-layout">
               <aside className="studio-outline-panel">
                 <div className="studio-mini-card">
-                  <span className="studio-kicker">Variant</span>
-                  <strong>{currentVariantAdmin.name_en}</strong>
-                  <p>{currentSlotsAdmin.length} slots, asset {assetsById[currentVariantAdmin.base_asset_id]?.label || "not selected"}.</p>
+                  <span className="studio-kicker">Варіант</span>
+                  <strong>{adminLocalizedEntry(currentVariantAdmin.name_uk, currentVariantAdmin.name_en, currentVariantAdmin.code)}</strong>
+                  <p>{currentSlotsAdmin.length} слотів, асет {assetsById[currentVariantAdmin.base_asset_id]?.label || "не вибрано"}.</p>
                 </div>
                 <div className="studio-outline-list">
                   {currentSlotsAdmin.map((slot, index) => (
                       <button key={slot.id} type="button" className={"studio-outline-item" + (String(currentSlotAdmin?.id) === String(slot.id) ? " is-active" : "")} onClick={() => selectSlotDraft(slot.id)}>
                       <span className="studio-outline-badge">{index + 1}</span>
                       <div>
-                        <strong>{slot.label_en || slot.code}</strong>
+                        <strong>{adminLocalizedEntry(slot.label_uk, slot.label_en, slot.code)}</strong>
                         <span>{Math.round(slot.x)} x {Math.round(slot.y)} · {slot.layer_mode}</span>
                       </div>
                     </button>
@@ -7855,18 +8087,18 @@ function StudioAdminConstructorPage() {
                 </div>
                 <div className="studio-stone-palette">
                   <div className="studio-inline-head">
-                    <h3>Палитра камней</h3>
-                    <button type="button" className="small-button button-secondary-strong" onClick={() => openSection("stones")}>Открыть библиотеку</button>
+                    <h3>Палітра каменів</h3>
+                    <button type="button" className="small-button button-secondary-strong" onClick={() => openSection("stones")}>Відкрити бібліотеку</button>
                   </div>
                   <div className="studio-stone-grid">
                     <button type="button" className={"studio-stone-choice" + (selectedPreviewStoneCode === "none" ? " is-active" : "")} onClick={() => updateSelectedSlotPreview("none")}>
                       <span className="studio-stone-choice-thumb is-empty" />
-                      <strong>No stone</strong>
+                      <strong>Без каменю</strong>
                     </button>
                     {availableVariantStones.map((stone) => (
                       <button key={"palette-" + stone.id} type="button" className={"studio-stone-choice" + (selectedPreviewStoneCode === stone.code ? " is-active" : "")} onClick={() => updateSelectedSlotPreview(stone.code)}>
                         <span className="studio-stone-choice-thumb" style={stone.asset_url ? { backgroundImage: 'url(' + stone.asset_url + ')' } : undefined} />
-                        <strong>{stone.name_en}</strong>
+                        <strong>{adminLocalizedEntry(stone.name_uk, stone.name_en, stone.code)}</strong>
                       </button>
                     ))}
                   </div>
@@ -7875,8 +8107,8 @@ function StudioAdminConstructorPage() {
 
               <div className="studio-stage-panel">
                 <div className="studio-stage-meta">
-                  <span>Canvas 1:1</span>
-                  <span>Перетаскивай круги прямо по украшению</span>
+                  <span>Полотно 1:1</span>
+                  <span>Перетягуйте кола прямо по прикрасі</span>
                 </div>
                 <StudioSlotCanvasEditor
                   variant={currentVariantPreview}
@@ -7906,33 +8138,33 @@ function StudioAdminConstructorPage() {
                   onInteractionEnd={commitSlotIfDirty}
                 />
                 <div className="studio-stage-footer">
-                  <span>Selected slot: {currentSlotAdmin?.label_en || slotForm.code || "New slot"}</span>
+                  <span>Обраний слот: {adminLocalizedEntry(currentSlotAdmin?.label_uk, currentSlotAdmin?.label_en, slotForm.code || "Новий слот")}</span>
                   <span>{Number(slotForm.x || 0).toFixed(1)}% / {Number(slotForm.y || 0).toFixed(1)}%</span>
                 </div>
               </div>
 
               <aside className="studio-inspector-panel">
                 <div className="studio-mini-card">
-                  <span className="studio-kicker">Inspector</span>
-                  <strong>{currentSlotAdmin?.code || "New slot draft"}</strong>
-                  <p>Точные координаты, размер посадочного круга и слой камня.</p>
+                  <span className="studio-kicker">Інспектор</span>
+                  <strong>{currentSlotAdmin?.code || "Чернетка нового слота"}</strong>
+                  <p>Точні координати, розмір посадкового кола та шар каменю.</p>
                 </div>
                 <div className="admin-form-grid compact">
                   <label><span>Code</span><input value={slotForm.code || ""} onChange={(e) => setSlotForm((current) => ({ ...current, code: e.target.value }))} /></label>
-                  <label><span>Sort</span><input type="number" value={slotForm.sort_order || 0} onChange={(e) => setSlotForm((current) => ({ ...current, sort_order: Number(e.target.value) }))} /></label>
-                  <label><span>Label UK</span><input value={slotForm.label_uk || ""} onChange={(e) => setSlotForm((current) => ({ ...current, label_uk: e.target.value }))} /></label>
-                  <label><span>Label EN</span><input value={slotForm.label_en || ""} onChange={(e) => setSlotForm((current) => ({ ...current, label_en: e.target.value }))} /></label>
+                  <label><span>Сортування</span><input type="number" value={slotForm.sort_order || 0} onChange={(e) => setSlotForm((current) => ({ ...current, sort_order: Number(e.target.value) }))} /></label>
+                  <label><span>Назва UK</span><input value={slotForm.label_uk || ""} onChange={(e) => setSlotForm((current) => ({ ...current, label_uk: e.target.value }))} /></label>
+                  <label><span>Назва EN</span><input value={slotForm.label_en || ""} onChange={(e) => setSlotForm((current) => ({ ...current, label_en: e.target.value }))} /></label>
                   <label><span>X</span><input type="number" step="0.1" value={slotForm.x || 0} onChange={(e) => setSlotForm((current) => ({ ...current, x: Number(e.target.value) }))} /></label>
                   <label><span>Y</span><input type="number" step="0.1" value={slotForm.y || 0} onChange={(e) => setSlotForm((current) => ({ ...current, y: Number(e.target.value) }))} /></label>
-                  <label><span>Scale X</span><input type="number" step="0.1" value={slotForm.scale_x || 1} onChange={(e) => setSlotForm((current) => ({ ...current, scale_x: Number(e.target.value) }))} /></label>
-                  <label><span>Scale Y</span><input type="number" step="0.1" value={slotForm.scale_y || 1} onChange={(e) => setSlotForm((current) => ({ ...current, scale_y: Number(e.target.value) }))} /></label>
-                  <label><span>Diameter</span><input type="number" step="0.1" value={slotForm.diameter || 12} onChange={(e) => setSlotForm((current) => ({ ...current, diameter: Number(e.target.value) }))} /></label>
-                  <label><span>Layer mode</span><select value={slotForm.layer_mode || "above"} onChange={(e) => setSlotForm((current) => ({ ...current, layer_mode: e.target.value }))}><option value="above">Stone above jewelry</option><option value="below">Stone under jewelry</option></select></label>
+                  <label><span>Масштаб X</span><input type="number" step="0.1" value={slotForm.scale_x || 1} onChange={(e) => setSlotForm((current) => ({ ...current, scale_x: Number(e.target.value) }))} /></label>
+                  <label><span>Масштаб Y</span><input type="number" step="0.1" value={slotForm.scale_y || 1} onChange={(e) => setSlotForm((current) => ({ ...current, scale_y: Number(e.target.value) }))} /></label>
+                  <label><span>Діаметр</span><input type="number" step="0.1" value={slotForm.diameter || 12} onChange={(e) => setSlotForm((current) => ({ ...current, diameter: Number(e.target.value) }))} /></label>
+                  <label><span>Режим шару</span><select value={slotForm.layer_mode || "above"} onChange={(e) => setSlotForm((current) => ({ ...current, layer_mode: e.target.value }))}><option value="above">Камінь над прикрасою</option><option value="below">Камінь під прикрасою</option></select></label>
                   <label className="full">
-                    <span>Preview stone</span>
+                    <span>Камінь для попереднього перегляду</span>
                     <select value={selectedPreviewStoneCode} onChange={(e) => updateSelectedSlotPreview(e.target.value)}>
-                      <option value="none">No stone</option>
-                      {availableVariantStones.map((stone) => <option key={"preview-stone-" + stone.id} value={stone.code}>{stone.name_en}</option>)}
+                      <option value="none">Без каменю</option>
+                      {availableVariantStones.map((stone) => <option key={"preview-stone-" + stone.id} value={stone.code}>{adminLocalizedEntry(stone.name_uk, stone.name_en, stone.code)}</option>)}
                     </select>
                   </label>
                 </div>
@@ -7941,11 +8173,11 @@ function StudioAdminConstructorPage() {
           </>
           ) : (
             <div className="admin-cardish studio-empty-block">
-              <h3>У варианта пока нет слотов</h3>
-              <p className="studio-empty-copy">Сначала выбери или создай вариант, затем добавь первый слот, и редактор холста сразу оживёт.</p>
+              <h3>У варіанта поки немає слотів</h3>
+              <p className="studio-empty-copy">Спочатку виберіть або створіть варіант, потім додайте перший слот, і редактор полотна одразу оживе.</p>
               <div className="admin-chip-row">
-                <button type="button" className="small-button button-secondary-strong" onClick={() => setJewelryStep("variants")}>К списку вариантов</button>
-                <button type="button" className="small-button is-active" disabled={!currentVariantAdmin} onClick={startNewSlot}>Создать первый слот</button>
+                <button type="button" className="small-button button-secondary-strong" onClick={() => setJewelryStep("variants")}>До списку варіантів</button>
+                <button type="button" className="small-button is-active" disabled={!currentVariantAdmin} onClick={startNewSlot}>Створити перший слот</button>
               </div>
             </div>
           )
@@ -7955,63 +8187,64 @@ function StudioAdminConstructorPage() {
           <>
             <div className="admin-panel-head">
               <div>
-                <h2>Основное</h2>
-                <p className="admin-panel-copy">Полный CRUD по самому типу украшения и по выбранному варианту внутри него.</p>
+                <h2>Основне</h2>
+                <p className="admin-panel-copy">Повний CRUD для самого типу прикраси та вибраного варіанта всередині нього.</p>
               </div>
               <div className="admin-chip-row">
-                <button type="button" className="small-button button-secondary-strong" onClick={() => setJewelryStep("variants")}>К вариантам</button>
-                <button type="button" className="small-button button-secondary-strong" disabled={!currentTypeAdmin} onClick={startNewVariant}>Создать вариант</button>
+                <button type="button" className="small-button button-secondary-strong" onClick={() => setJewelryStep("variants")}>До варіантів</button>
+                <button type="button" className="small-button button-secondary-strong" disabled={!currentTypeAdmin} onClick={startNewVariant}>Створити варіант</button>
                 {isDeletePending("variant", currentVariantAdmin?.id) ? (
                   <>
-                    <button type="button" className="small-button button-danger is-confirm" disabled={isSaving} onClick={deleteVariantAdmin}>Подтвердить удаление</button>
-                    <button type="button" className="small-button button-secondary-strong" disabled={isSaving} onClick={cancelDelete}>Отмена</button>
+                    <button type="button" className="small-button button-danger is-confirm" disabled={isSaving} onClick={deleteVariantAdmin}>Підтвердити видалення</button>
+                    <button type="button" className="small-button button-secondary-strong" disabled={isSaving} onClick={cancelDelete}>Скасувати</button>
                   </>
                 ) : (
-                  <button type="button" className="small-button button-danger" disabled={!currentVariantAdmin || isSaving} onClick={() => requestDelete("variant", currentVariantAdmin?.id)}>Удалить вариант</button>
+                  <button type="button" className="small-button button-danger" disabled={!currentVariantAdmin || isSaving} onClick={() => requestDelete("variant", currentVariantAdmin?.id)}>Видалити варіант</button>
                 )}
                 {isDeletePending("type", currentTypeAdmin?.id) ? (
                   <>
-                    <button type="button" className="small-button button-danger is-confirm" disabled={isSaving} onClick={deleteTypeAdmin}>Подтвердить удаление типа</button>
-                    <button type="button" className="small-button button-secondary-strong" disabled={isSaving} onClick={cancelDelete}>Отмена</button>
+                    <button type="button" className="small-button button-danger is-confirm" disabled={isSaving} onClick={deleteTypeAdmin}>Підтвердити видалення типу</button>
+                    <button type="button" className="small-button button-secondary-strong" disabled={isSaving} onClick={cancelDelete}>Скасувати</button>
                   </>
                 ) : (
-                  <button type="button" className="small-button button-danger" disabled={!currentTypeAdmin || isSaving} onClick={() => requestDelete("type", currentTypeAdmin?.id)}>Удалить тип</button>
+                  <button type="button" className="small-button button-danger" disabled={!currentTypeAdmin || isSaving} onClick={() => requestDelete("type", currentTypeAdmin?.id)}>Видалити тип</button>
                 )}
-                {variantForm ? <button type="button" className="small-button is-active" disabled={isSaving} onClick={saveVariant}>{isSaving ? "Saving..." : "Save variant"}</button> : null}
-                <button type="button" className="small-button" disabled={isSaving} onClick={saveType}>{isSaving ? "Saving..." : "Save type"}</button>
+                {variantForm ? <button type="button" className="small-button is-active" disabled={isSaving} onClick={saveVariant}>{isSaving ? "Збереження..." : "Зберегти варіант"}</button> : null}
+                <button type="button" className="small-button" disabled={isSaving} onClick={saveType}>{isSaving ? "Збереження..." : "Зберегти тип"}</button>
               </div>
             </div>
             <div className="studio-basic-grid">
               <div className="admin-cardish">
-                <h3>Вариант</h3>
+                <h3>Варіант</h3>
                 {variantForm ? (
                   <div className="admin-form-grid compact">
                     <label><span>Code</span><input value={variantForm?.code || ""} onChange={(e) => setVariantForm((current) => ({ ...(current || {}), code: e.target.value }))} /></label>
-                    <label><span>Subtype</span><input value={variantForm?.subtype || ""} onChange={(e) => setVariantForm((current) => ({ ...(current || {}), subtype: e.target.value }))} /></label>
-                    <label><span>Group</span><input value={variantForm?.group || ""} onChange={(e) => setVariantForm((current) => ({ ...(current || {}), group: e.target.value }))} /></label>
-                    <label><span>Sort</span><input type="number" value={variantForm?.sort_order || 0} onChange={(e) => setVariantForm((current) => ({ ...(current || {}), sort_order: Number(e.target.value) }))} /></label>
-                    <label><span>Name UK</span><input value={variantForm?.name_uk || ""} onChange={(e) => setVariantForm((current) => ({ ...(current || {}), name_uk: e.target.value }))} /></label>
-                    <label><span>Name EN</span><input value={variantForm?.name_en || ""} onChange={(e) => setVariantForm((current) => ({ ...(current || {}), name_en: e.target.value }))} /></label>
-                    <label className="full"><span>Base asset</span><select value={variantForm?.base_asset_id || ""} onChange={(e) => setVariantForm((current) => ({ ...(current || {}), base_asset_id: Number(e.target.value) || null }))}><option value="">-</option>{assets.filter((asset) => asset.kind === "jewelry-base").map((asset) => <option key={asset.id} value={asset.id}>{asset.label}</option>)}</select></label>
+                    <label><span>Підтип</span><input value={variantForm?.subtype || ""} onChange={(e) => setVariantForm((current) => ({ ...(current || {}), subtype: e.target.value }))} /></label>
+                    <label><span>Група</span><input value={variantForm?.group || ""} onChange={(e) => setVariantForm((current) => ({ ...(current || {}), group: e.target.value }))} /></label>
+                    <label><span>Сортування</span><input type="number" value={variantForm?.sort_order || 0} onChange={(e) => setVariantForm((current) => ({ ...(current || {}), sort_order: Number(e.target.value) }))} /></label>
+                    <label><span>Доплата за модель</span><input type="number" value={variantForm?.price_delta || 0} onChange={(e) => setVariantForm((current) => ({ ...(current || {}), price_delta: Number(e.target.value) }))} /></label>
+                    <label><span>Назва UK</span><input value={variantForm?.name_uk || ""} onChange={(e) => setVariantForm((current) => ({ ...(current || {}), name_uk: e.target.value }))} /></label>
+                    <label><span>Назва EN</span><input value={variantForm?.name_en || ""} onChange={(e) => setVariantForm((current) => ({ ...(current || {}), name_en: e.target.value }))} /></label>
+                    <label className="full"><span>Базовий асет</span><select value={variantForm?.base_asset_id || ""} onChange={(e) => setVariantForm((current) => ({ ...(current || {}), base_asset_id: Number(e.target.value) || null }))}><option value="">-</option>{assets.filter((asset) => asset.kind === "jewelry-base").map((asset) => <option key={asset.id} value={asset.id}>{asset.label}</option>)}</select></label>
                   </div>
                 ) : (
-                  <div className="studio-empty-copy">У этого типа пока нет выбранного варианта. Создай новый вариант, и он сразу появится здесь.</div>
+                  <div className="studio-empty-copy">У цього типу поки немає вибраного варіанта. Створіть новий варіант, і він одразу з’явиться тут.</div>
                 )}
               </div>
               <div className="admin-cardish">
-                <h3>Тип украшения</h3>
+                <h3>Тип прикраси</h3>
                 <div className="admin-form-grid compact">
                   <label><span>Code</span><input value={typeForm.code || ""} onChange={(e) => updateTypeField("code", e.target.value)} /></label>
-                  <label><span>Base price</span><input type="number" value={typeForm.base_price || 0} onChange={(e) => updateTypeField("base_price", Number(e.target.value))} /></label>
-                  <label><span>Sort</span><input type="number" value={typeForm.sort_order || 0} onChange={(e) => updateTypeField("sort_order", Number(e.target.value))} /></label>
-                  <label><span>Name UK</span><input value={typeForm.name_uk || ""} onChange={(e) => updateTypeField("name_uk", e.target.value)} /></label>
-                  <label><span>Name EN</span><input value={typeForm.name_en || ""} onChange={(e) => updateTypeField("name_en", e.target.value)} /></label>
+                  <label><span>Базова ціна</span><input type="number" value={typeForm.base_price || 0} onChange={(e) => updateTypeField("base_price", Number(e.target.value))} /></label>
+                  <label><span>Сортування</span><input type="number" value={typeForm.sort_order || 0} onChange={(e) => updateTypeField("sort_order", Number(e.target.value))} /></label>
+                  <label><span>Назва UK</span><input value={typeForm.name_uk || ""} onChange={(e) => updateTypeField("name_uk", e.target.value)} /></label>
+                  <label><span>Назва EN</span><input value={typeForm.name_en || ""} onChange={(e) => updateTypeField("name_en", e.target.value)} /></label>
                 </div>
               </div>
               <div className="admin-cardish">
                 <div className="studio-inline-head">
-                  <h3>Материалы</h3>
-                  <button type="button" className="small-button button-secondary-strong" onClick={addTypeMaterial}>Добавить материал</button>
+                  <h3>Матеріали</h3>
+                  <button type="button" className="small-button button-secondary-strong" onClick={addTypeMaterial}>Додати матеріал</button>
                 </div>
                 {(typeForm.materials || []).length ? (
                   <div className="studio-type-list">
@@ -8019,22 +8252,22 @@ function StudioAdminConstructorPage() {
                       <div className="studio-type-row" key={`material-${index}`}>
                         <div className="admin-form-grid compact">
                           <label><span>Code</span><input value={material.code || ""} onChange={(e) => updateTypeMaterial(index, "code", e.target.value)} /></label>
-                          <label><span>Sort</span><input type="number" value={material.sort_order || 0} onChange={(e) => updateTypeMaterial(index, "sort_order", Number(e.target.value))} /></label>
-                          <label><span>Name UK</span><input value={material.name_uk || ""} onChange={(e) => updateTypeMaterial(index, "name_uk", e.target.value)} /></label>
-                          <label><span>Name EN</span><input value={material.name_en || ""} onChange={(e) => updateTypeMaterial(index, "name_en", e.target.value)} /></label>
-                          <label><span>Price delta</span><input type="number" value={material.price_delta || 0} onChange={(e) => updateTypeMaterial(index, "price_delta", Number(e.target.value))} /></label>
-                          <label><span>Tone</span><input value={material.tone || ""} onChange={(e) => updateTypeMaterial(index, "tone", e.target.value)} /></label>
+                          <label><span>Сортування</span><input type="number" value={material.sort_order || 0} onChange={(e) => updateTypeMaterial(index, "sort_order", Number(e.target.value))} /></label>
+                          <label><span>Назва UK</span><input value={material.name_uk || ""} onChange={(e) => updateTypeMaterial(index, "name_uk", e.target.value)} /></label>
+                          <label><span>Назва EN</span><input value={material.name_en || ""} onChange={(e) => updateTypeMaterial(index, "name_en", e.target.value)} /></label>
+                          <label><span>Доплата</span><input type="number" value={material.price_delta || 0} onChange={(e) => updateTypeMaterial(index, "price_delta", Number(e.target.value))} /></label>
+                          <label><span>Тон</span><input value={material.tone || ""} onChange={(e) => updateTypeMaterial(index, "tone", e.target.value)} /></label>
                         </div>
-                        <button type="button" className="small-button button-danger" onClick={() => removeTypeMaterial(index)}>Удалить материал</button>
+                        <button type="button" className="small-button button-danger" onClick={() => removeTypeMaterial(index)}>Видалити матеріал</button>
                       </div>
                     ))}
                   </div>
-                ) : <p className="studio-empty-copy">У типа нет параметров материалов.</p>}
+                ) : <p className="studio-empty-copy">У типу немає параметрів матеріалів.</p>}
               </div>
               <div className="admin-cardish">
                 <div className="studio-inline-head">
-                  <h3>Размеры</h3>
-                  <button type="button" className="small-button button-secondary-strong" onClick={addTypeSize}>Добавить размер</button>
+                  <h3>Розміри</h3>
+                  <button type="button" className="small-button button-secondary-strong" onClick={addTypeSize}>Додати розмір</button>
                 </div>
                 {(typeForm.size_options || []).length ? (
                   <div className="studio-type-list">
@@ -8042,26 +8275,26 @@ function StudioAdminConstructorPage() {
                       <div className="studio-type-row" key={`size-${index}`}>
                         <div className="admin-form-grid compact">
                           <label><span>Code</span><input value={size.code || ""} onChange={(e) => updateTypeSize(index, "code", e.target.value)} /></label>
-                          <label><span>Sort</span><input type="number" value={size.sort_order || 0} onChange={(e) => updateTypeSize(index, "sort_order", Number(e.target.value))} /></label>
-                          <label><span>Label UK</span><input value={size.label_uk || ""} onChange={(e) => updateTypeSize(index, "label_uk", e.target.value)} /></label>
-                          <label><span>Label EN</span><input value={size.label_en || ""} onChange={(e) => updateTypeSize(index, "label_en", e.target.value)} /></label>
-                          <label><span>Price delta</span><input type="number" value={size.price_delta || 0} onChange={(e) => updateTypeSize(index, "price_delta", Number(e.target.value))} /></label>
-                          <label><span>Default</span><input type="checkbox" checked={Boolean(size.is_default)} onChange={(e) => updateTypeSize(index, "is_default", e.target.checked)} /></label>
+                          <label><span>Сортування</span><input type="number" value={size.sort_order || 0} onChange={(e) => updateTypeSize(index, "sort_order", Number(e.target.value))} /></label>
+                          <label><span>Назва UK</span><input value={size.label_uk || ""} onChange={(e) => updateTypeSize(index, "label_uk", e.target.value)} /></label>
+                          <label><span>Назва EN</span><input value={size.label_en || ""} onChange={(e) => updateTypeSize(index, "label_en", e.target.value)} /></label>
+                          <label><span>Доплата</span><input type="number" value={size.price_delta || 0} onChange={(e) => updateTypeSize(index, "price_delta", Number(e.target.value))} /></label>
+                          <label><span>За замовчуванням</span><input type="checkbox" checked={Boolean(size.is_default)} onChange={(e) => updateTypeSize(index, "is_default", e.target.checked)} /></label>
                         </div>
-                        <button type="button" className="small-button button-danger" onClick={() => removeTypeSize(index)}>Удалить размер</button>
+                        <button type="button" className="small-button button-danger" onClick={() => removeTypeSize(index)}>Видалити розмір</button>
                       </div>
                     ))}
                   </div>
-                ) : <p className="studio-empty-copy">У типа нет параметров размеров.</p>}
+                ) : <p className="studio-empty-copy">У типу немає параметрів розмірів.</p>}
               </div>
               <div className="admin-cardish">
-                <h3>Гравировка</h3>
+                <h3>Гравіювання</h3>
                 <div className="admin-form-grid compact">
-                  <label><span>Enabled</span><input type="checkbox" checked={Boolean(typeForm.engraving?.enabled)} onChange={(e) => updateEngravingField("enabled", e.target.checked)} /></label>
-                  <label><span>Max length</span><input type="number" value={typeForm.engraving?.max_length || 24} onChange={(e) => updateEngravingField("max_length", Number(e.target.value))} /></label>
-                  <label><span>Price delta</span><input type="number" value={typeForm.engraving?.price_delta || 0} onChange={(e) => updateEngravingField("price_delta", Number(e.target.value))} /></label>
-                  <label><span>Placeholder UK</span><input value={typeForm.engraving?.placeholder_uk || ""} onChange={(e) => updateEngravingField("placeholder_uk", e.target.value)} /></label>
-                  <label><span>Placeholder EN</span><input value={typeForm.engraving?.placeholder_en || ""} onChange={(e) => updateEngravingField("placeholder_en", e.target.value)} /></label>
+                  <label><span>Увімкнено</span><input type="checkbox" checked={Boolean(typeForm.engraving?.enabled)} onChange={(e) => updateEngravingField("enabled", e.target.checked)} /></label>
+                  <label><span>Максимальна довжина</span><input type="number" value={typeForm.engraving?.max_length || 24} onChange={(e) => updateEngravingField("max_length", Number(e.target.value))} /></label>
+                  <label><span>Доплата</span><input type="number" value={typeForm.engraving?.price_delta || 0} onChange={(e) => updateEngravingField("price_delta", Number(e.target.value))} /></label>
+                  <label><span>Плейсхолдер UK</span><input value={typeForm.engraving?.placeholder_uk || ""} onChange={(e) => updateEngravingField("placeholder_uk", e.target.value)} /></label>
+                  <label><span>Плейсхолдер EN</span><input value={typeForm.engraving?.placeholder_en || ""} onChange={(e) => updateEngravingField("placeholder_en", e.target.value)} /></label>
                 </div>
               </div>
             </div>
@@ -8072,16 +8305,23 @@ function StudioAdminConstructorPage() {
 
         {editorSubview === "preview" && currentVariantPreview ? (
           <>
-            <div className="admin-panel-head"><h2>Превью варианта</h2></div>
+            <div className="admin-panel-head"><h2>Попередній перегляд варіанта</h2></div>
             <div className="admin-preview-grid">
-              <JewelryPreview variant={currentVariantPreview} slots={currentSlotsAdmin} stonesByCode={stonesByCodeAdmin} selections={previewSelections} engraving="" />
+              <JewelryPreview
+                variant={currentVariantPreview}
+                slots={currentSlotsAdmin}
+                stonesByCode={stonesByCodeAdmin}
+                selections={previewSelections}
+                engraving=""
+                baseAssetCandidates={variantAdminPreviewCandidates(currentVariantAdmin)}
+              />
               <div className="admin-form-grid compact">
                 {currentSlotsAdmin.map((slot) => (
                   <label key={"preview-" + slot.id}>
                     <span>{slot.code}</span>
                     <select value={previewSelections[slot.code] || "none"} onChange={(e) => setPreviewSelections((current) => ({ ...current, [slot.code]: e.target.value }))}>
-                      <option value="none">No stone</option>
-                      {availableVariantStones.map((stone) => <option key={stone.id} value={stone.code}>{stone.name_en}</option>)}
+                      <option value="none">Без каменю</option>
+                      {availableVariantStones.map((stone) => <option key={stone.id} value={stone.code}>{adminLocalizedEntry(stone.name_uk, stone.name_en, stone.code)}</option>)}
                     </select>
                   </label>
                 ))}
@@ -8098,10 +8338,10 @@ function StudioAdminConstructorPage() {
       <>
           <div className="admin-panel-head">
             <div>
-              <h2>Библиотека камней</h2>
-              <p className="admin-panel-copy">Полный список камней, которые можно использовать в украшениях.</p>
+              <h2>Бібліотека каменів</h2>
+              <p className="admin-panel-copy">Повний список каменів, які можна використовувати в прикрасах.</p>
             </div>
-          <button type="button" className="small-button is-active" onClick={startNewStone}>Новый камень</button>
+          <button type="button" className="small-button is-active" onClick={startNewStone}>Новий камінь</button>
         </div>
         {stonesDecorated.length ? (
           <section className="studio-stone-library-grid">
@@ -8110,17 +8350,17 @@ function StudioAdminConstructorPage() {
               return (
                 <button key={stone.id} type="button" className="studio-stone-library-card" onClick={() => openStoneEditor(stone.id)}>
                   <span className="studio-stone-library-thumb" style={stone.asset_url ? { backgroundImage: 'url(' + stone.asset_url + ')' } : undefined} />
-                  <strong>{stone.name_en}</strong>
+                  <strong>{adminLocalizedEntry(stone.name_uk, stone.name_en, stone.code)}</strong>
                   <span>{stone.code}</span>
-                  <p>{usage} variants use this stone</p>
+                  <p>{usage} варіантів використовують цей камінь</p>
                 </button>
               );
             })}
           </section>
         ) : (
           <div className="admin-cardish studio-empty-block">
-            <h3>Библиотека камней пуста</h3>
-            <p className="studio-empty-copy">Можно начать с пустого каталога и добавить только те камни, которые реально нужны.</p>
+            <h3>Бібліотека каменів порожня</h3>
+            <p className="studio-empty-copy">Можна почати з порожнього каталогу й додати лише ті камені, які справді потрібні.</p>
           </div>
         )}
       </>
@@ -8133,40 +8373,40 @@ function StudioAdminConstructorPage() {
       <>
         <div className="admin-panel-head">
           <div>
-            <h2>Редактор камня</h2>
-            <p className="admin-panel-copy">Настрой свойства камня и проверь, где он используется.</p>
+            <h2>Редактор каменю</h2>
+            <p className="admin-panel-copy">Налаштуйте властивості каменю та перевірте, де він використовується.</p>
           </div>
           <div className="admin-chip-row">
-            <button type="button" className="small-button" onClick={() => setStoneStep("list")}>Back to library</button>
+            <button type="button" className="small-button" onClick={() => setStoneStep("list")}>Назад до бібліотеки</button>
             {isDeletePending("stone", stoneForm2?.id) ? (
               <>
-                <button type="button" className="small-button button-danger is-confirm" disabled={!stoneForm2?.id || isSaving} onClick={deleteStoneAdmin}>Подтвердить удаление</button>
-                <button type="button" className="small-button button-secondary-strong" disabled={isSaving} onClick={cancelDelete}>Отмена</button>
+                <button type="button" className="small-button button-danger is-confirm" disabled={!stoneForm2?.id || isSaving} onClick={deleteStoneAdmin}>Підтвердити видалення</button>
+                <button type="button" className="small-button button-secondary-strong" disabled={isSaving} onClick={cancelDelete}>Скасувати</button>
               </>
             ) : (
-              <button type="button" className="small-button button-danger" disabled={!stoneForm2?.id || isSaving} onClick={() => requestDelete("stone", stoneForm2?.id)}>Удалить камень</button>
+              <button type="button" className="small-button button-danger" disabled={!stoneForm2?.id || isSaving} onClick={() => requestDelete("stone", stoneForm2?.id)}>Видалити камінь</button>
             )}
-            <button type="button" className="small-button is-active" disabled={isSaving} onClick={saveStone}>{isSaving ? "Saving..." : "Save stone"}</button>
+            <button type="button" className="small-button is-active" disabled={isSaving} onClick={saveStone}>{isSaving ? "Збереження..." : "Зберегти камінь"}</button>
           </div>
         </div>
         <div className="studio-stone-editor-layout">
           <div className="admin-cardish">
             <div className="admin-form-grid compact">
               <label><span>Code</span><input value={stoneForm2.code || ""} onChange={(e) => setStoneForm2((current) => ({ ...current, code: e.target.value }))} /></label>
-              <label><span>Asset</span><select value={stoneForm2.asset_id || ""} onChange={(e) => setStoneForm2((current) => ({ ...current, asset_id: Number(e.target.value) || null }))}><option value="">-</option>{assets.filter((asset) => asset.kind === "stone").map((asset) => <option key={asset.id} value={asset.id}>{asset.label}</option>)}</select></label>
-              <label><span>Name UK</span><input value={stoneForm2.name_uk || ""} onChange={(e) => setStoneForm2((current) => ({ ...current, name_uk: e.target.value }))} /></label>
-              <label><span>Name EN</span><input value={stoneForm2.name_en || ""} onChange={(e) => setStoneForm2((current) => ({ ...current, name_en: e.target.value }))} /></label>
-              <label><span>Scale X</span><input type="number" step="0.1" value={stoneForm2.default_scale_x || 1} onChange={(e) => setStoneForm2((current) => ({ ...current, default_scale_x: Number(e.target.value) }))} /></label>
-              <label><span>Scale Y</span><input type="number" step="0.1" value={stoneForm2.default_scale_y || 1} onChange={(e) => setStoneForm2((current) => ({ ...current, default_scale_y: Number(e.target.value) }))} /></label>
-              <label className="full"><span>Layer</span><select value={stoneForm2.default_layer_mode || "above"} onChange={(e) => setStoneForm2((current) => ({ ...current, default_layer_mode: e.target.value }))}><option value="above">above</option><option value="below">below</option></select></label>
+              <label><span>Асет</span><select value={stoneForm2.asset_id || ""} onChange={(e) => setStoneForm2((current) => ({ ...current, asset_id: Number(e.target.value) || null }))}><option value="">-</option>{assets.filter((asset) => asset.kind === "stone").map((asset) => <option key={asset.id} value={asset.id}>{asset.label}</option>)}</select></label>
+              <label><span>Назва UK</span><input value={stoneForm2.name_uk || ""} onChange={(e) => setStoneForm2((current) => ({ ...current, name_uk: e.target.value }))} /></label>
+              <label><span>Назва EN</span><input value={stoneForm2.name_en || ""} onChange={(e) => setStoneForm2((current) => ({ ...current, name_en: e.target.value }))} /></label>
+              <label><span>Масштаб X</span><input type="number" step="0.1" value={stoneForm2.default_scale_x || 1} onChange={(e) => setStoneForm2((current) => ({ ...current, default_scale_x: Number(e.target.value) }))} /></label>
+              <label><span>Масштаб Y</span><input type="number" step="0.1" value={stoneForm2.default_scale_y || 1} onChange={(e) => setStoneForm2((current) => ({ ...current, default_scale_y: Number(e.target.value) }))} /></label>
+              <label className="full"><span>Шар</span><select value={stoneForm2.default_layer_mode || "above"} onChange={(e) => setStoneForm2((current) => ({ ...current, default_layer_mode: e.target.value }))}><option value="above">над прикрасою</option><option value="below">під прикрасою</option></select></label>
             </div>
           </div>
           <div className="admin-cardish">
-            <h3>Preview</h3>
+            <h3>Попередній перегляд</h3>
             <div className="studio-stone-editor-preview">
               <span className="studio-stone-editor-preview-thumb" style={stoneForm2.asset_id && assetsById[stoneForm2.asset_id]?.path ? { backgroundImage: 'url(' + assetsById[stoneForm2.asset_id].path + ')' } : undefined} />
             </div>
-            <h3>Used in variants</h3>
+            <h3>Використання у варіантах</h3>
             <div className="studio-usage-list">
               {currentStoneUsage.length ? currentStoneUsage.map((entry) => {
                 const variant = (studio?.variants || []).find((item) => String(item.id) === String(entry.variant_id));
@@ -8176,11 +8416,11 @@ function StudioAdminConstructorPage() {
                     setSelectedVariantId(String(entry.variant_id));
                     setSection("pricing");
                   }}>
-                    <strong>{variant?.name_en || ('Variant ' + entry.variant_id)}</strong>
+                    <strong>{adminLocalizedEntry(variant?.name_uk, variant?.name_en, "Варіант " + entry.variant_id)}</strong>
                     <span>{entry.price_delta} грн</span>
                   </button>
                 );
-              }) : <p className="studio-empty-copy">This stone is not enabled in any variant yet.</p>}
+              }) : <p className="studio-empty-copy">Цей камінь ще не увімкнений у жодному варіанті.</p>}
             </div>
           </div>
         </div>
@@ -8194,21 +8434,21 @@ function StudioAdminConstructorPage() {
       <>
         <div className="admin-panel-head">
           <div>
-            <h2>Ассеты</h2>
-            <p className="admin-panel-copy">Загружай и переиспользуй изображения украшений, камней и витринных assets.</p>
+            <h2>Асети</h2>
+            <p className="admin-panel-copy">Завантажуйте й перевикористовуйте зображення прикрас, каменів і вітринних асетів.</p>
           </div>
         </div>
         <div className="admin-cardish">
           <div className="admin-form-grid compact">
-            <label><span>Label</span><input value={assetUploadState.label} onChange={(e) => setAssetUploadState((current) => ({ ...current, label: e.target.value }))} /></label>
-            <label><span>Kind</span><select value={assetUploadState.kind} onChange={(e) => setAssetUploadState((current) => ({ ...current, kind: e.target.value }))}><option value="jewelry-base">jewelry-base</option><option value="stone">stone</option><option value="product">product</option><option value="other">other</option></select></label>
-            <label className="full"><span>Tags</span><input value={assetUploadState.tags} onChange={(e) => setAssetUploadState((current) => ({ ...current, tags: e.target.value }))} /></label>
-            <label className="admin-upload-field full"><span>Upload image</span><input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleAssetUpload} /></label>
+            <label><span>Назва</span><input value={assetUploadState.label} onChange={(e) => setAssetUploadState((current) => ({ ...current, label: e.target.value }))} /></label>
+            <label><span>Тип</span><select value={assetUploadState.kind} onChange={(e) => setAssetUploadState((current) => ({ ...current, kind: e.target.value }))}><option value="jewelry-base">{adminAssetKindLabel("jewelry-base")}</option><option value="stone">{adminAssetKindLabel("stone")}</option><option value="product">{adminAssetKindLabel("product")}</option><option value="other">{adminAssetKindLabel("other")}</option></select></label>
+            <label className="full"><span>Теги</span><input value={assetUploadState.tags} onChange={(e) => setAssetUploadState((current) => ({ ...current, tags: e.target.value }))} /></label>
+            <label className="admin-upload-field full"><span>Завантажити зображення</span><input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleAssetUpload} /></label>
           </div>
         </div>
         <div className="studio-subnav">
           {["jewelry-base", "stone", "product", "other"].map((kind) => (
-            <button key={kind} type="button" className={"small-button" + (selectedAssetKind === kind ? " is-active" : "")} onClick={() => setSelectedAssetKind(kind)}>{kind}</button>
+            <button key={kind} type="button" className={"small-button" + (selectedAssetKind === kind ? " is-active" : "")} onClick={() => setSelectedAssetKind(kind)}>{adminAssetKindLabel(kind)}</button>
           ))}
         </div>
         <div className="admin-asset-grid">
@@ -8217,15 +8457,15 @@ function StudioAdminConstructorPage() {
               <img src={asset.path} alt={asset.label} />
               <strong>{asset.label}</strong>
               <span>{asset.path}</span>
-              <span>{asset.width && asset.height ? `${asset.width}x${asset.height}` : asset.kind}</span>
+              <span>{asset.width && asset.height ? `${asset.width}x${asset.height}` : adminAssetKindLabel(asset.kind)}</span>
               <div className="admin-chip-row">
                 {isDeletePending("asset", asset.id) ? (
                   <>
-                    <button type="button" className="small-button button-danger is-confirm" disabled={isSaving} onClick={() => deleteAssetAdmin(asset)}>Подтвердить удаление</button>
-                    <button type="button" className="small-button button-secondary-strong" disabled={isSaving} onClick={cancelDelete}>Отмена</button>
+                    <button type="button" className="small-button button-danger is-confirm" disabled={isSaving} onClick={() => deleteAssetAdmin(asset)}>Підтвердити видалення</button>
+                    <button type="button" className="small-button button-secondary-strong" disabled={isSaving} onClick={cancelDelete}>Скасувати</button>
                   </>
                 ) : (
-                  <button type="button" className="small-button button-danger" disabled={isSaving} onClick={() => requestDelete("asset", asset.id)}>Удалить ассет</button>
+                  <button type="button" className="small-button button-danger" disabled={isSaving} onClick={() => requestDelete("asset", asset.id)}>Видалити асет</button>
                 )}
               </div>
             </div>
@@ -8233,8 +8473,8 @@ function StudioAdminConstructorPage() {
         </div>
         {!visibleAssets.length ? (
           <div className="admin-cardish studio-empty-block">
-            <h3>В этой категории пока нет ассетов</h3>
-            <p className="studio-empty-copy">Можно держать библиотеку чистой и добавлять только то, что реально используется.</p>
+            <h3>У цій категорії поки немає асетів</h3>
+            <p className="studio-empty-copy">Можна тримати бібліотеку чистою й додавати лише те, що справді використовується.</p>
           </div>
         ) : null}
       </>
@@ -8246,21 +8486,21 @@ function StudioAdminConstructorPage() {
       <>
         <div className="admin-panel-head">
           <div>
-            <h2>Цены и доступность</h2>
-            <p className="admin-panel-copy">Сначала выбери украшение, потом настрой какие камни доступны и сколько они стоят.</p>
+            <h2>Ціни й доступність</h2>
+            <p className="admin-panel-copy">Спочатку виберіть прикрасу, потім налаштуйте, які камені доступні і скільки вони коштують.</p>
           </div>
         </div>
         <div className="studio-pricing-topbar">
           <div className="admin-chip-row admin-chip-stack">
-            <span className="studio-kicker">Тип украшения</span>
+            <span className="studio-kicker">Тип прикраси</span>
             {types.map((type) => (
               <button key={type.id} type="button" className={"small-button" + (String(selectedTypeId) === String(type.id) ? " is-active" : "")} onClick={() => setSelectedTypeId(String(type.id))}>{type.name_uk || type.name_en}</button>
             ))}
           </div>
           <div className="admin-chip-row admin-chip-stack">
-            <span className="studio-kicker">Вариант</span>
+            <span className="studio-kicker">Варіант</span>
             {variants.map((variant) => (
-              <button key={variant.id} type="button" className={"small-button" + (String(selectedVariantId) === String(variant.id) ? " is-active" : "")} onClick={() => setSelectedVariantId(String(variant.id))}>{variant.name_en}</button>
+              <button key={variant.id} type="button" className={"small-button" + (String(selectedVariantId) === String(variant.id) ? " is-active" : "")} onClick={() => setSelectedVariantId(String(variant.id))}>{adminLocalizedEntry(variant.name_uk, variant.name_en, variant.code)}</button>
             ))}
           </div>
         </div>
@@ -8270,8 +8510,8 @@ function StudioAdminConstructorPage() {
           setEditorSubview("matrix");
         }) : (
           <div className="admin-cardish studio-empty-block">
-            <h3>Нет варианта для настройки цен</h3>
-            <p className="studio-empty-copy">Сначала создай вариант внутри типа, а потом включай ему доступные камни и их цены.</p>
+            <h3>Немає варіанта для налаштування цін</h3>
+            <p className="studio-empty-copy">Спочатку створіть варіант усередині типу, а потім увімкніть для нього доступні камені та їхні ціни.</p>
           </div>
         )}
       </>
@@ -8279,20 +8519,20 @@ function StudioAdminConstructorPage() {
   }
 
   return (
-    <AdminShell title="Constructor Studio" subtitle="JSON-driven visual CMS for types, variants, slots, stones and assets.">
+    <AdminShell title="Конструкторне студіо" subtitle="Візуальна CMS на JSON для типів, варіантів, слотів, каменів і асетів.">
       {error ? <p className="admin-error">{error}</p> : null}
       {notice ? <p className="admin-success">{notice}</p> : null}
-      {!studio ? <div className="empty-state-react"><h2>Loading studio</h2></div> : (
+      {!studio ? <div className="empty-state-react"><h2>Завантаження студіо</h2></div> : (
         <div className="studio-shell">
           <section className="studio-workspace-bar admin-panel">
-            <div className="admin-panel-head"><h2>Workspace</h2></div>
+            <div className="admin-panel-head"><h2>Робочий простір</h2></div>
             <div className="studio-top-nav">
               {workspaceSections.map((item) => (
                 <button key={item.key} type="button" className={"small-button" + (section === item.key ? " is-active" : "")} onClick={() => openSection(item.key)}>{item.label}</button>
               ))}
             </div>
             <div className="studio-breadcrumbs">
-              <button type="button" className="tiny-link-button" onClick={() => setSection("home")}>Home</button>
+              <button type="button" className="tiny-link-button" onClick={() => setSection("home")}>Головна</button>
               {breadcrumb.slice(1).map((item) => <span key={item}>{item}</span>)}
             </div>
           </section>

@@ -4,6 +4,60 @@ export function buildStoneCodeMap(stones = []) {
   return Object.fromEntries((stones || []).map((stone) => [stone.code, stone]));
 }
 
+function normalizeMaterialAssetSlug(materialCode) {
+  const normalized = String(materialCode || "").trim().toLowerCase();
+  if (!normalized) return "";
+  if (normalized === "rose_gold") return "rose-gold";
+  return normalized.replaceAll("_", "-");
+}
+
+function assetStemFromUrl(assetUrl) {
+  const normalized = String(assetUrl || "").trim();
+  if (!normalized) return "";
+  const filename = normalized.split("/").pop() || "";
+  return filename.replace(/\.[^.]+$/, "");
+}
+
+export function buildMaterialAwareBaseAssetCandidates(variant, materialCode) {
+  const fallbackAsset = String(variant?.base_asset_url || "").trim();
+  const variantCode = String(variant?.code || "").trim();
+  const materialSlug = normalizeMaterialAssetSlug(materialCode);
+  const fallbackStem = assetStemFromUrl(fallbackAsset);
+  const candidates = [];
+
+  if (materialSlug) {
+    if (variantCode) {
+      if (fallbackAsset) {
+        const assetPath = fallbackAsset.replace(/[^/]+$/, `${variantCode}-${materialSlug}.png`);
+        candidates.push(assetPath);
+      } else {
+        candidates.push(`/assets/generated/${variantCode}-${materialSlug}.png`);
+      }
+    }
+
+    if (fallbackStem) {
+      if (fallbackAsset) {
+        const assetPath = fallbackAsset.replace(/[^/]+$/, `${fallbackStem}-${materialSlug}.png`);
+        candidates.push(assetPath);
+      } else {
+        candidates.push(`/assets/generated/${fallbackStem}-${materialSlug}.png`);
+      }
+    }
+  }
+
+  if (!candidates.length && variantCode && materialSlug) {
+    if (fallbackAsset) {
+      const assetPath = fallbackAsset.replace(/[^/]+$/, `${variantCode}-${materialSlug}.png`);
+      candidates.push(assetPath);
+    } else {
+      candidates.push(`/assets/generated/${variantCode}-${materialSlug}.png`);
+    }
+  }
+
+  if (fallbackAsset) candidates.push(fallbackAsset);
+  return [...new Set(candidates.filter(Boolean))];
+}
+
 export function previewStoneStyle(slot, stone, mode = "preview") {
   const diameter = Number(slot?.diameter || 12);
   const scaleX = Number(slot?.scale_x || 1) * Number(stone?.default_scale_x || 1);
@@ -44,11 +98,28 @@ export function JewelryPreview({
   stonesByCode = {},
   selections = {},
   engraving = "",
-  className = ""
+  className = "",
+  materialCode = "",
+  baseAssetCandidates = null
 }) {
   const orderedSlots = [...(slots || [])].sort((left, right) => Number(left.sort_order || 0) - Number(right.sort_order || 0));
   const belowSlots = orderedSlots.filter((slot) => slot.layer_mode === "below");
   const aboveSlots = orderedSlots.filter((slot) => slot.layer_mode !== "below");
+  const resolvedBaseAssetCandidates = React.useMemo(
+    () => (
+      Array.isArray(baseAssetCandidates) && baseAssetCandidates.length
+        ? [...new Set(baseAssetCandidates.filter(Boolean))]
+        : buildMaterialAwareBaseAssetCandidates(variant, materialCode)
+    ),
+    [baseAssetCandidates, materialCode, variant]
+  );
+  const [baseAssetIndex, setBaseAssetIndex] = React.useState(0);
+
+  React.useEffect(() => {
+    setBaseAssetIndex(0);
+  }, [resolvedBaseAssetCandidates.join("|")]);
+
+  const activeBaseAssetUrl = resolvedBaseAssetCandidates[baseAssetIndex] || null;
 
   function renderSlotStone(slot) {
     const stone = stonesByCode[selections?.[slot.code]];
@@ -69,12 +140,24 @@ export function JewelryPreview({
           {belowSlots.map(renderSlotStone)}
         </div>
         <div className="studio-preview-layer studio-preview-layer-base">
-          {variant?.base_asset_url ? <img className="studio-preview-base" src={variant.base_asset_url} alt="" aria-hidden="true" /> : null}
+          {activeBaseAssetUrl ? (
+            <img
+              className="studio-preview-base"
+              src={activeBaseAssetUrl}
+              alt=""
+              aria-hidden="true"
+              onError={() => {
+                if (baseAssetIndex < resolvedBaseAssetCandidates.length - 1) {
+                  setBaseAssetIndex((current) => current + 1);
+                }
+              }}
+            />
+          ) : null}
         </div>
         <div className="studio-preview-layer studio-preview-layer-above">
           {aboveSlots.map(renderSlotStone)}
         </div>
-        {!variant?.base_asset_url ? <div className="studio-preview-empty">No base asset</div> : null}
+        {!activeBaseAssetUrl ? <div className="studio-preview-empty">No base asset</div> : null}
       </div>
       {engraving ? <div className="preview-engraving">"{engraving}"</div> : null}
     </div>

@@ -99,6 +99,7 @@ function normalizeVariantRecord(payload, current = {}) {
     name_en: requireText(payload, "name_en", "Variant name en"),
     group: normalizeText(payload.group, current.group || ""),
     subtype: normalizeText(payload.subtype, current.subtype || ""),
+    price_delta: toNumber(payload.price_delta, current.price_delta || 0),
     base_asset_id: payload.base_asset_id == null ? current.base_asset_id || null : toNumber(payload.base_asset_id, current.base_asset_id || 0),
     is_active: normalizeBoolean(payload.is_active, current.is_active !== false),
     sort_order: toNumber(payload.sort_order, current.sort_order || 0)
@@ -283,6 +284,7 @@ async function calculateStudioPrice({ jewelryTypeId, configuration = {}, req = n
   const matrixByStoneCode = Object.fromEntries(matrix.map((entry) => [stonesById[entry.stone_id]?.code, entry]));
 
   let calculatedPrice = Number(type.base_price || 0);
+  calculatedPrice += Number(variant.price_delta || 0);
   if (selectedMaterial) calculatedPrice += Number(selectedMaterial.price_delta || 0);
   if (selectedSize) calculatedPrice += Number(selectedSize.price_delta || 0);
 

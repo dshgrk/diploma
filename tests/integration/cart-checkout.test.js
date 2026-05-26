@@ -302,9 +302,9 @@ describe("cart and checkout integrity", () => {
       option: "50cm",
       length: 50,
       metal: "Gold",
-      price: 2100
+      price: 4400
     });
-    expect(customPendant.unit_price).toBeGreaterThanOrEqual(2100);
+    expect(customPendant.unit_price).toBeGreaterThanOrEqual(4400);
 
     const checkoutResult = await createCheckoutOrder(2, CHECKOUT_PAYLOAD);
     const orderItem = await db("order_items")
@@ -316,7 +316,7 @@ describe("cart and checkout integrity", () => {
       option: "50cm",
       length: 50,
       metal: "Gold",
-      price: 2100
+      price: 4400
     });
     expect(Number(orderItem.unit_price)).toBe(Number(customPendant.unit_price));
   });
@@ -428,7 +428,29 @@ describe("cart and checkout integrity", () => {
     });
 
     expect(response.status).toBe(200);
-    expect(response.body.data.price).toBe(1700);
+    expect(response.body.data.price).toBe(11750);
+  });
+
+  test("constructor price supports new duet variant and normalizes variant id", async () => {
+    const app = createApp();
+
+    const response = await request(app).post("/api/constructor/price").send({
+      jewelry_type_id: 1,
+      configuration: {
+        variant_id: 103,
+        material: "rose_gold",
+        size: "19",
+        stone_slots: {
+          left: "diamond",
+          right: "pearl"
+        }
+      }
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.is_valid).toBe(true);
+    expect(response.body.data.price).toBe(21400);
+    expect(response.body.data.normalized_configuration.variant_id).toBe(103);
   });
 
   test("constructor price rejects invalid stone slot ids", async () => {
@@ -450,6 +472,30 @@ describe("cart and checkout integrity", () => {
     expect(response.status).toBe(422);
     expect(response.body.error.code).toBe("INVALID_CONFIGURATION_VALUE");
     expect(response.body.error.details.invalid_slots).toEqual(["shoulder"]);
+  });
+
+  test("constructor price rejects stones outside new variant matrix", async () => {
+    const app = createApp();
+
+    const response = await request(app).post("/api/constructor/price").send({
+      jewelry_type_id: 2,
+      configuration: {
+        variant_id: 203,
+        material: "silver",
+        size: "16",
+        stone_slots: {
+          left: "heart_charm",
+          right: "pearl"
+        }
+      }
+    });
+
+    expect(response.status).toBe(422);
+    expect(response.body.error.code).toBe("INVALID_CONFIGURATION_VALUE");
+    expect(response.body.error.details).toMatchObject({
+      stone: "heart_charm",
+      variant_id: 203
+    });
   });
 
   test("account endpoint requires auth", async () => {

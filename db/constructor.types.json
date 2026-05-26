@@ -5,7 +5,7 @@
       "code": "ring",
       "name_uk": "Каблучка",
       "name_en": "Ring",
-      "base_price": 1100,
+      "base_price": 6300,
       "is_active": true,
       "sort_order": 1,
       "materials": [
@@ -22,7 +22,7 @@
           "code": "gold",
           "name_uk": "Золото",
           "name_en": "Gold",
-          "price_delta": 1250,
+          "price_delta": 10900,
           "tone": "#b8914f",
           "is_active": true,
           "sort_order": 2
@@ -31,7 +31,7 @@
           "code": "rose_gold",
           "name_uk": "Рожеве золото",
           "name_en": "Rose Gold",
-          "price_delta": 950,
+          "price_delta": 8200,
           "tone": "#c88d78",
           "is_active": true,
           "sort_order": 3
@@ -51,7 +51,7 @@
           "code": "17",
           "label_uk": "17",
           "label_en": "17",
-          "price_delta": 0,
+          "price_delta": 150,
           "is_active": true,
           "sort_order": 2
         },
@@ -59,7 +59,7 @@
           "code": "18",
           "label_uk": "18",
           "label_en": "18",
-          "price_delta": 40,
+          "price_delta": 300,
           "is_active": true,
           "sort_order": 3
         },
@@ -67,7 +67,7 @@
           "code": "19",
           "label_uk": "19",
           "label_en": "19",
-          "price_delta": 70,
+          "price_delta": 500,
           "is_active": true,
           "sort_order": 4
         }
@@ -75,7 +75,7 @@
       "engraving": {
         "enabled": true,
         "max_length": 24,
-        "price_delta": 50,
+        "price_delta": 450,
         "placeholder_uk": "Ініціали, дата або одне тихе слово",
         "placeholder_en": "Initials, date or one quiet word"
       }
@@ -85,7 +85,7 @@
       "code": "bracelet",
       "name_uk": "Браслет",
       "name_en": "Bracelet",
-      "base_price": 850,
+      "base_price": 5700,
       "is_active": true,
       "sort_order": 2,
       "materials": [
@@ -102,7 +102,7 @@
           "code": "gold",
           "name_uk": "Золото",
           "name_en": "Gold",
-          "price_delta": 1250,
+          "price_delta": 10900,
           "tone": "#b8914f",
           "is_active": true,
           "sort_order": 2
@@ -111,7 +111,7 @@
           "code": "rose_gold",
           "name_uk": "Рожеве золото",
           "name_en": "Rose Gold",
-          "price_delta": 950,
+          "price_delta": 8200,
           "tone": "#c88d78",
           "is_active": true,
           "sort_order": 3
@@ -131,7 +131,7 @@
           "code": "17",
           "label_uk": "17 см",
           "label_en": "17 cm",
-          "price_delta": 30,
+          "price_delta": 200,
           "is_active": true,
           "sort_order": 2
         },
@@ -139,7 +139,7 @@
           "code": "18",
           "label_uk": "18 см",
           "label_en": "18 cm",
-          "price_delta": 50,
+          "price_delta": 400,
           "is_active": true,
           "sort_order": 3
         },
@@ -147,7 +147,7 @@
           "code": "19",
           "label_uk": "19 см",
           "label_en": "19 cm",
-          "price_delta": 70,
+          "price_delta": 650,
           "is_active": true,
           "sort_order": 4
         }
@@ -155,7 +155,7 @@
       "engraving": {
         "enabled": true,
         "max_length": 24,
-        "price_delta": 50,
+        "price_delta": 450,
         "placeholder_uk": "Ініціали, дата або одне тихе слово",
         "placeholder_en": "Initials, date or one quiet word"
       }
@@ -165,7 +165,7 @@
       "code": "pendant",
       "name_uk": "Підвіска",
       "name_en": "Pendant",
-      "base_price": 950,
+      "base_price": 6100,
       "is_active": true,
       "sort_order": 3,
       "materials": [
@@ -182,7 +182,7 @@
           "code": "gold",
           "name_uk": "Золото",
           "name_en": "Gold",
-          "price_delta": 1250,
+          "price_delta": 10900,
           "tone": "#b8914f",
           "is_active": true,
           "sort_order": 2
@@ -191,7 +191,7 @@
           "code": "rose_gold",
           "name_uk": "Рожеве золото",
           "name_en": "Rose Gold",
-          "price_delta": 950,
+          "price_delta": 8200,
           "tone": "#c88d78",
           "is_active": true,
           "sort_order": 3
@@ -201,7 +201,7 @@
       "engraving": {
         "enabled": true,
         "max_length": 24,
-        "price_delta": 50,
+        "price_delta": 450,
         "placeholder_uk": "Ініціали, дата або одне тихе слово",
         "placeholder_en": "Initials, date or one quiet word"
       }
@@ -211,7 +211,7 @@
       "code": "earrings",
       "name_uk": "Сережки",
       "name_en": "Earrings",
-      "base_price": 980,
+      "base_price": 6700,
       "is_active": true,
       "sort_order": 4,
       "materials": [
@@ -228,7 +228,7 @@
           "code": "gold",
           "name_uk": "Золото",
           "name_en": "Gold",
-          "price_delta": 1250,
+          "price_delta": 10900,
           "tone": "#b8914f",
           "is_active": true,
           "sort_order": 2
@@ -237,7 +237,7 @@
           "code": "rose_gold",
           "name_uk": "Рожеве золото",
           "name_en": "Rose Gold",
-          "price_delta": 950,
+          "price_delta": 8200,
           "tone": "#c88d78",
           "is_active": true,
           "sort_order": 3
