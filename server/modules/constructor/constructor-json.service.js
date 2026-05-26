@@ -44,6 +44,12 @@ function clampDiameter(value) {
   return Math.max(2, Math.min(80, number));
 }
 
+function clampRotation(value) {
+  const number = toNumber(value, 0);
+  const normalized = ((number % 360) + 360) % 360;
+  return Number(normalized.toFixed(1));
+}
+
 function normalizeConstructorMaterialCode(value) {
   const normalized = normalizeText(value).toLowerCase();
   if (!normalized) return "";
@@ -120,6 +126,7 @@ function normalizeSlotRecord(payload, current = {}) {
     scale_x: clampScale(payload.scale_x ?? current.scale_x),
     scale_y: clampScale(payload.scale_y ?? current.scale_y),
     diameter: clampDiameter(payload.diameter ?? current.diameter),
+    rotation_deg: clampRotation(payload.rotation_deg ?? current.rotation_deg),
     layer_mode: layerMode === "below" ? "below" : "above",
     is_active: normalizeBoolean(payload.is_active, current.is_active !== false)
   };

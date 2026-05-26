@@ -7140,7 +7140,7 @@ function ConstructorStudioPage() {
   );
 }
 
-function StudioSlotCanvasEditor({ variant, slots, stones, previewSelections, selectedSlotId, onSelectSlot, onMoveSlot, onResizeSlot, onInteractionEnd }) {
+function StudioSlotCanvasEditor({ variant, baseAssetUrl, slots, stones, previewSelections, selectedSlotId, onSelectSlot, onMoveSlot, onResizeSlot, onRotateSlot, onInteractionEnd }) {
   const boardRef = React.useRef(null);
   const [dragState, setDragState] = useState(null);
 
@@ -7155,16 +7155,24 @@ function StudioSlotCanvasEditor({ variant, slots, stones, previewSelections, sel
         onMoveSlot(dragState.slotId, { x, y });
         return;
       }
-        if (dragState.mode === "resize") {
-          const deltaX = (event.clientX - dragState.startClientX) / rect.width;
-          const deltaY = (event.clientY - dragState.startClientY) / rect.height;
-          const nextScaleX = Math.max(0.35, Math.min(3, dragState.startScaleX + deltaX * 3));
-          const nextScaleY = Math.max(0.35, Math.min(3, dragState.startScaleY + deltaY * 3));
-          onResizeSlot(dragState.slotId, {
-            scale_x: Number(nextScaleX.toFixed(2)),
-            scale_y: Number(nextScaleY.toFixed(2))
-          });
-        }
+      if (dragState.mode === "resize") {
+        const deltaX = (event.clientX - dragState.startClientX) / rect.width;
+        const deltaY = (event.clientY - dragState.startClientY) / rect.height;
+        const nextScaleX = Math.max(0.35, Math.min(3, dragState.startScaleX + deltaX * 3));
+        const nextScaleY = Math.max(0.35, Math.min(3, dragState.startScaleY + deltaY * 3));
+        onResizeSlot(dragState.slotId, {
+          scale_x: Number(nextScaleX.toFixed(2)),
+          scale_y: Number(nextScaleY.toFixed(2))
+        });
+        return;
+      }
+      if (dragState.mode === "rotate") {
+        const centerX = rect.left + (dragState.centerX / 100) * rect.width;
+        const centerY = rect.top + (dragState.centerY / 100) * rect.height;
+        const angle = Math.atan2(event.clientY - centerY, event.clientX - centerX) * (180 / Math.PI);
+        const nextRotation = ((angle + 90) % 360 + 360) % 360;
+        onRotateSlot?.(dragState.slotId, { rotation_deg: Number(nextRotation.toFixed(1)) });
+      }
     }
     function handleUp() {
       if (dragState?.slotId) {
@@ -7178,11 +7186,11 @@ function StudioSlotCanvasEditor({ variant, slots, stones, previewSelections, sel
       window.removeEventListener("mousemove", handleMove);
       window.removeEventListener("mouseup", handleUp);
     };
-  }, [dragState, onMoveSlot, onResizeSlot, onInteractionEnd]);
+  }, [dragState, onMoveSlot, onResizeSlot, onRotateSlot, onInteractionEnd]);
 
   return (
     <div className="studio-editor-square" ref={boardRef}>
-      {variant?.base_asset_url ? <img className="studio-editor-base" src={variant.base_asset_url} alt="" aria-hidden="true" /> : null}
+      {baseAssetUrl ? <img className="studio-editor-base" src={baseAssetUrl} alt="" aria-hidden="true" /> : null}
       {slots.map((slot) => {
         const stone = stones[previewSelections?.[slot.code]];
         return (
@@ -7190,7 +7198,7 @@ function StudioSlotCanvasEditor({ variant, slots, stones, previewSelections, sel
             type="button"
             key={slot.id}
             className={`studio-editor-slot${String(selectedSlotId) === String(slot.id) ? " is-active" : ""}${slot.layer_mode === "below" ? " is-below" : " is-above"}`}
-            style={previewStoneStyle(slot, stone || null)}
+            style={previewStoneStyle(slot, stone || null, "preview", { includeRotation: true })}
             onClick={() => onSelectSlot(slot.id)}
             onMouseDown={() => {
               onSelectSlot(slot.id);
@@ -7218,6 +7226,23 @@ function StudioSlotCanvasEditor({ variant, slots, stones, previewSelections, sel
               >
               ↘
             </button>
+            <button
+              type="button"
+              className="studio-slot-rotate-handle"
+              aria-label={`Rotate ${slot.code}`}
+              onMouseDown={(event) => {
+                event.stopPropagation();
+                onSelectSlot(slot.id);
+                setDragState({
+                  mode: "rotate",
+                  slotId: slot.id,
+                  centerX: Number(slot.x || 50),
+                  centerY: Number(slot.y || 50)
+                });
+              }}
+            >
+              ↻
+            </button>
           </button>
         );
       })}
@@ -7237,6 +7262,7 @@ function createStudioSlotDraft(variantId, order = 1) {
     scale_x: 1,
     scale_y: 1,
     diameter: 12,
+    rotation_deg: 0,
     layer_mode: "above",
     is_active: true
   };
@@ -7400,6 +7426,7 @@ function StudioAdminConstructorPage() {
     "scale_x",
     "scale_y",
     "diameter",
+    "rotation_deg",
     "layer_mode"
   ].some((key) => String(slotForm[key] ?? "") !== String(currentSlotAdmin[key] ?? "")))));
   const currentVariantMatrix = currentVariantAdmin ? allMatrix.filter((item) => String(item.variant_id) === String(currentVariantAdmin.id)) : [];
@@ -7483,6 +7510,7 @@ function StudioAdminConstructorPage() {
   }
 
   const currentVariantPreview = currentVariantAdmin ? { ...currentVariantAdmin, base_asset_url: variantBaseAssetUrl(currentVariantAdmin) } : null;
+  const currentVariantEditorBaseAsset = currentVariantAdmin ? variantAdminPreviewAssetUrl(currentVariantAdmin, ["silver", "gold", "rose_gold"]) : null;
 
   async function saveType() {
     if (!typeForm) return;
@@ -8125,32 +8153,39 @@ function StudioAdminConstructorPage() {
               <div className="studio-stage-panel">
                 <div className="studio-stage-meta">
                   <span>Полотно 1:1</span>
-                  <span>Перетягуйте кола прямо по прикрасі</span>
+                  <span>Перетягуйте слот, змінюйте розмір і кут прямо на прикрасі</span>
                 </div>
                 <StudioSlotCanvasEditor
                   variant={currentVariantPreview}
+                  baseAssetUrl={currentVariantEditorBaseAsset}
                   slots={editableSlotsAdmin}
                   stones={stonesByCodeAdmin}
                   previewSelections={previewSelections}
                   selectedSlotId={currentSlotAdmin?.id}
-                    onSelectSlot={selectSlotDraft}
+                  onSelectSlot={selectSlotDraft}
                   onMoveSlot={(slotId, point) => {
-                    if (String(slotForm?.id) === String(slotId)) setSlotForm((current) => ({ ...current, x: point.x, y: point.y }));
-                    const movedSlot = currentSlotsAdmin.find((slot) => String(slot.id) === String(slotId));
-                    if (movedSlot) {
-                      setSelectedSlotId(String(slotId));
-                      setSlotForm({ ...movedSlot, x: point.x, y: point.y });
-                    }
+                    const baseDraft = String(slotForm?.id) === String(slotId)
+                      ? slotForm
+                      : currentSlotsAdmin.find((slot) => String(slot.id) === String(slotId));
+                    if (!baseDraft) return;
+                    setSelectedSlotId(String(slotId));
+                    setSlotForm({ ...baseDraft, x: point.x, y: point.y });
                   }}
                   onResizeSlot={(slotId, scalePatch) => {
-                    if (String(slotForm?.id) === String(slotId)) {
-                      setSlotForm((current) => ({ ...current, ...scalePatch }));
-                    }
-                    const resizedSlot = currentSlotsAdmin.find((slot) => String(slot.id) === String(slotId));
-                    if (resizedSlot) {
-                      setSelectedSlotId(String(slotId));
-                      setSlotForm({ ...resizedSlot, ...scalePatch });
-                    }
+                    const baseDraft = String(slotForm?.id) === String(slotId)
+                      ? slotForm
+                      : currentSlotsAdmin.find((slot) => String(slot.id) === String(slotId));
+                    if (!baseDraft) return;
+                    setSelectedSlotId(String(slotId));
+                    setSlotForm({ ...baseDraft, ...scalePatch });
+                  }}
+                  onRotateSlot={(slotId, rotationPatch) => {
+                    const baseDraft = String(slotForm?.id) === String(slotId)
+                      ? slotForm
+                      : currentSlotsAdmin.find((slot) => String(slot.id) === String(slotId));
+                    if (!baseDraft) return;
+                    setSelectedSlotId(String(slotId));
+                    setSlotForm({ ...baseDraft, ...rotationPatch });
                   }}
                   onInteractionEnd={commitSlotIfDirty}
                 />
@@ -8176,6 +8211,7 @@ function StudioAdminConstructorPage() {
                   <label><span>Масштаб X</span><input type="number" step="0.1" value={slotForm.scale_x || 1} onChange={(e) => setSlotForm((current) => ({ ...current, scale_x: Number(e.target.value) }))} /></label>
                   <label><span>Масштаб Y</span><input type="number" step="0.1" value={slotForm.scale_y || 1} onChange={(e) => setSlotForm((current) => ({ ...current, scale_y: Number(e.target.value) }))} /></label>
                   <label><span>Діаметр</span><input type="number" step="0.1" value={slotForm.diameter || 12} onChange={(e) => setSlotForm((current) => ({ ...current, diameter: Number(e.target.value) }))} /></label>
+                  <label><span>Поворот</span><input type="number" step="0.1" min="0" max="360" value={slotForm.rotation_deg || 0} onChange={(e) => setSlotForm((current) => ({ ...current, rotation_deg: Number(e.target.value) }))} /></label>
                   <label><span>Режим шару</span><select value={slotForm.layer_mode || "above"} onChange={(e) => setSlotForm((current) => ({ ...current, layer_mode: e.target.value }))}><option value="above">Камінь над прикрасою</option><option value="below">Камінь під прикрасою</option></select></label>
                   <label className="full">
                     <span>Камінь для попереднього перегляду</span>
@@ -8331,6 +8367,7 @@ function StudioAdminConstructorPage() {
                 selections={previewSelections}
                 engraving=""
                 baseAssetCandidates={variantAdminPreviewCandidates(currentVariantAdmin)}
+                applySlotRotation={true}
               />
               <div className="admin-form-grid compact">
                 {currentSlotsAdmin.map((slot) => (

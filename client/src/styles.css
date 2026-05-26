@@ -4124,11 +4124,20 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 500; color: var(
 .studio-editor-base {
   position: absolute;
   inset: 4% 4% 4% 4%;
+  display: block;
   width: 92%;
   height: 92%;
   object-fit: contain;
   pointer-events: none;
   filter: drop-shadow(0 20px 28px rgba(110, 80, 32, 0.14));
+}
+
+.studio-preview-base {
+  transition: opacity 160ms ease;
+}
+
+.studio-preview-base-loading {
+  background: radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.72), rgba(230, 220, 205, 0.22) 68%, transparent 100%);
 }
 
 .studio-preview-stone,
@@ -4206,6 +4215,30 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 500; color: var(
   box-shadow: 0 8px 18px rgba(10,14,12,0.12);
   z-index: 4;
   cursor: nwse-resize;
+}
+
+.studio-slot-rotate-handle {
+  position: absolute;
+  left: 50%;
+  top: -10px;
+  transform: translateX(-50%);
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(174, 138, 87, 0.32);
+  border-radius: 999px;
+  background: rgba(255, 250, 246, 0.96);
+  color: var(--gold-strong);
+  font-size: 12px;
+  font-weight: 900;
+  box-shadow: 0 8px 18px rgba(10,14,12,0.12);
+  z-index: 4;
+  cursor: grab;
+}
+
+.studio-slot-rotate-handle:active {
+  cursor: grabbing;
 }
 
 .studio-preview-empty {
