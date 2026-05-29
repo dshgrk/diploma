@@ -42,19 +42,19 @@ export const REFERENCE_IMAGES = {
     "/assets/images/aurora-jewelry-hero.png",
     "/assets/images/product-heart.png",
     "/assets/images/product-moon.png",
-    "/assets/generated/ring.png"
+    "/assets/generated/ring-trinity-silver.png"
   ],
   bespoke: "/assets/images/aurora-jewelry-hero.png",
   editorial: [
-    "/assets/generated/bracelet.png",
-    "/assets/generated/pendant1.png",
-    "/assets/generated/earrings.png"
+    "/assets/generated/bracelet-orbit-silver.png",
+    "/assets/generated/pendant-heart-silver.png",
+    "/assets/images/aurora-jewelry-hero.png"
   ],
   productBySlug: {
     "quiet-pearl-ring": "/assets/images/aurora-jewelry-hero.png",
     "moon-bracelet": "/assets/images/product-moon.png",
     "silver-heart-pendant": "/assets/images/product-heart.png",
-    "white-diamond-earrings": "/assets/generated/earrings.png"
+    "white-diamond-earrings": "/assets/images/aurora-jewelry-hero.png"
   }
 };
 
@@ -687,7 +687,7 @@ export const CONSTRUCTOR_STONE_MEDIA = {
   opal: "/assets/generated/opal.png",
   diamond: "/assets/generated/diamind.png",
   none: "/assets/preview/stone-none.svg",
-  heart_charm: "/assets/generated/heart_charm.png"
+  heart_charm: "/assets/images/product-heart.png"
 };
 
 export function compactCatalogFilters(filters) {

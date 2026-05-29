@@ -7,7 +7,21 @@ export default defineConfig({
   base: "/react-app/",
   build: {
     outDir: "../public/react-app",
-    emptyOutDir: true
+    emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes("node_modules")) return undefined;
+          if (id.includes("react") || id.includes("react-dom") || id.includes("scheduler")) {
+            return "vendor-react";
+          }
+          if (id.includes("lucide-react") || id.includes("lucide")) {
+            return "vendor-icons";
+          }
+          return "vendor";
+        }
+      }
+    }
   },
   server: {
     port: 5173,

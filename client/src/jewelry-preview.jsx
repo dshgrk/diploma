@@ -5,6 +5,8 @@ const METAL_GAMMA_LEVELS = {
   gold: { red: 1.44, green: 0.72, blue: 0.28 }
 };
 
+const recoloredBaseAssetCache = new Map();
+
 function clampChannel(value) {
   return Math.max(0, Math.min(255, Math.round(value)));
 }
@@ -141,6 +143,34 @@ function CanvasBaseAsset({ assetUrl, materialCode = "", onError }) {
 
     setIsReady(false);
 
+    const cacheKey = `${assetUrl}::${normalizeMaterialCode(materialCode) || "base"}`;
+    const cachedAssetUrl = recoloredBaseAssetCache.get(cacheKey);
+    if (cachedAssetUrl) {
+      const cachedImage = new Image();
+      cachedImage.decoding = "async";
+      cachedImage.onload = () => {
+        if (isDisposed) return;
+        const canvasSize = 1200;
+        const context = canvas.getContext("2d");
+        if (!context) return;
+        canvas.width = canvasSize;
+        canvas.height = canvasSize;
+        context.clearRect(0, 0, canvasSize, canvasSize);
+        context.drawImage(cachedImage, 0, 0, canvasSize, canvasSize);
+        setIsReady(true);
+      };
+      cachedImage.onerror = () => {
+        recoloredBaseAssetCache.delete(cacheKey);
+        if (!isDisposed) setIsReady(false);
+      };
+      cachedImage.src = cachedAssetUrl;
+      return () => {
+        isDisposed = true;
+        cachedImage.onload = null;
+        cachedImage.onerror = null;
+      };
+    }
+
     const image = new Image();
     image.decoding = "async";
     image.crossOrigin = "anonymous";
@@ -171,6 +201,12 @@ function CanvasBaseAsset({ assetUrl, materialCode = "", onError }) {
         const imageData = context.getImageData(0, 0, canvasSize, canvasSize);
         const recolored = applyChannelLevels(imageData, materialCode);
         context.putImageData(recolored, 0, 0);
+      }
+
+      try {
+        recoloredBaseAssetCache.set(cacheKey, canvas.toDataURL("image/png"));
+      } catch {
+        // Canvas export can fail for cross-origin assets; preview still works without cache.
       }
 
       setIsReady(true);

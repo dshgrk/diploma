@@ -5,14 +5,14 @@ const LAYOUTS_FILE = path.resolve(process.cwd(), "db", "constructor-layouts.json
 
 const DEFAULT_CONSTRUCTOR_LAYOUTS = {
   bases: {
-    bracelet: "/assets/generated/bracelet.png",
-    ring: "/assets/generated/ring.png",
+    bracelet: "/assets/generated/bracelet-orbit-silver.png",
+    ring: "/assets/generated/ring-trinity-silver.png",
     pendant: {
-      heart: "/assets/generated/pendant1.png",
-      moon: "/assets/generated/pendant2.png",
-      drop: "/assets/generated/pendant3.png"
+      heart: "/assets/generated/pendant-heart-silver.png",
+      moon: "/assets/generated/pendant-moon-silver.png",
+      drop: "/assets/generated/pendant-drop-silver.png"
     },
-    earrings: "/assets/generated/earrings.png"
+    earrings: "/assets/images/aurora-jewelry-hero.png"
   },
   positions: {
     bracelet: {

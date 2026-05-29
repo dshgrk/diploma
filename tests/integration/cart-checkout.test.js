@@ -410,6 +410,41 @@ describe("cart and checkout integrity", () => {
     });
   });
 
+  test("catalog supports paginated product loading and lightweight facets", async () => {
+    const app = createApp();
+
+    const firstPage = await request(app).get("/api/catalog/products").query({
+      page: 1,
+      limit: 5,
+      type: "Ring",
+      sort: "price_asc"
+    });
+    const secondPage = await request(app).get("/api/catalog/products").query({
+      page: 2,
+      limit: 5,
+      type: "Ring",
+      sort: "price_asc"
+    });
+    const facetsResponse = await request(app).get("/api/catalog/products/facets").query({ type: "Ring" });
+
+    expect(firstPage.status).toBe(200);
+    expect(firstPage.body.data.items).toHaveLength(5);
+    expect(firstPage.body.data.pageInfo).toMatchObject({
+      page: 1,
+      limit: 5,
+      hasNextPage: true,
+      hasPreviousPage: false
+    });
+    expect(firstPage.body.data.items.every((product) => product.filters.type === "Ring")).toBe(true);
+    expect(firstPage.body.data.items[0].price).toBeLessThanOrEqual(firstPage.body.data.items.at(-1).price);
+    expect(secondPage.status).toBe(200);
+    expect(secondPage.body.data.items.map((product) => product.id)).not.toEqual(firstPage.body.data.items.map((product) => product.id));
+    expect(facetsResponse.status).toBe(200);
+    expect(facetsResponse.body.data.facets.type).toEqual(["Ring"]);
+    expect(facetsResponse.body.data.facets.metal).toContain("Rose Gold");
+    expect(facetsResponse.body.data.priceBounds.max).toBeGreaterThanOrEqual(facetsResponse.body.data.priceBounds.min);
+  });
+
   test("constructor price counts every selected stone slot server-side", async () => {
     const app = createApp();
 

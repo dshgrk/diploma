@@ -3,7 +3,7 @@
     {
       "id": 1,
       "kind": "jewelry-base",
-      "path": "/assets/generated/ring.png",
+      "path": "/assets/generated/ring-trinity-silver.png",
       "width": 0,
       "height": 0,
       "label": "Ring base",
@@ -15,7 +15,7 @@
     {
       "id": 2,
       "kind": "jewelry-base",
-      "path": "/assets/generated/bracelet.png",
+      "path": "/assets/generated/bracelet-orbit-silver.png",
       "width": 0,
       "height": 0,
       "label": "Bracelet base",
@@ -27,7 +27,7 @@
     {
       "id": 3,
       "kind": "jewelry-base",
-      "path": "/assets/generated/pendant1.png",
+      "path": "/assets/generated/pendant-heart-silver.png",
       "width": 0,
       "height": 0,
       "label": "Pendant heart",
@@ -40,7 +40,7 @@
     {
       "id": 4,
       "kind": "jewelry-base",
-      "path": "/assets/generated/pendant2.png",
+      "path": "/assets/generated/pendant-moon-silver.png",
       "width": 0,
       "height": 0,
       "label": "Pendant moon",
@@ -53,7 +53,7 @@
     {
       "id": 5,
       "kind": "jewelry-base",
-      "path": "/assets/generated/pendant3.png",
+      "path": "/assets/generated/pendant-drop-silver.png",
       "width": 0,
       "height": 0,
       "label": "Pendant drop",
@@ -66,7 +66,7 @@
     {
       "id": 6,
       "kind": "jewelry-base",
-      "path": "/assets/generated/earrings.png",
+      "path": "/assets/images/aurora-jewelry-hero.png",
       "width": 0,
       "height": 0,
       "label": "Earrings base",
@@ -138,7 +138,7 @@
     {
       "id": 12,
       "kind": "stone",
-      "path": "/assets/generated/heart_charm.png",
+      "path": "/assets/images/product-heart.png",
       "width": 0,
       "height": 0,
       "label": "Heart charm",
@@ -163,7 +163,7 @@
     {
       "id": 14,
       "kind": "jewelry-base",
-      "path": "/assets/generated/ring-solitaire.png",
+      "path": "/assets/generated/ring-solitaire-silver.png",
       "width": 0,
       "height": 0,
       "label": "Ring solitaire",
@@ -176,7 +176,7 @@
     {
       "id": 15,
       "kind": "jewelry-base",
-      "path": "/assets/generated/ring-duet.png",
+      "path": "/assets/generated/ring-duet-silver.png",
       "width": 0,
       "height": 0,
       "label": "Ring duet",
@@ -189,7 +189,7 @@
     {
       "id": 16,
       "kind": "jewelry-base",
-      "path": "/assets/generated/bracelet-line.png",
+      "path": "/assets/generated/bracelet-line-silver.png",
       "width": 0,
       "height": 0,
       "label": "Bracelet line",
@@ -202,7 +202,7 @@
     {
       "id": 17,
       "kind": "jewelry-base",
-      "path": "/assets/generated/bracelet-duet.png",
+      "path": "/assets/generated/bracelet-duet-silver.png",
       "width": 0,
       "height": 0,
       "label": "Bracelet duet",
@@ -215,7 +215,7 @@
     {
       "id": 18,
       "kind": "jewelry-base",
-      "path": "/assets/generated/earrings-stud.png",
+      "path": "/assets/images/aurora-jewelry-hero.png",
       "width": 0,
       "height": 0,
       "label": "Earrings stud",
@@ -228,7 +228,7 @@
     {
       "id": 19,
       "kind": "jewelry-base",
-      "path": "/assets/generated/earrings-arc.png",
+      "path": "/assets/images/aurora-jewelry-hero.png",
       "width": 0,
       "height": 0,
       "label": "Earrings arc",

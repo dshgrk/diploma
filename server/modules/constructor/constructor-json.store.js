@@ -119,7 +119,7 @@ const DEFAULT_DATA = {
       {
         "id": 1,
         "kind": "jewelry-base",
-        "path": "/assets/generated/ring.png",
+        "path": "/assets/generated/ring-trinity-silver.png",
         "width": 0,
         "height": 0,
         "label": "Ring base",
@@ -131,7 +131,7 @@ const DEFAULT_DATA = {
       {
         "id": 2,
         "kind": "jewelry-base",
-        "path": "/assets/generated/bracelet.png",
+        "path": "/assets/generated/bracelet-orbit-silver.png",
         "width": 0,
         "height": 0,
         "label": "Bracelet base",
@@ -143,7 +143,7 @@ const DEFAULT_DATA = {
       {
         "id": 3,
         "kind": "jewelry-base",
-        "path": "/assets/generated/pendant1.png",
+        "path": "/assets/generated/pendant-heart-silver.png",
         "width": 0,
         "height": 0,
         "label": "Pendant heart",
@@ -156,7 +156,7 @@ const DEFAULT_DATA = {
       {
         "id": 4,
         "kind": "jewelry-base",
-        "path": "/assets/generated/pendant2.png",
+        "path": "/assets/generated/pendant-moon-silver.png",
         "width": 0,
         "height": 0,
         "label": "Pendant moon",
@@ -169,7 +169,7 @@ const DEFAULT_DATA = {
       {
         "id": 5,
         "kind": "jewelry-base",
-        "path": "/assets/generated/pendant3.png",
+        "path": "/assets/generated/pendant-drop-silver.png",
         "width": 0,
         "height": 0,
         "label": "Pendant drop",
@@ -182,7 +182,7 @@ const DEFAULT_DATA = {
       {
         "id": 6,
         "kind": "jewelry-base",
-        "path": "/assets/generated/earrings.png",
+        "path": "/assets/images/aurora-jewelry-hero.png",
         "width": 0,
         "height": 0,
         "label": "Earrings base",
@@ -254,7 +254,7 @@ const DEFAULT_DATA = {
       {
         "id": 12,
         "kind": "stone",
-        "path": "/assets/generated/heart_charm.png",
+        "path": "/assets/images/product-heart.png",
         "width": 0,
         "height": 0,
         "label": "Heart charm",
@@ -279,7 +279,7 @@ const DEFAULT_DATA = {
       {
         "id": 14,
         "kind": "jewelry-base",
-        "path": "/assets/generated/ring-solitaire.png",
+        "path": "/assets/generated/ring-solitaire-silver.png",
         "width": 0,
         "height": 0,
         "label": "Ring solitaire",
@@ -292,7 +292,7 @@ const DEFAULT_DATA = {
       {
         "id": 15,
         "kind": "jewelry-base",
-        "path": "/assets/generated/ring-duet.png",
+        "path": "/assets/generated/ring-duet-silver.png",
         "width": 0,
         "height": 0,
         "label": "Ring duet",
@@ -305,7 +305,7 @@ const DEFAULT_DATA = {
       {
         "id": 16,
         "kind": "jewelry-base",
-        "path": "/assets/generated/bracelet-line.png",
+        "path": "/assets/generated/bracelet-line-silver.png",
         "width": 0,
         "height": 0,
         "label": "Bracelet line",
@@ -318,7 +318,7 @@ const DEFAULT_DATA = {
       {
         "id": 17,
         "kind": "jewelry-base",
-        "path": "/assets/generated/bracelet-duet.png",
+        "path": "/assets/generated/bracelet-duet-silver.png",
         "width": 0,
         "height": 0,
         "label": "Bracelet duet",
@@ -331,7 +331,7 @@ const DEFAULT_DATA = {
       {
         "id": 18,
         "kind": "jewelry-base",
-        "path": "/assets/generated/earrings-stud.png",
+        "path": "/assets/images/aurora-jewelry-hero.png",
         "width": 0,
         "height": 0,
         "label": "Earrings stud",
@@ -344,7 +344,7 @@ const DEFAULT_DATA = {
       {
         "id": 19,
         "kind": "jewelry-base",
-        "path": "/assets/generated/earrings-arc.png",
+        "path": "/assets/images/aurora-jewelry-hero.png",
         "width": 0,
         "height": 0,
         "label": "Earrings arc",

@@ -1,6 +1,6 @@
 const express = require("express");
 const { asyncHandler } = require("../../middlewares/async-handler");
-const { getProductByIdOrSlug, listProducts } = require("./catalog.service");
+const { getProductByIdOrSlug, listProductFacets, listProducts } = require("./catalog.service");
 
 const catalogRouter = express.Router();
 
@@ -9,6 +9,14 @@ catalogRouter.get(
   asyncHandler(async (req, res) => {
     const products = await listProducts(req);
     res.json({ success: true, data: products });
+  })
+);
+
+catalogRouter.get(
+  "/products/facets",
+  asyncHandler(async (req, res) => {
+    const facets = await listProductFacets(req);
+    res.json({ success: true, data: facets });
   })
 );
 

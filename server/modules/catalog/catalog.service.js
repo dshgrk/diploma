@@ -4,9 +4,61 @@ const { createHttpError } = require("../../utils/http-error");
 const { resolveProductImage } = require("../../utils/product-image");
 const { FILTER_COLUMN_BY_KEY, normalizeCatalogQuery, serializeProductFilters } = require("./catalog.filters");
 
-async function listProducts(req) {
-  const locale = resolveLocale(req);
-  const query = db("products")
+const DEFAULT_CATALOG_PAGE_SIZE = 12;
+const MAX_CATALOG_PAGE_SIZE = 48;
+
+function normalizeCatalogPage(value) {
+  const page = Number.parseInt(String(value || "1"), 10);
+  return Number.isFinite(page) && page > 0 ? page : 1;
+}
+
+function normalizeCatalogLimit(value) {
+  const limit = Number.parseInt(String(value || DEFAULT_CATALOG_PAGE_SIZE), 10);
+  if (!Number.isFinite(limit) || limit <= 0) return DEFAULT_CATALOG_PAGE_SIZE;
+  return Math.min(limit, MAX_CATALOG_PAGE_SIZE);
+}
+
+function isPaginatedCatalogRequest(req) {
+  return req.query.page != null || req.query.limit != null || req.query.paginated === "true";
+}
+
+function applyCatalogFilters(query, req) {
+  if (req.query.jewelry_type) {
+    query.where("products.jewelry_type_id", Number(req.query.jewelry_type));
+  }
+
+  const { filters, priceMin, priceMax, sort } = normalizeCatalogQuery(req.query);
+  Object.entries(filters).forEach(([key, values]) => {
+    query.whereIn(FILTER_COLUMN_BY_KEY[key], values);
+  });
+
+  if (priceMin != null) {
+    query.andWhere("products.price", ">=", priceMin);
+  }
+
+  if (priceMax != null) {
+    query.andWhere("products.price", "<=", priceMax);
+  }
+
+  return { sort };
+}
+
+function applyCatalogSort(query, sort) {
+  if (sort === "price_asc") {
+    query.orderBy("price", "asc").orderBy("created_at", "desc");
+    return;
+  }
+
+  if (sort === "price_desc") {
+    query.orderBy("price", "desc").orderBy("created_at", "desc");
+    return;
+  }
+
+  query.orderBy("created_at", "desc");
+}
+
+function baseProductQuery() {
+  return db("products")
     .select(
       "id",
       "slug",
@@ -26,33 +78,9 @@ async function listProducts(req) {
       "created_at"
     )
     .where("is_active", true);
+}
 
-  if (req.query.jewelry_type) {
-    query.where("products.jewelry_type_id", Number(req.query.jewelry_type));
-  }
-
-  const { filters, priceMin, priceMax, sort } = normalizeCatalogQuery(req.query);
-  Object.entries(filters).forEach(([key, values]) => {
-    query.whereIn(FILTER_COLUMN_BY_KEY[key], values);
-  });
-
-  if (priceMin != null) {
-    query.andWhere("products.price", ">=", priceMin);
-  }
-
-  if (priceMax != null) {
-    query.andWhere("products.price", "<=", priceMax);
-  }
-
-  if (sort === "price_asc") {
-    query.orderBy("price", "asc").orderBy("created_at", "desc");
-  } else if (sort === "price_desc") {
-    query.orderBy("price", "desc").orderBy("created_at", "desc");
-  } else {
-    query.orderBy("created_at", "desc");
-  }
-
-  const records = await query;
+async function serializeCatalogProducts(records, locale) {
   const productIds = records.map((item) => item.id);
   const images = productIds.length
     ? await db("product_images").whereIn("product_id", productIds).andWhere({ is_primary: true })
@@ -75,6 +103,86 @@ async function listProducts(req) {
       thumbnail_url: resolveProductImage(imagesByProductId[localized.id]?.asset_path, localized.filter_type, localized.slug)
     };
   });
+}
+
+async function listProducts(req) {
+  const locale = resolveLocale(req);
+  const query = baseProductQuery();
+  const { sort } = applyCatalogFilters(query, req);
+  applyCatalogSort(query, sort);
+
+  if (!isPaginatedCatalogRequest(req)) {
+    return serializeCatalogProducts(await query, locale);
+  }
+
+  const page = normalizeCatalogPage(req.query.page);
+  const limit = normalizeCatalogLimit(req.query.limit);
+  const totalQuery = baseProductQuery().clearSelect().count({ total: "products.id" }).first();
+  applyCatalogFilters(totalQuery, req);
+
+  const [records, totalRecord] = await Promise.all([
+    query.limit(limit).offset((page - 1) * limit),
+    totalQuery
+  ]);
+  const totalItems = Number(totalRecord?.total || 0);
+  const totalPages = Math.max(1, Math.ceil(totalItems / limit));
+
+  return {
+    items: await serializeCatalogProducts(records, locale),
+    pageInfo: {
+      page,
+      limit,
+      totalItems,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPreviousPage: page > 1
+    }
+  };
+}
+
+async function listProductFacets(req) {
+  const query = db("products")
+    .select(
+      "filter_type",
+      "filter_metal",
+      "filter_stone_type",
+      "filter_stone_shape",
+      "filter_stone_color",
+      "filter_stone_size",
+      "filter_ring_size",
+      "filter_ring_type",
+      "filter_bracelet_length",
+      "price"
+    )
+    .where("is_active", true);
+  applyCatalogFilters(query, req);
+  const records = await query;
+  const facetColumnByKey = {
+    type: "filter_type",
+    metal: "filter_metal",
+    stoneType: "filter_stone_type",
+    stoneShape: "filter_stone_shape",
+    stoneColor: "filter_stone_color",
+    stoneSize: "filter_stone_size",
+    ringSize: "filter_ring_size",
+    ringType: "filter_ring_type",
+    braceletLength: "filter_bracelet_length"
+  };
+  const facets = Object.fromEntries(
+    Object.entries(facetColumnByKey).map(([key, column]) => [
+      key,
+      [...new Set(records.map((record) => record[column]).filter(Boolean))].sort((left, right) => String(left).localeCompare(String(right)))
+    ])
+  );
+  const prices = records.map((record) => Number(record.price || 0)).filter((price) => Number.isFinite(price));
+
+  return {
+    facets,
+    priceBounds: {
+      min: prices.length ? Math.min(...prices) : 0,
+      max: prices.length ? Math.max(...prices) : 0
+    }
+  };
 }
 
 async function getProductByIdOrSlug(identifier, req) {
@@ -117,4 +225,4 @@ async function getProductByIdOrSlug(identifier, req) {
   };
 }
 
-module.exports = { listProducts, getProductByIdOrSlug };
+module.exports = { listProducts, listProductFacets, getProductByIdOrSlug };

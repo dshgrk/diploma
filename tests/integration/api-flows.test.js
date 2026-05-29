@@ -212,6 +212,25 @@ describe("api flows", () => {
     ).toEqual([1, 2, 3, 4, 5, 6, 8]);
   });
 
+  test("constructor exposes lazy public endpoints for types, variants and variant options", async () => {
+    const app = createApp();
+
+    const typesResponse = await request(app).get("/api/constructor/types");
+    const variantsResponse = await request(app).get("/api/constructor/variants").query({ type_id: 1 });
+    const optionsResponse = await request(app).get("/api/constructor/variants/103/options");
+
+    expect(typesResponse.status).toBe(200);
+    expect(typesResponse.body.data.types.map((type) => type.code)).toEqual(expect.arrayContaining(["ring", "bracelet", "pendant", "earrings"]));
+    expect(variantsResponse.status).toBe(200);
+    expect(variantsResponse.body.data.variants.map((variant) => variant.code)).toEqual(["ring-solitaire", "ring-duet", "ring-trinity"]);
+    expect(optionsResponse.status).toBe(200);
+    expect(optionsResponse.body.data.variant.code).toBe("ring-duet");
+    expect(optionsResponse.body.data.type.code).toBe("ring");
+    expect(optionsResponse.body.data.slots.map((slot) => slot.code)).toEqual(["left", "right"]);
+    expect(optionsResponse.body.data.stones.map((stone) => stone.code)).toContain("diamond");
+    expect(optionsResponse.body.data).not.toHaveProperty("slotsByVariant");
+  });
+
   test("checkout endpoint rejects request without required agreements", async () => {
     const app = createApp();
     const agent = request.agent(app);
