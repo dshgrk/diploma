@@ -6112,73 +6112,112 @@ function ConstructorStudioPage() {
 
 function StudioSlotCanvasEditor({ variant, baseAssetUrl, slots, stones, previewSelections, selectedSlotId, onSelectSlot, onMoveSlot, onResizeSlot, onRotateSlot, onInteractionStart, onInteractionEnd }) {
   const boardRef = React.useRef(null);
+  const dragStateRef = React.useRef(null);
+  const boardRectRef = React.useRef(null);
+  const pendingFrameRef = React.useRef(null);
+  const latestPointerEventRef = React.useRef(null);
   const latestMoveRef = React.useRef(onMoveSlot);
   const latestResizeRef = React.useRef(onResizeSlot);
   const latestRotateRef = React.useRef(onRotateSlot);
+  const latestInteractionStartRef = React.useRef(onInteractionStart);
   const latestInteractionEndRef = React.useRef(onInteractionEnd);
-  const [dragState, setDragState] = useState(null);
 
   useEffect(() => {
     latestMoveRef.current = onMoveSlot;
     latestResizeRef.current = onResizeSlot;
     latestRotateRef.current = onRotateSlot;
+    latestInteractionStartRef.current = onInteractionStart;
     latestInteractionEndRef.current = onInteractionEnd;
-  }, [onMoveSlot, onResizeSlot, onRotateSlot, onInteractionEnd]);
+  }, [onMoveSlot, onResizeSlot, onRotateSlot, onInteractionStart, onInteractionEnd]);
 
-  useEffect(() => {
-    if (!dragState) return undefined;
-    function applyDragUpdate(activeDragState, event) {
-      if (!boardRef.current || !activeDragState) return;
-      const rect = boardRef.current.getBoundingClientRect();
-      if (activeDragState.mode === "move") {
-        const x = Math.max(0, Math.min(100, ((event.clientX - rect.left) / rect.width) * 100));
-        const y = Math.max(0, Math.min(100, ((event.clientY - rect.top) / rect.height) * 100));
-        latestMoveRef.current?.(activeDragState.slotId, { x, y });
-        return;
-      }
-      if (activeDragState.mode === "resize") {
-        const deltaX = (event.clientX - activeDragState.startClientX) / rect.width;
-        const deltaY = (event.clientY - activeDragState.startClientY) / rect.height;
-        const nextScaleX = Math.max(0.35, Math.min(3, activeDragState.startScaleX + deltaX * 3));
-        const nextScaleY = Math.max(0.35, Math.min(3, activeDragState.startScaleY + deltaY * 3));
-        latestResizeRef.current?.(activeDragState.slotId, {
-          scale_x: Number(nextScaleX.toFixed(2)),
-          scale_y: Number(nextScaleY.toFixed(2))
-        });
-        return;
-      }
-      if (activeDragState.mode === "rotate") {
-        const centerX = rect.left + (activeDragState.centerX / 100) * rect.width;
-        const centerY = rect.top + (activeDragState.centerY / 100) * rect.height;
-        const angle = Math.atan2(event.clientY - centerY, event.clientX - centerX) * (180 / Math.PI);
-        const nextRotation = ((angle + 90) % 360 + 360) % 360;
-        latestRotateRef.current?.(activeDragState.slotId, { rotation_deg: Number(nextRotation.toFixed(1)) });
-      }
+  useEffect(() => () => {
+    if (pendingFrameRef.current) {
+      window.cancelAnimationFrame(pendingFrameRef.current);
     }
+  }, []);
 
-    function handleMove(event) {
-      applyDragUpdate(dragState, event);
+  function applyDragUpdate(activeDragState, pointerPoint) {
+    const rect = boardRectRef.current;
+    if (!rect || !activeDragState || !pointerPoint) return;
+    if (activeDragState.mode === "move") {
+      const x = Math.max(0, Math.min(100, ((pointerPoint.clientX - rect.left) / rect.width) * 100));
+      const y = Math.max(0, Math.min(100, ((pointerPoint.clientY - rect.top) / rect.height) * 100));
+      latestMoveRef.current?.(activeDragState.slotId, { x, y });
+      return;
     }
-    function handleUp(event) {
-      const finalDragState = dragState;
-      if (finalDragState?.slotId) {
-        applyDragUpdate(finalDragState, event);
-        window.requestAnimationFrame(() => {
-          latestInteractionEndRef.current?.(finalDragState.slotId);
-        });
-      }
-      setDragState(null);
+    if (activeDragState.mode === "resize") {
+      const deltaX = (pointerPoint.clientX - activeDragState.startClientX) / rect.width;
+      const deltaY = (pointerPoint.clientY - activeDragState.startClientY) / rect.height;
+      const nextScaleX = Math.max(0.35, Math.min(3, activeDragState.startScaleX + deltaX * 3));
+      const nextScaleY = Math.max(0.35, Math.min(3, activeDragState.startScaleY + deltaY * 3));
+      latestResizeRef.current?.(activeDragState.slotId, {
+        scale_x: Number(nextScaleX.toFixed(2)),
+        scale_y: Number(nextScaleY.toFixed(2))
+      });
+      return;
     }
-    window.addEventListener("mousemove", handleMove);
-    window.addEventListener("mouseup", handleUp);
-    return () => {
-      window.removeEventListener("mousemove", handleMove);
-      window.removeEventListener("mouseup", handleUp);
+    if (activeDragState.mode === "rotate") {
+      const centerX = rect.left + (activeDragState.centerX / 100) * rect.width;
+      const centerY = rect.top + (activeDragState.centerY / 100) * rect.height;
+      const angle = Math.atan2(pointerPoint.clientY - centerY, pointerPoint.clientX - centerX) * (180 / Math.PI);
+      const nextRotation = ((angle + 90) % 360 + 360) % 360;
+      latestRotateRef.current?.(activeDragState.slotId, { rotation_deg: Number(nextRotation.toFixed(1)) });
+    }
+  }
+
+  function scheduleDragUpdate(event) {
+    latestPointerEventRef.current = { clientX: event.clientX, clientY: event.clientY };
+    if (pendingFrameRef.current) return;
+    pendingFrameRef.current = window.requestAnimationFrame(() => {
+      pendingFrameRef.current = null;
+      applyDragUpdate(dragStateRef.current, latestPointerEventRef.current);
+    });
+  }
+
+  function beginDrag(event, slot, mode, extraState = {}) {
+    event.preventDefault();
+    event.stopPropagation();
+    const board = boardRef.current;
+    if (!board) return;
+    onSelectSlot(slot.id);
+    latestInteractionStartRef.current?.();
+    boardRectRef.current = board.getBoundingClientRect();
+    dragStateRef.current = {
+      mode,
+      slotId: slot.id,
+      pointerId: event.pointerId,
+      ...extraState
     };
-  }, [dragState]);
+    latestPointerEventRef.current = { clientX: event.clientX, clientY: event.clientY };
+    board.setPointerCapture?.(event.pointerId);
+    applyDragUpdate(dragStateRef.current, latestPointerEventRef.current);
+  }
+
+  function handlePointerMove(event) {
+    if (!dragStateRef.current || dragStateRef.current.pointerId !== event.pointerId) return;
+    event.preventDefault();
+    scheduleDragUpdate(event);
+  }
+
+  function handlePointerUp(event) {
+    const finalDragState = dragStateRef.current;
+    if (!finalDragState || finalDragState.pointerId !== event.pointerId) return;
+    event.preventDefault();
+    if (pendingFrameRef.current) {
+      window.cancelAnimationFrame(pendingFrameRef.current);
+      pendingFrameRef.current = null;
+    }
+    const finalPointerPoint = { clientX: event.clientX, clientY: event.clientY };
+    latestPointerEventRef.current = finalPointerPoint;
+    applyDragUpdate(finalDragState, finalPointerPoint);
+    boardRef.current?.releasePointerCapture?.(event.pointerId);
+    dragStateRef.current = null;
+    boardRectRef.current = null;
+    latestInteractionEndRef.current?.(finalDragState.slotId);
+  }
 
   return (
-    <div className="studio-editor-square" ref={boardRef}>
+    <div className="studio-editor-square" ref={boardRef} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerCancel={handlePointerUp}>
       {baseAssetUrl ? <img className="studio-editor-base" src={baseAssetUrl} alt="" aria-hidden="true" /> : null}
       {slots.map((slot) => {
         const stone = stones[previewSelections?.[slot.code]];
@@ -6189,11 +6228,7 @@ function StudioSlotCanvasEditor({ variant, baseAssetUrl, slots, stones, previewS
             className={`studio-editor-slot${String(selectedSlotId) === String(slot.id) ? " is-active" : ""}${slot.layer_mode === "below" ? " is-below" : " is-above"}`}
             style={previewStoneStyle(slot, stone || null, "preview", { includeRotation: true })}
             onClick={() => onSelectSlot(slot.id)}
-            onMouseDown={() => {
-              onSelectSlot(slot.id);
-              onInteractionStart?.();
-              setDragState({ mode: "move", slotId: slot.id });
-            }}
+            onPointerDown={(event) => beginDrag(event, slot, "move")}
             title={slot.code}
           >
             <span>{slot.code}</span>
@@ -6201,19 +6236,14 @@ function StudioSlotCanvasEditor({ variant, baseAssetUrl, slots, stones, previewS
               type="button"
               className="studio-slot-scale-handle"
               aria-label={`Resize ${slot.code}`}
-              onMouseDown={(event) => {
-                event.stopPropagation();
-                onSelectSlot(slot.id);
-                onInteractionStart?.();
-                setDragState({
-                  mode: "resize",
-                  slotId: slot.id,
+              onPointerDown={(event) => {
+                beginDrag(event, slot, "resize", {
                   startClientX: event.clientX,
                   startClientY: event.clientY,
-                    startScaleX: Number(slot.scale_x || 1),
-                    startScaleY: Number(slot.scale_y || 1)
-                  });
-                }}
+                  startScaleX: Number(slot.scale_x || 1),
+                  startScaleY: Number(slot.scale_y || 1)
+                });
+              }}
               >
               ↘
             </button>
@@ -6221,13 +6251,8 @@ function StudioSlotCanvasEditor({ variant, baseAssetUrl, slots, stones, previewS
               type="button"
               className="studio-slot-rotate-handle"
               aria-label={`Rotate ${slot.code}`}
-              onMouseDown={(event) => {
-                event.stopPropagation();
-                onSelectSlot(slot.id);
-                onInteractionStart?.();
-                setDragState({
-                  mode: "rotate",
-                  slotId: slot.id,
+              onPointerDown={(event) => {
+                beginDrag(event, slot, "rotate", {
                   centerX: Number(slot.x || 50),
                   centerY: Number(slot.y || 50)
                 });
@@ -6624,6 +6649,7 @@ function StudioAdminConstructorPage() {
   const [stoneForm2, setStoneForm2] = useState(null);
   const [assetUploadState, setAssetUploadState] = useState({ label: "", kind: "jewelry-base", tags: "" });
   const [isSaving, setIsSaving] = useState(false);
+  const [slotSaveStatus, setSlotSaveStatus] = useState("idle");
   const [pendingDelete, setPendingDelete] = useState(null);
   const [slotInteractionActive, setSlotInteractionActive] = useState(false);
   const slotFormRef = React.useRef(null);
@@ -6652,6 +6678,11 @@ function StudioAdminConstructorPage() {
       "rotation_deg",
       "layer_mode"
     ];
+  }
+
+  function slotDraftMatches(left, right) {
+    if (!left || !right) return false;
+    return slotDraftComparableKeys().every((key) => String(left[key] ?? "") === String(right[key] ?? ""));
   }
 
   function findCurrentVariantSlotById(slotId) {
@@ -6919,13 +6950,44 @@ function StudioAdminConstructorPage() {
     slotAutosaveTimerRef.current = null;
   }
 
+  function patchStudioSlot(savedSlot, snapshot) {
+    const savedDraft = cloneSlotDraft(savedSlot);
+    setStudio((currentStudio) => {
+      if (!currentStudio) return currentStudio;
+      const slots = currentStudio.slots || [];
+      const existingIndex = slots.findIndex((slot) => String(slot.id) === String(savedDraft.id));
+      const nextSlots = existingIndex === -1
+        ? [...slots, savedDraft]
+        : slots.map((slot) => (String(slot.id) === String(savedDraft.id) ? { ...slot, ...savedDraft } : slot));
+      return { ...currentStudio, slots: nextSlots };
+    });
+
+    const latestDraft = slotFormRef.current;
+    const snapshotId = String(snapshot?.id || "");
+    const latestId = String(latestDraft?.id || "");
+    const latestStillMatchesSavedRequest = latestDraft && (latestId === snapshotId || !snapshotId) && slotDraftMatches(latestDraft, snapshot);
+    if (latestStillMatchesSavedRequest) {
+      setSelectedSlotId(String(savedDraft.id));
+      slotFormRef.current = savedDraft;
+      setSlotForm(savedDraft);
+      slotDraftDirtyRef.current = false;
+    } else if (!snapshot?.id && savedDraft.id && latestDraft && !latestDraft.id && slotDraftMatches(latestDraft, snapshot)) {
+      const nextDraft = { ...latestDraft, id: savedDraft.id };
+      setSelectedSlotId(String(savedDraft.id));
+      slotFormRef.current = nextDraft;
+      setSlotForm(nextDraft);
+    }
+  }
+
   async function performSlotPersist(snapshot, options = {}) {
     if (!snapshot || !currentVariantAdmin) return true;
     const persistedSlot = snapshot.id ? findCurrentVariantSlotById(snapshot.id) : null;
     if (!options.force && !isSlotDraftDirtyAgainstStudio(snapshot) && persistedSlot) {
+      setSlotSaveStatus("saved");
       return true;
     }
     slotSaveInFlightRef.current = true;
+    setSlotSaveStatus("saving");
     setIsSaving(true);
     setError("");
     try {
@@ -6933,31 +6995,28 @@ function StudioAdminConstructorPage() {
       const saved = snapshot.id
         ? await adminCatalogApi.updateSlot(snapshot.id, payload)
         : await adminCatalogApi.createSlot(payload);
-      const preservedDraft = slotFormRef.current;
-      await loadStudio({
-        section: "jewelry",
-        jewelryStep: "editor",
-        editorSubview,
-        selectedTypeId,
-        selectedVariantId,
-        selectedSlotId: saved.id,
-        selectedStoneId: ""
-      });
-      const latestDraft = slotFormRef.current;
-      const savedDraft = cloneSlotDraft(saved);
-      const latestMatchesSnapshot = latestDraft && String(latestDraft.id || "") === String(snapshot.id || "") && slotDraftComparableKeys().every((key) => String(latestDraft[key] ?? "") === String(snapshot[key] ?? ""));
-      if (!latestDraft || latestMatchesSnapshot || (preservedDraft && String(preservedDraft.id || "") === String(snapshot.id || "") && !slotDraftDirtyRef.current)) {
-        setSelectedSlotId(String(saved.id));
-        setSlotForm(savedDraft);
-        slotFormRef.current = savedDraft;
+      if (options.reload) {
+        await loadStudio({
+          section: "jewelry",
+          jewelryStep: "editor",
+          editorSubview,
+          selectedTypeId,
+          selectedVariantId,
+          selectedSlotId: saved.id,
+          selectedStoneId: ""
+        });
+      } else {
+        patchStudioSlot(saved, snapshot);
       }
       if (!options.silent) {
         setNotice("Слот збережено");
       }
+      setSlotSaveStatus("saved");
       lastCanvasInteractionDraftRef.current = null;
       return true;
     } catch (err) {
       setError(err.message);
+      setSlotSaveStatus("error");
       return false;
     } finally {
       slotSaveInFlightRef.current = false;
@@ -6996,7 +7055,8 @@ function StudioAdminConstructorPage() {
       snapshot,
       options: {
         force: Boolean(options.force),
-        silent: options.silent !== false
+        silent: options.silent !== false,
+        reload: Boolean(options.reload)
       }
     };
     return flushQueuedSlotPersists();
@@ -7006,10 +7066,11 @@ function StudioAdminConstructorPage() {
     const snapshot = cloneSlotDraft(draftInput ?? slotFormRef.current);
     if (!snapshot) return;
     clearSlotAutosaveTimer();
+    setSlotSaveStatus(options.status || "waiting");
     slotAutosaveTimerRef.current = window.setTimeout(() => {
       slotAutosaveTimerRef.current = null;
       void persistSlotDraft(snapshot, { silent: true, force: options.force });
-    }, options.delay ?? 450);
+    }, options.delay ?? 500);
   }
 
   async function flushSlotDraftBeforeNavigation() {
@@ -7040,6 +7101,15 @@ function StudioAdminConstructorPage() {
     await saveCurrentSlotDraft({ silent: false, force: true });
   }
 
+  function slotSaveStatusLabel() {
+    if (slotInteractionActive || slotSaveStatus === "dirty") return "Чернетка";
+    if (slotSaveStatus === "waiting") return "Збереження через 0.5с";
+    if (slotSaveStatus === "saving") return "Збереження...";
+    if (slotSaveStatus === "saved") return "Збережено";
+    if (slotSaveStatus === "error") return "Помилка збереження";
+    return "Готово";
+  }
+
   async function commitSlotIfDirty(slotId) {
     clearSlotAutosaveTimer();
     const draft = slotFormRef.current;
@@ -7062,12 +7132,25 @@ function StudioAdminConstructorPage() {
     setSlotForm(nextDraft);
   }
 
+  function selectSlotDraftLocally(slotId) {
+    const nextSlot = currentSlotsAdmin.find((item) => String(item.id) === String(slotId)) || null;
+    if (!nextSlot) return;
+    setSelectedSlotId(String(slotId));
+    if (String(slotFormRef.current?.id || "") === String(slotId)) return;
+    const nextDraft = cloneSlotDraft(nextSlot);
+    slotFormRef.current = nextDraft;
+    setSlotForm(nextDraft);
+    setSlotSaveStatus("idle");
+  }
+
   function applySlotDraftSnapshot(nextDraft, options = {}) {
     const snapshot = cloneSlotDraft(nextDraft);
     slotFormRef.current = snapshot;
     setSlotForm(snapshot);
+    slotDraftDirtyRef.current = true;
+    setSlotSaveStatus(options.status || "dirty");
     if (options.autosave !== false && !slotInteractionActive) {
-      queueSlotAutosave(snapshot, { delay: options.delay, force: options.force });
+      queueSlotAutosave(snapshot, { delay: options.delay ?? 500, force: options.force });
     }
     return snapshot;
   }
@@ -7832,7 +7915,7 @@ function StudioAdminConstructorPage() {
                 <button type="button" className="small-button button-secondary-strong" onClick={() => void startNewSlot()}>Новий слот</button>
                 <button type="button" className="small-button button-secondary-strong" disabled={!currentSlotAdmin?.id || isSaving} onClick={duplicateCurrentSlot}>Дублювати слот</button>
                 <button type="button" className="small-button button-secondary-strong" disabled={!currentSlotAdmin?.id || isSaving} onClick={deleteSlotAdmin}>Видалити слот</button>
-                <button type="button" className={`small-button button-save-slot${slotDraftDirty ? " is-dirty" : ""}`} disabled={isSaving || !slotDraftDirty} onClick={saveSlot}>{isSaving ? "Збереження..." : "Зберегти слот"}</button>
+                <button type="button" className={`small-button button-save-slot${slotDraftDirty ? " is-dirty" : ""}`} disabled={isSaving || !slotDraftDirty} onClick={saveSlot}>{slotSaveStatus === "saving" ? "Збереження..." : "Зберегти слот"}</button>
               </div>
             </div>
             <div className="studio-editor-layout">
@@ -7885,10 +7968,11 @@ function StudioAdminConstructorPage() {
                   stones={stonesByCodeAdmin}
                   previewSelections={previewSelections}
                   selectedSlotId={currentSlotAdmin?.id}
-                  onSelectSlot={(slotId) => void selectSlotDraft(slotId)}
+                  onSelectSlot={selectSlotDraftLocally}
                   onInteractionStart={() => {
                     clearSlotAutosaveTimer();
                     setSlotInteractionActive(true);
+                    setSlotSaveStatus("dirty");
                   }}
                   onMoveSlot={(slotId, point) => {
                     const baseDraft = String(slotFormRef.current?.id) === String(slotId)
@@ -7914,18 +7998,19 @@ function StudioAdminConstructorPage() {
                     setSelectedSlotId(String(slotId));
                     lastCanvasInteractionDraftRef.current = updateSlotFormDraft({ ...baseDraft, ...rotationPatch }, { autosave: false });
                   }}
-                  onInteractionEnd={async (slotId) => {
+                  onInteractionEnd={(slotId) => {
                     const finalSnapshot = cloneSlotDraft(lastCanvasInteractionDraftRef.current || slotFormRef.current);
                     lastCanvasInteractionDraftRef.current = null;
                     setSlotInteractionActive(false);
                     if (!finalSnapshot) return;
                     if (slotId && finalSnapshot.id && String(finalSnapshot.id) !== String(slotId)) return;
-                    await persistSlotDraft(finalSnapshot, { silent: true, force: true });
+                    queueSlotAutosave(finalSnapshot, { delay: 500, force: true });
                   }}
                 />
                 <div className="studio-stage-footer">
                   <span>Обраний слот: {adminLocalizedEntry(currentSlotAdmin?.label_uk, currentSlotAdmin?.label_en, slotForm.code || "Новий слот")}</span>
                   <span>{Number(slotForm.x || 0).toFixed(1)}% / {slotStoredYToDisplayY(slotForm.y || 0).toFixed(1)}%</span>
+                  <span className={`studio-slot-save-status is-${slotSaveStatus}`}>{slotSaveStatusLabel()}</span>
                 </div>
               </div>
 

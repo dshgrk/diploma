@@ -4127,6 +4127,8 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 500; color: var(
     linear-gradient(rgba(255,255,255,0.48), rgba(255,255,255,0.48)),
     repeating-linear-gradient(0deg, rgba(174,138,87,0.08) 0, rgba(174,138,87,0.08) 1px, transparent 1px, transparent 44px),
     repeating-linear-gradient(90deg, rgba(174,138,87,0.08) 0, rgba(174,138,87,0.08) 1px, transparent 1px, transparent 44px);
+  touch-action: none;
+  user-select: none;
 }
 
 .studio-preview-base,
@@ -4248,6 +4250,31 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 500; color: var(
 
 .studio-slot-rotate-handle:active {
   cursor: grabbing;
+}
+
+.studio-slot-save-status {
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.studio-slot-save-status.is-dirty,
+.studio-slot-save-status.is-waiting {
+  color: var(--gold-strong);
+}
+
+.studio-slot-save-status.is-saving {
+  color: var(--espresso);
+}
+
+.studio-slot-save-status.is-saved {
+  color: #4f7f5a;
+}
+
+.studio-slot-save-status.is-error {
+  color: #a5483f;
 }
 
 .studio-preview-empty {
