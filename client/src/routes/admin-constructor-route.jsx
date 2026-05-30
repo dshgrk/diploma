@@ -3106,6 +3106,119 @@ function adminLocalizedEntry(primary, fallback, finalValue = "") {
   return primary || fallback || finalValue;
 }
 
+const ADMIN_CONSTRUCTOR_CODE_LABELS = {
+  none: "Без каменю",
+  pearl: "Перлина",
+  onyx: "Онікс",
+  rose_quartz: "Рожевий кварц",
+  garnet: "Гранат",
+  opal: "Опал",
+  diamond: "Діамант",
+  heart_charm: "Шарм серце",
+  center: "Центр",
+  left: "Ліворуч",
+  right: "Праворуч",
+  silver: "Срібло",
+  gold: "Золото",
+  rose_gold: "Рожеве золото",
+  heart: "Серце",
+  moon: "Місяць",
+  drop: "Крапля",
+  solitaire: "Один камінь",
+  duet: "Два камені",
+  trinity: "Три камені",
+  orbit: "Орбіта",
+  line: "Три камені",
+  stud: "Пусети",
+  arc: "Дуга"
+};
+
+function adminConstructorCodeLabel(code) {
+  const normalized = String(code || "").trim().toLowerCase();
+  if (!normalized) return "";
+  if (ADMIN_CONSTRUCTOR_CODE_LABELS[normalized]) return ADMIN_CONSTRUCTOR_CODE_LABELS[normalized];
+  const slotMatch = normalized.match(/^slot-(\d+)$/);
+  if (slotMatch) return `Слот ${slotMatch[1]}`;
+  const stoneMatch = normalized.match(/^stone-(\d+)$/);
+  if (stoneMatch) return `Камінь ${stoneMatch[1]}`;
+  const sizeMatch = normalized.match(/^size-(\d+)$/);
+  if (sizeMatch) return `Розмір ${sizeMatch[1]}`;
+  return String(code || "").replace(/[_-]+/g, " ").trim();
+}
+
+function adminConstructorTypeName(type, fallback = "Тип прикраси") {
+  if (!type) return fallback;
+  return type.name_uk || adminTypeCodeLabel(type.code) || adminConstructorCodeLabel(type.code) || fallback;
+}
+
+function adminConstructorVariantName(variant, typeCode = "") {
+  if (!variant) return "";
+  if (variant.name_uk) return variant.name_uk;
+  const typeLabel = adminTypeCodeLabel(typeCode || variant.group || "");
+  const subtypeLabel = adminConstructorCodeLabel(variant.subtype);
+  if (typeLabel && subtypeLabel) return `${typeLabel} ${subtypeLabel}`;
+  return typeLabel || adminConstructorCodeLabel(variant.code) || variant.code || "";
+}
+
+function adminConstructorSlotName(slot, fallback = "") {
+  if (!slot) return fallback;
+  return slot.label_uk || adminConstructorCodeLabel(slot.code) || fallback;
+}
+
+function adminConstructorStoneName(stone, fallback = "") {
+  if (!stone) return fallback;
+  return stone.name_uk || adminConstructorCodeLabel(stone.code) || fallback;
+}
+
+function adminConstructorMaterialName(material, fallback = "") {
+  if (!material) return fallback;
+  return material.name_uk || adminConstructorCodeLabel(material.code) || fallback;
+}
+
+function adminConstructorSizeName(size, fallback = "") {
+  if (!size) return fallback;
+  return size.label_uk || adminConstructorCodeLabel(size.code) || fallback;
+}
+
+function adminConstructorAssetName(asset, options = {}) {
+  if (!asset) return "";
+  const { variants = [], types = [], stones = [] } = options;
+  const assetPath = String(asset.path || "")
+    .split("/")
+    .pop()
+    ?.replace(/\.[^.]+$/, "") || "";
+  const assetLabel = String(asset.label || "").trim().toLowerCase();
+  const normalizedBaseName = assetPath.toLowerCase().replace(/-(silver|gold|rose-gold|rose_gold)$/, "");
+  const normalizedLabelName = assetLabel.replace(/\s+/g, "-").replace(/_/g, "-");
+  const variantCandidates = [...new Set([normalizedBaseName.replace(/_/g, "-"), normalizedLabelName])].filter(Boolean);
+  const stoneAliasMap = {
+    "heart-charm": "heart_charm",
+    "product-heart": "heart_charm",
+    diamind: "diamond"
+  };
+  const stoneCandidates = [...new Set([normalizedBaseName, normalizedLabelName])]
+    .map((value) => stoneAliasMap[value] || value.replace(/-/g, "_"))
+    .filter(Boolean);
+  const matchingVariant = variants.find((variant) =>
+    variantCandidates.includes(String(variant.code || "").toLowerCase())
+  );
+  if (matchingVariant) {
+    const variantTypeCode = types.find((type) => String(type.id) === String(matchingVariant.type_id))?.code || "";
+    return adminConstructorVariantName(matchingVariant, variantTypeCode) || asset.label || assetPath;
+  }
+  const matchingStone = stones.find((stone) => stoneCandidates.includes(String(stone.code || "").toLowerCase()));
+  if (matchingStone) {
+    return adminConstructorStoneName(matchingStone, asset.label || assetPath);
+  }
+  const stoneCodeFallback = stoneCandidates
+    .map((candidate) => adminConstructorCodeLabel(candidate))
+    .find(Boolean);
+  if (stoneCodeFallback) {
+    return stoneCodeFallback;
+  }
+  return asset.label || assetPath;
+}
+
 function OrdersPage() {
   const [orders, setOrders] = useState(null);
   const [loadError, setLoadError] = useState("");
@@ -7632,7 +7745,7 @@ function StudioAdminConstructorPage() {
     if (jewelryStep !== "types" && currentTypeAdmin) {
       breadcrumbs.push({
         key: `type-${currentTypeAdmin.id}`,
-        label: selectedTypeCard?.[1] || currentTypeAdmin.name_uk || currentTypeAdmin.name_en,
+        label: selectedTypeCard?.[1] || adminConstructorTypeName(currentTypeAdmin),
         isActive: jewelryStep === "variants",
         onClick: () => void navigateAfterSlotPersist({
           section: "jewelry",
@@ -7647,7 +7760,7 @@ function StudioAdminConstructorPage() {
     if (jewelryStep === "editor" && currentVariantAdmin) {
       breadcrumbs.push({
         key: `variant-${currentVariantAdmin.id}`,
-        label: adminLocalizedEntry(currentVariantAdmin.name_uk, currentVariantAdmin.name_en, currentVariantAdmin.code),
+        label: adminConstructorVariantName(currentVariantAdmin, currentTypeAdmin?.code),
         isActive: true,
         onClick: () => void navigateAfterSlotPersist({
           section: "jewelry",
@@ -7670,7 +7783,7 @@ function StudioAdminConstructorPage() {
     if (stoneStep === "editor" && stoneForm2) {
       breadcrumbs.push({
         key: `stone-${stoneForm2.id || stoneForm2.code || "new"}`,
-        label: adminLocalizedEntry(stoneForm2.name_uk, stoneForm2.name_en, stoneForm2.code || "Новий камінь"),
+        label: adminConstructorStoneName(stoneForm2, stoneForm2.code || "Новий камінь"),
         isActive: true,
         onClick: () => void navigateAfterSlotPersist({
           section: "stones",
@@ -7696,7 +7809,7 @@ function StudioAdminConstructorPage() {
     if (currentTypeAdmin) {
       breadcrumbs.push({
         key: `pricing-type-${currentTypeAdmin.id}`,
-        label: selectedTypeCard?.[1] || currentTypeAdmin.name_uk || currentTypeAdmin.name_en,
+        label: selectedTypeCard?.[1] || adminConstructorTypeName(currentTypeAdmin),
         isActive: Boolean(currentTypeAdmin && !currentVariantAdmin),
         onClick: () => void navigateAfterSlotPersist({
           section: "pricing",
@@ -7708,7 +7821,7 @@ function StudioAdminConstructorPage() {
     if (currentVariantAdmin) {
       breadcrumbs.push({
         key: `pricing-variant-${currentVariantAdmin.id}`,
-        label: adminLocalizedEntry(currentVariantAdmin.name_uk, currentVariantAdmin.name_en, currentVariantAdmin.code),
+        label: adminConstructorVariantName(currentVariantAdmin, currentTypeAdmin?.code),
         isActive: true,
         onClick: () => void navigateAfterSlotPersist({
           section: "pricing",
@@ -7747,7 +7860,7 @@ function StudioAdminConstructorPage() {
               <div className="admin-layout-row" key={"matrix-" + stone.id}>
                 <div className="admin-stone-row is-active" style={{ gridTemplateColumns: "56px 1fr", border: 0, padding: 0, background: "transparent" }}>
                   <span className="admin-stone-thumb" style={stone.asset_url ? { backgroundImage: 'url(' + stone.asset_url + ')', backgroundSize: "90%", backgroundPosition: "center center", backgroundRepeat: "no-repeat" } : undefined} />
-                  <div><strong>{adminLocalizedEntry(stone.name_uk, stone.name_en, stone.code)}</strong><span>{stone.code}</span></div>
+                  <div><strong>{adminConstructorStoneName(stone, stone.code)}</strong><span>{stone.code}</span></div>
                 </div>
                 <div className="admin-layout-inputs">
                   <label><span>Увімкнено</span><input type="checkbox" checked={entry.is_enabled} onChange={(e) => onUpdate(entry, { is_enabled: e.target.checked })} /></label>
@@ -7793,7 +7906,7 @@ function StudioAdminConstructorPage() {
             {types.map((type) => (
               <button key={type.id} type="button" className="studio-home-card" onClick={() => openType(type.id)}>
                 <span className="studio-kicker">Тип прикраси</span>
-                <strong>{jewelryTypes.find(([code]) => code === type.code)?.[1] || type.name_uk || type.name_en}</strong>
+                <strong>{jewelryTypes.find(([code]) => code === type.code)?.[1] || adminConstructorTypeName(type)}</strong>
                 <p>{(studio?.variants || []).filter((item) => String(item.type_id) === String(type.id)).length} варіантів</p>
               </button>
             ))}
@@ -7872,7 +7985,7 @@ function StudioAdminConstructorPage() {
                   </div>
                   <div className="studio-variant-copy">
                     <span className="studio-kicker">{selectedTypeCard?.[1] || currentTypeAdmin?.name_uk}</span>
-                    <strong>{adminLocalizedEntry(variant.name_uk, variant.name_en, variant.code)}</strong>
+                    <strong>{adminConstructorVariantName(variant, currentTypeAdmin?.code)}</strong>
                     <p>{slotCount} слотів</p>
                   </div>
                 </button>
@@ -7932,7 +8045,7 @@ function StudioAdminConstructorPage() {
             <div className="admin-panel-head">
               <div>
                 <h2>Редактор прикраси</h2>
-                <p className="admin-panel-copy">Налаштування посадкових місць каменів для варіанта {adminLocalizedEntry(currentVariantAdmin.name_uk, currentVariantAdmin.name_en, currentVariantAdmin.code)}.</p>
+                <p className="admin-panel-copy">Налаштування посадкових місць каменів для варіанта {adminConstructorVariantName(currentVariantAdmin, currentTypeAdmin?.code)}.</p>
               </div>
               <div className="admin-chip-row">
                 <button type="button" className="small-button button-secondary-strong" onClick={() => void openSection("stones")}>Усі камені</button>
@@ -7946,15 +8059,15 @@ function StudioAdminConstructorPage() {
               <aside className="studio-outline-panel">
                 <div className="studio-mini-card">
                   <span className="studio-kicker">Варіант</span>
-                  <strong>{adminLocalizedEntry(currentVariantAdmin.name_uk, currentVariantAdmin.name_en, currentVariantAdmin.code)}</strong>
-                  <p>{currentSlotsAdmin.length} слотів, асет {assetsById[currentVariantAdmin.base_asset_id]?.label || "не вибрано"}.</p>
+                  <strong>{adminConstructorVariantName(currentVariantAdmin, currentTypeAdmin?.code)}</strong>
+                  <p>{currentSlotsAdmin.length} слотів, асет {currentVariantAdmin.code || "не вибрано"}.</p>
                 </div>
                 <div className="studio-outline-list">
                   {currentSlotsAdmin.map((slot, index) => (
                       <button key={slot.id} type="button" className={"studio-outline-item" + (String(currentSlotAdmin?.id) === String(slot.id) ? " is-active" : "")} onClick={() => void selectSlotDraft(slot.id)}>
                       <span className="studio-outline-badge">{index + 1}</span>
                       <div>
-                        <strong>{adminLocalizedEntry(slot.label_uk, slot.label_en, slot.code)}</strong>
+                        <strong>{adminConstructorSlotName(slot, slot.code)}</strong>
                         <span>{Math.round(slot.x)} x {Math.round(slot.y)} · {slot.layer_mode}</span>
                       </div>
                     </button>
@@ -7973,7 +8086,7 @@ function StudioAdminConstructorPage() {
                     {availableVariantPreviewStones.map((stone) => (
                       <button key={"palette-" + stone.id} type="button" className={"studio-stone-choice" + (selectedPreviewStoneCode === stone.code ? " is-active" : "")} onClick={() => void updateSelectedSlotPreview(stone.code)}>
                         <span className="studio-stone-choice-thumb" style={stone.asset_url ? { backgroundImage: 'url(' + stone.asset_url + ')' } : undefined} />
-                        <strong>{adminLocalizedEntry(stone.name_uk, stone.name_en, stone.code)}</strong>
+                        <strong>{adminConstructorStoneName(stone, stone.code)}</strong>
                       </button>
                     ))}
                   </div>
@@ -8032,7 +8145,7 @@ function StudioAdminConstructorPage() {
                   }}
                 />
                 <div className="studio-stage-footer">
-                  <span>Обраний слот: {adminLocalizedEntry(currentSlotAdmin?.label_uk, currentSlotAdmin?.label_en, slotForm.code || "Новий слот")}</span>
+                  <span>Обраний слот: {adminConstructorSlotName(currentSlotAdmin, slotForm.code || "Новий слот")}</span>
                   <span>{Number(slotForm.x || 0).toFixed(1)}% / {slotStoredYToDisplayY(slotForm.y || 0).toFixed(1)}%</span>
                   <span className={`studio-slot-save-status is-${slotSaveStatus}`}>{slotSaveStatusLabel()}</span>
                 </div>
@@ -8041,11 +8154,11 @@ function StudioAdminConstructorPage() {
               <aside className="studio-inspector-panel">
                 <div className="studio-mini-card">
                   <span className="studio-kicker">Інспектор</span>
-                  <strong>{currentSlotAdmin?.code || "Чернетка нового слота"}</strong>
+                  <strong>{adminConstructorSlotName(currentSlotAdmin, "Чернетка нового слота")}</strong>
                   <p>Точні координати, розмір посадкового кола та шар каменю. У полі Y більше значення означає вище.</p>
                 </div>
                 <div className="admin-form-grid compact">
-                  <label><span>Code</span><input value={slotForm.code || ""} onChange={(e) => updateSlotFormDraft((current) => ({ ...current, code: e.target.value }))} /></label>
+                  <label><span>Код</span><input value={slotForm.code || ""} onChange={(e) => updateSlotFormDraft((current) => ({ ...current, code: e.target.value }))} /></label>
                   <label><span>Сортування</span><input type="number" value={slotForm.sort_order || 0} onChange={(e) => updateSlotFormDraft((current) => ({ ...current, sort_order: Number(e.target.value) }))} /></label>
                   <label><span>Назва UK</span><input value={slotForm.label_uk || ""} onChange={(e) => updateSlotFormDraft((current) => ({ ...current, label_uk: e.target.value }))} /></label>
                   <label><span>Назва EN</span><input value={slotForm.label_en || ""} onChange={(e) => updateSlotFormDraft((current) => ({ ...current, label_en: e.target.value }))} /></label>
@@ -8060,7 +8173,7 @@ function StudioAdminConstructorPage() {
                     <span>Камінь для попереднього перегляду</span>
                     <select value={selectedPreviewStoneCode} onChange={(e) => void updateSelectedSlotPreview(e.target.value)}>
                       <option value="none">Без каменю</option>
-                      {availableVariantPreviewStones.map((stone) => <option key={"preview-stone-" + stone.id} value={stone.code}>{adminLocalizedEntry(stone.name_uk, stone.name_en, stone.code)}</option>)}
+                      {availableVariantPreviewStones.map((stone) => <option key={"preview-stone-" + stone.id} value={stone.code}>{adminConstructorStoneName(stone, stone.code)}</option>)}
                     </select>
                   </label>
                 </div>
@@ -8128,7 +8241,7 @@ function StudioAdminConstructorPage() {
                 <h3>Варіант</h3>
                 {variantForm ? (
                   <div className="admin-form-grid compact">
-                    <label><span>Code</span><input value={variantForm?.code || ""} onChange={(e) => setVariantForm((current) => ({ ...(current || {}), code: e.target.value }))} /></label>
+                    <label><span>Код</span><input value={variantForm?.code || ""} onChange={(e) => setVariantForm((current) => ({ ...(current || {}), code: e.target.value }))} /></label>
                     <label><span>Підтип</span><input value={variantForm?.subtype || ""} onChange={(e) => setVariantForm((current) => ({ ...(current || {}), subtype: e.target.value }))} /></label>
                     <label><span>Група</span><input value={variantForm?.group || ""} onChange={(e) => setVariantForm((current) => ({ ...(current || {}), group: e.target.value }))} /></label>
                     <label><span>Сортування</span><input type="number" value={variantForm?.sort_order || 0} onChange={(e) => setVariantForm((current) => ({ ...(current || {}), sort_order: Number(e.target.value) }))} /></label>
@@ -8144,7 +8257,7 @@ function StudioAdminConstructorPage() {
               <div className="admin-cardish">
                 <h3>Тип прикраси</h3>
                 <div className="admin-form-grid compact">
-                  <label><span>Code</span><input value={typeForm.code || ""} onChange={(e) => updateTypeField("code", e.target.value)} /></label>
+                  <label><span>Код</span><input value={typeForm.code || ""} onChange={(e) => updateTypeField("code", e.target.value)} /></label>
                   <label><span>Базова ціна</span><input type="number" value={typeForm.base_price || 0} onChange={(e) => updateTypeField("base_price", Number(e.target.value))} /></label>
                   <label><span>Сортування</span><input type="number" value={typeForm.sort_order || 0} onChange={(e) => updateTypeField("sort_order", Number(e.target.value))} /></label>
                   <label><span>Назва UK</span><input value={typeForm.name_uk || ""} onChange={(e) => updateTypeField("name_uk", e.target.value)} /></label>
@@ -8161,7 +8274,7 @@ function StudioAdminConstructorPage() {
                     {(typeForm.materials || []).map((material, index) => (
                       <div className="studio-type-row" key={`material-${index}`}>
                         <div className="admin-form-grid compact">
-                          <label><span>Code</span><input value={material.code || ""} onChange={(e) => updateTypeMaterial(index, "code", e.target.value)} /></label>
+                          <label><span>Код</span><input value={material.code || ""} onChange={(e) => updateTypeMaterial(index, "code", e.target.value)} /></label>
                           <label><span>Сортування</span><input type="number" value={material.sort_order || 0} onChange={(e) => updateTypeMaterial(index, "sort_order", Number(e.target.value))} /></label>
                           <label><span>Назва UK</span><input value={material.name_uk || ""} onChange={(e) => updateTypeMaterial(index, "name_uk", e.target.value)} /></label>
                           <label><span>Назва EN</span><input value={material.name_en || ""} onChange={(e) => updateTypeMaterial(index, "name_en", e.target.value)} /></label>
@@ -8184,7 +8297,7 @@ function StudioAdminConstructorPage() {
                     {(typeForm.size_options || []).map((size, index) => (
                       <div className="studio-type-row" key={`size-${index}`}>
                         <div className="admin-form-grid compact">
-                          <label><span>Code</span><input value={size.code || ""} onChange={(e) => updateTypeSize(index, "code", e.target.value)} /></label>
+                          <label><span>Код</span><input value={size.code || ""} onChange={(e) => updateTypeSize(index, "code", e.target.value)} /></label>
                           <label><span>Сортування</span><input type="number" value={size.sort_order || 0} onChange={(e) => updateTypeSize(index, "sort_order", Number(e.target.value))} /></label>
                           <label><span>Назва UK</span><input value={size.label_uk || ""} onChange={(e) => updateTypeSize(index, "label_uk", e.target.value)} /></label>
                           <label><span>Назва EN</span><input value={size.label_en || ""} onChange={(e) => updateTypeSize(index, "label_en", e.target.value)} /></label>
@@ -8233,10 +8346,10 @@ function StudioAdminConstructorPage() {
               <div className="admin-form-grid compact">
                 {currentSlotsAdmin.map((slot) => (
                   <label key={"preview-" + slot.id}>
-                    <span>{slot.code}</span>
+                    <span>{adminConstructorSlotName(slot, slot.code)}</span>
                     <select value={previewSelections[slot.code] || "none"} onChange={(e) => setPreviewSelections((current) => ({ ...current, [slot.code]: e.target.value }))}>
                       <option value="none">Без каменю</option>
-                      {availableVariantPreviewStones.map((stone) => <option key={stone.id} value={stone.code}>{adminLocalizedEntry(stone.name_uk, stone.name_en, stone.code)}</option>)}
+                      {availableVariantPreviewStones.map((stone) => <option key={stone.id} value={stone.code}>{adminConstructorStoneName(stone, stone.code)}</option>)}
                     </select>
                   </label>
                 ))}
@@ -8265,7 +8378,7 @@ function StudioAdminConstructorPage() {
               return (
                 <button key={stone.id} type="button" className="studio-stone-library-card" onClick={() => openStoneEditor(stone.id)}>
                   <span className="studio-stone-library-thumb" style={stone.asset_url ? { backgroundImage: 'url(' + stone.asset_url + ')' } : undefined} />
-                  <strong>{adminLocalizedEntry(stone.name_uk, stone.name_en, stone.code)}</strong>
+                  <strong>{adminConstructorStoneName(stone, stone.code)}</strong>
                   <span>{stone.code}</span>
                   <p>{usage} варіантів використовують цей камінь</p>
                 </button>
@@ -8311,8 +8424,8 @@ function StudioAdminConstructorPage() {
         <div className="studio-stone-editor-layout">
           <div className="admin-cardish">
             <div className="admin-form-grid compact">
-              <label><span>Code</span><input value={stoneForm2.code || ""} onChange={(e) => setStoneForm2((current) => ({ ...current, code: e.target.value }))} /></label>
-              <label><span>Асет</span><select value={stoneForm2.asset_id || ""} onChange={(e) => setStoneForm2((current) => ({ ...current, asset_id: Number(e.target.value) || null }))}><option value="">-</option>{assets.filter((asset) => asset.kind === "stone").map((asset) => <option key={asset.id} value={asset.id}>{asset.label}</option>)}</select></label>
+              <label><span>Код</span><input value={stoneForm2.code || ""} onChange={(e) => setStoneForm2((current) => ({ ...current, code: e.target.value }))} /></label>
+              <label><span>Асет</span><select value={stoneForm2.asset_id || ""} onChange={(e) => setStoneForm2((current) => ({ ...current, asset_id: Number(e.target.value) || null }))}><option value="">-</option>{assets.filter((asset) => asset.kind === "stone").map((asset) => <option key={asset.id} value={asset.id}>{adminConstructorAssetName(asset, { stones: stonesDecorated })}</option>)}</select></label>
               <label><span>Назва UK</span><input value={stoneForm2.name_uk || ""} onChange={(e) => setStoneForm2((current) => ({ ...current, name_uk: e.target.value }))} /></label>
               <label><span>Назва EN</span><input value={stoneForm2.name_en || ""} onChange={(e) => setStoneForm2((current) => ({ ...current, name_en: e.target.value }))} /></label>
               <label><span>Масштаб X</span><input type="number" step="0.1" value={stoneForm2.default_scale_x || 1} onChange={(e) => setStoneForm2((current) => ({ ...current, default_scale_x: Number(e.target.value) }))} /></label>
@@ -8337,7 +8450,7 @@ function StudioAdminConstructorPage() {
                       selectedVariantId: String(entry.variant_id)
                     });
                   }}>
-                    <strong>{adminLocalizedEntry(variant?.name_uk, variant?.name_en, "Варіант " + entry.variant_id)}</strong>
+                    <strong>{adminConstructorVariantName(variant, types.find((item) => String(item.id) === String(variant?.type_id))?.code) || ("Варіант " + entry.variant_id)}</strong>
                     <span>{entry.price_delta} грн</span>
                   </button>
                 );
@@ -8375,8 +8488,8 @@ function StudioAdminConstructorPage() {
         <div className="admin-asset-grid">
           {visibleAssets.map((asset) => (
             <div className="admin-asset-card" key={asset.id}>
-              <img src={asset.path} alt={asset.label} />
-              <strong>{asset.label}</strong>
+              <img src={asset.path} alt={adminConstructorAssetName(asset, { variants: studio?.variants || [], types, stones: stonesDecorated })} />
+              <strong>{adminConstructorAssetName(asset, { variants: studio?.variants || [], types, stones: stonesDecorated })}</strong>
               <span>{asset.path}</span>
               <span>{asset.width && asset.height ? `${asset.width}x${asset.height}` : adminAssetKindLabel(asset.kind)}</span>
               <div className="admin-chip-row">
@@ -8419,7 +8532,7 @@ function StudioAdminConstructorPage() {
                 section: "pricing",
                 selectedTypeId: String(type.id),
                 selectedVariantId: ""
-              })}>{type.name_uk || type.name_en}</button>
+              })}>{adminConstructorTypeName(type)}</button>
             ))}
           </div>
           <div className="admin-chip-row admin-chip-stack">
@@ -8429,7 +8542,7 @@ function StudioAdminConstructorPage() {
                 section: "pricing",
                 selectedTypeId,
                 selectedVariantId: String(variant.id)
-              })}>{adminLocalizedEntry(variant.name_uk, variant.name_en, variant.code)}</button>
+              })}>{adminConstructorVariantName(variant, currentTypeAdmin?.code)}</button>
             ))}
           </div>
         </div>
