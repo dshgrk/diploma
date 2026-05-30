@@ -6659,6 +6659,7 @@ function StudioAdminConstructorPage() {
   const queuedSlotPersistRef = React.useRef(null);
   const slotSaveInFlightRef = React.useRef(false);
   const lastCanvasInteractionDraftRef = React.useRef(null);
+  const previewSelectionsVariantRef = React.useRef("");
 
   function cloneSlotDraft(draft) {
     return draft ? JSON.parse(JSON.stringify(draft)) : null;
@@ -6857,7 +6858,30 @@ function StudioAdminConstructorPage() {
       const stone = stonesDecorated.find((item) => String(item.id) === String(defaultEntry.stone_id));
       if (stone) defaults[slot.code] = stone.code;
     });
-    setPreviewSelections(defaults);
+    const variantKey = String(currentVariantAdmin.id);
+    const isVariantChanged = previewSelectionsVariantRef.current !== variantKey;
+    previewSelectionsVariantRef.current = variantKey;
+    const slotCodes = new Set(currentSlotsAdmin.map((slot) => slot.code));
+    const allowedStoneCodes = new Set(["none", ...availableVariantStones.map((stone) => stone.code)]);
+    setPreviewSelections((current) => {
+      if (isVariantChanged) return defaults;
+      const next = {};
+      currentSlotsAdmin.forEach((slot) => {
+        const currentStoneCode = current[slot.code];
+        if (currentStoneCode && allowedStoneCodes.has(currentStoneCode)) {
+          next[slot.code] = currentStoneCode;
+          return;
+        }
+        if (defaults[slot.code]) {
+          next[slot.code] = defaults[slot.code];
+        }
+      });
+      Object.entries(current).forEach(([slotCode, stoneCode]) => {
+        if (slotCodes.has(slotCode) || !allowedStoneCodes.has(stoneCode)) return;
+        next[slotCode] = stoneCode;
+      });
+      return JSON.stringify(next) === JSON.stringify(current) ? current : next;
+    });
   }, [selectedVariantId, studio]);
 
   useEffect(() => {
