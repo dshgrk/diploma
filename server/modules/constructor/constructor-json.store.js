@@ -182,12 +182,13 @@ const DEFAULT_DATA = {
       {
         "id": 6,
         "kind": "jewelry-base",
-        "path": "/assets/images/aurora-jewelry-hero.png",
+        "path": "/assets/generated/earrings-drop-silver.png",
         "width": 0,
         "height": 0,
-        "label": "Earrings base",
+        "label": "Earrings drop",
         "tags": [
-          "earrings"
+          "earrings",
+          "drop"
         ],
         "created_at": "seed"
       },
@@ -331,7 +332,7 @@ const DEFAULT_DATA = {
       {
         "id": 18,
         "kind": "jewelry-base",
-        "path": "/assets/images/aurora-jewelry-hero.png",
+        "path": "/assets/generated/earrings-stud-silver.png",
         "width": 0,
         "height": 0,
         "label": "Earrings stud",
@@ -344,7 +345,7 @@ const DEFAULT_DATA = {
       {
         "id": 19,
         "kind": "jewelry-base",
-        "path": "/assets/images/aurora-jewelry-hero.png",
+        "path": "/assets/generated/earrings-arc-silver.png",
         "width": 0,
         "height": 0,
         "label": "Earrings arc",

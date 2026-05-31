@@ -12,7 +12,7 @@ const DEFAULT_CONSTRUCTOR_LAYOUTS = {
       moon: "/assets/generated/pendant-moon-silver.png",
       drop: "/assets/generated/pendant-drop-silver.png"
     },
-    earrings: "/assets/images/aurora-jewelry-hero.png"
+    earrings: "/assets/generated/earrings-drop-silver.png"
   },
   positions: {
     bracelet: {

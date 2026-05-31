@@ -47,6 +47,19 @@ const CHAIN_OPTION_LENGTHS = {
   "50cm": 50
 };
 
+const CHAIN_METAL_LABELS = {
+  uk: {
+    Silver: "Срібло",
+    Gold: "Золото",
+    "Rose Gold": "Рожеве золото"
+  },
+  en: {
+    Silver: "Silver",
+    Gold: "Gold",
+    "Rose Gold": "Rose Gold"
+  }
+};
+
 export function normalizePendantType(productOrType) {
   const rawValue =
     typeof productOrType === "string"
@@ -143,9 +156,16 @@ export function getPendantChainSummary(chain, locale = "uk") {
   };
 }
 
+export function getPendantChainMetalLabel(metal, locale = "uk") {
+  const isUk = locale === "uk" || locale === "uk-UA";
+  const labels = isUk ? CHAIN_METAL_LABELS.uk : CHAIN_METAL_LABELS.en;
+  return labels[metal] || metal || "";
+}
+
 export function getPendantChainColorNote(metal, locale = "uk") {
   const isUk = locale === "uk" || locale === "uk-UA";
-  return isUk ? `Колір ланцюжка: ${metal || "-"}` : `Chain color: ${metal || "-"}`;
+  const localizedMetal = getPendantChainMetalLabel(metal, locale);
+  return isUk ? `Колір ланцюжка: ${localizedMetal}` : `Chain color: ${localizedMetal}`;
 }
 
 export function getPendantChainUpsellNote(locale = "uk") {

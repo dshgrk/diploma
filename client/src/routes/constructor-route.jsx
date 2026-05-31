@@ -93,6 +93,51 @@ function normalizeLegacyConstructorMaterialCode(code) {
   return code || "";
 }
 
+function readConstructorSearchState() {
+  if (typeof window === "undefined") return { type: "", variant: "" };
+  const params = new URLSearchParams(window.location.search);
+  return {
+    type: String(params.get("type") || "").trim(),
+    variant: String(params.get("variant") || "").trim()
+  };
+}
+
+function resolveConstructorTypeId(types = [], requestedType = "") {
+  const normalized = String(requestedType || "").trim().toLowerCase();
+  if (!normalized) return "";
+  const match = (types || []).find((type) => {
+    const typeId = String(type?.id || "").trim().toLowerCase();
+    const typeCode = String(type?.code || "").trim().toLowerCase();
+    return typeId === normalized || typeCode === normalized;
+  });
+  return match ? String(match.id) : "";
+}
+
+function resolveConstructorVariantId(variants = [], requestedVariant = "") {
+  const normalized = String(requestedVariant || "").trim().toLowerCase();
+  if (!normalized) return "";
+  const match = (variants || []).find((variant) => {
+    const variantId = String(variant?.id || "").trim().toLowerCase();
+    const variantCode = String(variant?.code || "").trim().toLowerCase();
+    return variantId === normalized || variantCode === normalized;
+  });
+  return match ? String(match.id) : "";
+}
+
+function syncConstructorSearchState(currentType, currentVariant) {
+  if (typeof window === "undefined") return;
+  const url = new URL(window.location.href);
+  if (currentType?.code) url.searchParams.set("type", currentType.code);
+  else url.searchParams.delete("type");
+  if (currentVariant?.code) url.searchParams.set("variant", currentVariant.code);
+  else url.searchParams.delete("variant");
+  const nextUrl = `${url.pathname}${url.search}${url.hash}`;
+  const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  if (nextUrl !== currentUrl) {
+    window.history.replaceState({}, "", nextUrl);
+  }
+}
+
 function TypeIcon({ type }) {
   const color = "currentColor";
 
@@ -226,6 +271,7 @@ function StudioConstructorSlots({ locale, slots, stones, selections, onSelectSlo
 }
 
 function ConstructorStudioPage({ locale }) {
+  const initialSearchRef = React.useRef(readConstructorSearchState());
   const [config, setConfig] = useState(null);
   const [jewelryTypeId, setJewelryTypeId] = useState("");
   const [variantId, setVariantId] = useState("");
@@ -242,8 +288,9 @@ function ConstructorStudioPage({ locale }) {
     constructorApi.listTypes()
       .then((data) => {
         if (!active) return;
-        setConfig({ types: data.types || [], variants: [], slotsByVariant: {}, stones: [], variantStoneMatrix: [] });
-        setJewelryTypeId(String(data.types?.[0]?.id || ""));
+        const nextTypes = data.types || [];
+        setConfig({ types: nextTypes, variants: [], slotsByVariant: {}, stones: [], variantStoneMatrix: [] });
+        setJewelryTypeId(resolveConstructorTypeId(nextTypes, initialSearchRef.current.type) || String(nextTypes[0]?.id || ""));
       })
       .catch((error) => {
         if (active) setLoadError(error.message);
@@ -267,7 +314,7 @@ function ConstructorStudioPage({ locale }) {
             ...nextVariants
           ]
         }));
-        setVariantId(String(nextVariants[0]?.id || ""));
+        setVariantId(resolveConstructorVariantId(nextVariants, initialSearchRef.current.variant) || String(nextVariants[0]?.id || ""));
       })
       .catch((error) => {
         if (active) setLoadError(error.message);
@@ -342,6 +389,10 @@ function ConstructorStudioPage({ locale }) {
     });
     if (!variantId && currentVariant) setVariantId(String(currentVariant.id));
   }, [currentType, currentVariant, variantId]);
+
+  useEffect(() => {
+    syncConstructorSearchState(currentType, currentVariant);
+  }, [currentType, currentVariant]);
 
   useEffect(() => {
     if (!currentType || !currentVariant) return undefined;
@@ -512,7 +563,7 @@ function ConstructorStudioPage({ locale }) {
                 {currentSlots.length ? (
                   <div className="constructor-section">
                     <div className="constructor-section-head">
-                      <p className="constructor-label">{locale === "en" ? "Stones" : "Камінь"}</p>
+                      <p className="constructor-label">{locale === "en" ? "Stones" : currentSlots.length > 1 ? "Камені" : "Камінь"}</p>
                     </div>
                     <StudioConstructorSlots
                       locale={locale}
@@ -595,12 +646,12 @@ function ConstructorStudioPage({ locale }) {
                     </div>
                     <div className="summary-breakdown">
                       <span>{locale === "en" ? "Material" : "Матеріал"}</span>
-                      <span>{currentType?.materials?.find((item) => item.code === normalizeLegacyConstructorMaterialCode(configuration.material))?.label || "-"}</span>
+                      <span>{studioLocalizedName(currentType?.materials?.find((item) => item.code === normalizeLegacyConstructorMaterialCode(configuration.material)), locale) || "-"}</span>
                     </div>
                     {currentType?.size_options?.length ? (
                       <div className="summary-breakdown">
                         <span>{locale === "en" ? "Size" : "Розмір"}</span>
-                        <span>{currentType?.size_options?.find((item) => item.code === configuration.size)?.label || "-"}</span>
+                        <span>{studioLocalizedName(currentType?.size_options?.find((item) => item.code === configuration.size), locale) || "-"}</span>
                       </div>
                     ) : null}
                     {isPendantType ? (
@@ -621,10 +672,12 @@ function ConstructorStudioPage({ locale }) {
                               </button>
                             ))}
                           </div>
-                          <div className="summary-breakdown" style={{ marginTop: "1rem" }}>
-                            <span>{getPendantChainColorNote(selectedConstructorChain?.metal, locale)}</span>
-                            <span>{selectedConstructorChain?.price ? formatCurrency(selectedConstructorChain.price, "UAH", LOCALE_FORMATS[locale]) : locale === "uk" ? "0 грн" : "0 UAH"}</span>
-                          </div>
+                          {selectedConstructorChain?.option && selectedConstructorChain.option !== "none" ? (
+                            <div className="summary-breakdown" style={{ marginTop: "1rem" }}>
+                              <span>{getPendantChainColorNote(selectedConstructorChain?.metal, locale)}</span>
+                              <span>{selectedConstructorChain?.price ? formatCurrency(selectedConstructorChain.price, "UAH", LOCALE_FORMATS[locale]) : locale === "uk" ? "0 грн" : "0 UAH"}</span>
+                            </div>
+                          ) : null}
                         </div>
                       </>
                     ) : null}
