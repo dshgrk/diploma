@@ -20,8 +20,7 @@ const CHECKOUT_PAYLOAD = {
   phone: "+380000000002",
   delivery_method: "nova_poshta",
   delivery_address: "Kyiv, branch 1",
-  accepted_offer: true,
-  accepted_return_policy: true
+  accepted_offer: true
 };
 const CLIENT_USER = {
   id: 2,
@@ -109,6 +108,17 @@ describe("cart and checkout integrity", () => {
         delivery_address: expect.any(String)
       })
     });
+  });
+
+  test("checkout remains backward compatible with legacy return policy flag", async () => {
+    const result = await createCheckoutOrder(2, {
+      ...CHECKOUT_PAYLOAD,
+      accepted_return_policy: true
+    });
+
+    const order = await db("orders").where({ id: result.order_id }).first();
+    expect(order.accepted_offer_at).toBeTruthy();
+    expect(order.accepted_return_policy_at).toBeTruthy();
   });
 
   test("cart rejects fractional quantity", async () => {

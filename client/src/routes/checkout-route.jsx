@@ -34,8 +34,7 @@ export default function CheckoutRoute() {
     phone: "",
     delivery_method: "nova_poshta",
     delivery_address: "",
-    accepted_offer: false,
-    accepted_return_policy: false
+    accepted_offer: false
   });
 
   useEffect(() => {
@@ -118,6 +117,7 @@ export default function CheckoutRoute() {
   }
 
   const items = cart?.items || [];
+  const hasCustomDesign = items.some((item) => item.item_type === "custom_design");
 
   return (
     <>
@@ -237,6 +237,12 @@ export default function CheckoutRoute() {
                     />
                     {fieldErrors.delivery_address ? <small className="form-field-error">{fieldErrors.delivery_address}</small> : null}
                   </label>
+                  {hasCustomDesign ? (
+                    <div className="checkout-account-identity checkout-legal-notice checkout-full" role="note">
+                      <span>{locale === "uk" ? "Персоналізоване замовлення" : "Personalized order"}</span>
+                      <p>{t(locale, "customDesignNotice")}</p>
+                    </div>
+                  ) : null}
                   <label className="checkout-checkbox checkout-full">
                     <input
                       type="checkbox"
@@ -245,19 +251,14 @@ export default function CheckoutRoute() {
                       checked={form.accepted_offer}
                       onChange={updateForm}
                     />
-                    <span>{t(locale, "acceptOffer")}</span>
+                    <span>
+                      {t(locale, "acceptOfferLead")}
+                      <a className="checkout-legal-link" href="/oferta">
+                        {t(locale, "acceptOfferLink")}
+                      </a>
+                      {t(locale, "acceptOfferTail")}
+                    </span>
                     {fieldErrors.accepted_offer ? <small className="form-field-error">{fieldErrors.accepted_offer}</small> : null}
-                  </label>
-                  <label className="checkout-checkbox checkout-full">
-                    <input
-                      type="checkbox"
-                      name="accepted_return_policy"
-                      aria-invalid={Boolean(fieldErrors.accepted_return_policy)}
-                      checked={form.accepted_return_policy}
-                      onChange={updateForm}
-                    />
-                    <span>{t(locale, "acceptReturn")}</span>
-                    {fieldErrors.accepted_return_policy ? <small className="form-field-error">{fieldErrors.accepted_return_policy}</small> : null}
                   </label>
                   <button className="button checkout-submit" type="submit" disabled={isSubmitting}>
                     {isSubmitting ? t(locale, "creatingOrder") : t(locale, "createOrder")}

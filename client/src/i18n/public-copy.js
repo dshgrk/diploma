@@ -53,8 +53,9 @@ export const CART_COPY = {
 
 export const CHECKOUT_COPY = {
   uk: {
-    acceptOffer: "Я приймаю публічну оферту й умови персонального виготовлення.",
-    acceptReturn: "Я приймаю політику повернення персоналізованих прикрас.",
+    acceptOfferLead: "Я приймаю ",
+    acceptOfferLink: "Публічну оферту",
+    acceptOfferTail: " та погоджуюся з умовами оформлення, оплати, доставки й повернення замовлення.",
     addBeforeCheckout: "Додайте виріб перед оформленням.",
     addressPlaceholder: "Місто, відділення або повна адреса",
     checkout: "Оформлення",
@@ -67,6 +68,7 @@ export const CHECKOUT_COPY = {
     courier: "Кур'єр",
     createOrder: "Створити резерв",
     creatingOrder: "Створюємо резерв...",
+    customDesignNotice: "Зверніть увагу: персоналізована прикраса виготовляється індивідуально за обраними параметрами. Будь ласка, перевірте матеріал, камінь, розмір і гравіювання перед підтвердженням замовлення.",
     deliveryAddress: "Адреса доставки",
     deliveryMethod: "Спосіб доставки",
     email: "Email",
@@ -90,8 +92,9 @@ export const CHECKOUT_COPY = {
     total: "Разом"
   },
   en: {
-    acceptOffer: "I accept the public offer and custom production terms.",
-    acceptReturn: "I accept the return policy for personalized jewelry.",
+    acceptOfferLead: "I accept the ",
+    acceptOfferLink: "Public offer",
+    acceptOfferTail: " and agree to the terms of checkout, payment, delivery, and returns.",
     addBeforeCheckout: "Add a piece before opening checkout.",
     addressPlaceholder: "City, branch or full address",
     checkout: "Checkout",
@@ -104,6 +107,7 @@ export const CHECKOUT_COPY = {
     courier: "Courier",
     createOrder: "Create reservation",
     creatingOrder: "Creating reservation...",
+    customDesignNotice: "Please note: a personalized piece is produced individually according to the selected parameters. Please review the material, stone, size, and engraving before confirming your order.",
     deliveryAddress: "Delivery address",
     deliveryMethod: "Delivery method",
     email: "Email",

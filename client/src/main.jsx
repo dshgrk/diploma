@@ -14,9 +14,12 @@ const CatalogRoute = React.lazy(() => import("./routes/catalog-route.jsx"));
 const CheckoutRoute = React.lazy(() => import("./routes/checkout-route.jsx"));
 const ConstructorRoute = React.lazy(() => import("./routes/constructor-route.jsx"));
 const HomeRoute = React.lazy(() => import("./routes/home-route.jsx"));
+const OfertaRoute = React.lazy(() => import("./routes/oferta-route.jsx"));
 const OrdersRoute = React.lazy(() => import("./routes/orders-route.jsx"));
 const OrderDetailRoute = React.lazy(() => import("./routes/order-detail-route.jsx"));
+const PrivacyPolicyRoute = React.lazy(() => import("./routes/privacy-policy-route.jsx"));
 const ProductRoute = React.lazy(() => import("./routes/product-route.jsx"));
+const ReturnsRoute = React.lazy(() => import("./routes/returns-route.jsx"));
 
 function AppBootstrap() {
   const pathname = window.location.pathname;
@@ -37,23 +40,29 @@ function AppBootstrap() {
                   ? HomeRoute
                   : pathname === "/account"
                     ? AccountRoute
-                    : pathname === "/auth"
-                      ? AuthRoute
-                      : pathname === "/cart"
-                        ? CartRoute
-                        : pathname === "/checkout"
-                          ? CheckoutRoute
-                          : pathname === "/catalog"
-                            ? CatalogRoute
-                            : pathname === "/constructor"
-                              ? ConstructorRoute
-                              : pathname === "/orders"
-                                ? OrdersRoute
-                                : /^\/orders\/\d+$/.test(pathname)
-                                  ? OrderDetailRoute
-                                  : pathname.startsWith("/products/")
-                                    ? ProductRoute
-                                    : NotFoundRoute;
+                    : pathname === "/oferta"
+                      ? OfertaRoute
+                      : pathname === "/auth"
+                        ? AuthRoute
+                        : pathname === "/cart"
+                          ? CartRoute
+                          : pathname === "/checkout"
+                            ? CheckoutRoute
+                            : pathname === "/catalog"
+                              ? CatalogRoute
+                              : pathname === "/constructor"
+                                ? ConstructorRoute
+                                : pathname === "/privacy-policy"
+                                  ? PrivacyPolicyRoute
+                                  : pathname === "/orders"
+                                    ? OrdersRoute
+                                    : /^\/orders\/\d+$/.test(pathname)
+                                      ? OrderDetailRoute
+                                      : pathname === "/returns"
+                                        ? ReturnsRoute
+                                        : pathname.startsWith("/products/")
+                                          ? ProductRoute
+                                          : NotFoundRoute;
 
   return (
     <Suspense fallback={<div className="route-loading" aria-label="Loading page" />}>

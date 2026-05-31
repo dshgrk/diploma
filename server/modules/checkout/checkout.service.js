@@ -21,7 +21,7 @@ function validateCheckoutPayload(payload) {
     delivery_method: String(payload.delivery_method || "").trim(),
     delivery_address: normalizePlainText(payload.delivery_address),
     accepted_offer: Boolean(payload.accepted_offer),
-    accepted_return_policy: Boolean(payload.accepted_return_policy)
+    accepted_return_policy: payload.accepted_return_policy == null ? null : Boolean(payload.accepted_return_policy)
   };
 
   if (!normalized.customer_name) errors.customer_name = "Customer name is required";
@@ -47,7 +47,6 @@ function validateCheckoutPayload(payload) {
   }
 
   if (!normalized.accepted_offer) errors.accepted_offer = "Offer acceptance is required";
-  if (!normalized.accepted_return_policy) errors.accepted_return_policy = "Return policy acceptance is required";
 
   if (Object.keys(errors).length > 0) {
     throw createHttpError(422, "VALIDATION_ERROR", "Checkout payload is invalid", errors);

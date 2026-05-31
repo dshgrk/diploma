@@ -11,6 +11,9 @@ function registerPageRoutes(app) {
   app.get("/about", (req, res) => sendReactApp(res));
   app.get("/auth", (req, res) => sendReactApp(res));
   app.get("/account", (req, res) => sendReactApp(res));
+  app.get("/oferta", (req, res) => sendReactApp(res));
+  app.get("/returns", (req, res) => sendReactApp(res));
+  app.get("/privacy-policy", (req, res) => sendReactApp(res));
   app.get("/products/:slug", (req, res) => sendReactApp(res));
   app.get("/constructor", (req, res) => sendReactApp(res));
   app.get("/cart", (req, res) => sendReactApp(res));

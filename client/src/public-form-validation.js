@@ -26,8 +26,7 @@ function messages(locale) {
       addressTooShort: `Адреса має містити щонайменше ${PUBLIC_FIELD_LIMITS.addressMin} символів.`,
       addressTooLong: `Адреса має бути не довшою за ${PUBLIC_FIELD_LIMITS.addressMax} символів.`,
       deliveryMethodRequired: "Оберіть спосіб доставки.",
-      acceptedOfferRequired: "Потрібно прийняти умови оферти.",
-      acceptedReturnRequired: "Потрібно прийняти умови повернення.",
+      acceptedOfferRequired: "Щоб оформити замовлення, потрібно прийняти Публічну оферту та умови оформлення замовлення.",
       invalidRange: "Поле \"Від\" не може бути більшим за \"До\"."
     };
   }
@@ -47,8 +46,7 @@ function messages(locale) {
     addressTooShort: `Address must be at least ${PUBLIC_FIELD_LIMITS.addressMin} characters long.`,
     addressTooLong: `Address must be at most ${PUBLIC_FIELD_LIMITS.addressMax} characters long.`,
     deliveryMethodRequired: "Choose a delivery method.",
-    acceptedOfferRequired: "You must accept the offer terms.",
-    acceptedReturnRequired: "You must accept the return policy.",
+    acceptedOfferRequired: "To place the order, you must accept the Public Offer and the order terms.",
     invalidRange: "\"From\" cannot be greater than \"To\"."
   };
 }
@@ -172,8 +170,7 @@ export function validateCheckoutForm(form, locale) {
     phone: normalizeUkrainianPhone(form.phone),
     delivery_method: String(form.delivery_method || "").trim(),
     delivery_address: normalizePlainText(form.delivery_address),
-    accepted_offer: Boolean(form.accepted_offer),
-    accepted_return_policy: Boolean(form.accepted_return_policy)
+    accepted_offer: Boolean(form.accepted_offer)
   };
   const errors = {};
 
@@ -190,7 +187,6 @@ export function validateCheckoutForm(form, locale) {
   else if (values.delivery_address.length > PUBLIC_FIELD_LIMITS.addressMax) errors.delivery_address = copy.addressTooLong;
 
   if (!values.accepted_offer) errors.accepted_offer = copy.acceptedOfferRequired;
-  if (!values.accepted_return_policy) errors.accepted_return_policy = copy.acceptedReturnRequired;
 
   return { values, errors };
 }

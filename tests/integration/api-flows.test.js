@@ -247,7 +247,7 @@ describe("api flows", () => {
     expect(optionsResponse.body.data).not.toHaveProperty("slotsByVariant");
   });
 
-  test("checkout endpoint rejects request without required agreements", async () => {
+  test("checkout endpoint rejects request without accepted offer", async () => {
     const app = createApp();
     const agent = request.agent(app);
 
@@ -269,7 +269,29 @@ describe("api flows", () => {
     expect(response.status).toBe(422);
     expect(response.body.error.code).toBe("VALIDATION_ERROR");
     expect(response.body.error.details.accepted_offer).toBeTruthy();
-    expect(response.body.error.details.accepted_return_policy).toBeTruthy();
+  });
+
+  test("checkout endpoint accepts payload without legacy return policy flag", async () => {
+    const app = createApp();
+    const agent = request.agent(app);
+
+    await agent.post("/api/auth/login").send({
+      email: "client@aurora.local",
+      password: "password123"
+    });
+
+    const response = await agent.post("/api/checkout").send({
+      customer_name: "Дарина Клієнт",
+      email: "client@aurora.local",
+      phone: "+380000000002",
+      delivery_method: "nova_poshta",
+      delivery_address: "Київ, відділення 1",
+      accepted_offer: true
+    });
+
+    expect(response.status).toBe(201);
+    expect(response.body.success).toBe(true);
+    expect(response.body.data.order_id).toBeTruthy();
   });
 
   test("checkout endpoint rejects invalid phone and blank address", async () => {

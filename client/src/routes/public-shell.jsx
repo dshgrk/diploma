@@ -212,6 +212,7 @@ export function Footer({ locale }) {
   const copy = referenceCopy(locale);
   const navigationTitle = locale === "uk" ? "Навігація" : "Navigation";
   const accountTitle = locale === "uk" ? "Акаунт" : "Account";
+  const clientsTitle = locale === "uk" ? "Клієнтам" : "For clients";
   const ordersTitle = locale === "uk" ? "Мої замовлення" : "My orders";
   const contactAtelierLabel = locale === "uk" ? "Ательє у Харкові" : "Atelier in Kharkiv";
   const footerOriginLabel = locale === "uk" ? "Створено в Харкові" : "Made in Kharkiv";
@@ -235,6 +236,12 @@ export function Footer({ locale }) {
             <h4 className="site-footer-title">{accountTitle}</h4>
             <a className="site-footer-link" href="/orders">{ordersTitle}</a>
             <a className="site-footer-link" href="/account">{accountTitle}</a>
+          </div>
+          <div className="site-footer-column">
+            <h4 className="site-footer-title">{clientsTitle}</h4>
+            <a className="site-footer-link" href="/oferta">{locale === "uk" ? "Публічна оферта" : "Public offer"}</a>
+            <a className="site-footer-link" href="/returns">{locale === "uk" ? "Повернення та обмін" : "Returns & exchanges"}</a>
+            <a className="site-footer-link" href="/privacy-policy">{locale === "uk" ? "Політика конфіденційності" : "Privacy policy"}</a>
           </div>
           <div className="site-footer-column">
             <h4 className="site-footer-title">{copy.contact}</h4>
