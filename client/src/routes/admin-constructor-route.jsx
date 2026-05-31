@@ -17,7 +17,6 @@ import {
 } from "lucide-react";
 import { accountApi, adminCatalogApi, adminOrdersApi, authApi, cartApi, catalogApi, constructorApi, ordersApi } from "../api";
 import {
-  ABOUT_PAGE_CONTENT,
   CONSTRUCTOR_STONE_MEDIA,
   FALLBACK_PRODUCT_IMAGE,
   REFERENCE_IMAGES,
@@ -55,8 +54,6 @@ import "../styles.css";
 const LOCAL_STORAGE_KEY = "aurora-locale";
 const GUEST_CART_STORAGE_KEY = "aurora-guest-cart";
 const POST_AUTH_REDIRECT_KEY = "aurora-post-auth-redirect";
-const HOME_HERO_VIDEO = "/assets/videos/home-hero-main.mp4";
-const HOME_HERO_POSTER = "/assets/images/aurora-jewelry-hero.png";
 const LOCALE_LABELS = {
   uk: "UK",
   en: "EN"
@@ -119,7 +116,7 @@ const GENERATED_STONE_ASSETS = [
 const GENERATED_LAYOUT_BASES = {
   ring: ["/assets/generated/ring-trinity-silver.png", "/assets/generated/ring-solitaire-silver.png", "/assets/generated/ring-duet-silver.png"],
   bracelet: ["/assets/generated/bracelet-orbit-silver.png", "/assets/generated/bracelet-line-silver.png", "/assets/generated/bracelet-duet-silver.png"],
-  earrings: ["/assets/images/aurora-jewelry-hero.png"],
+  earrings: ["/assets/generated/earrings-drop-silver.png", "/assets/generated/earrings-stud-silver.png", "/assets/generated/earrings-arc-silver.png"],
   pendant: {
     heart: ["/assets/generated/pendant-heart-silver.png"],
     moon: ["/assets/generated/pendant-moon-silver.png"],
@@ -141,7 +138,7 @@ const CONSTRUCTOR_PREVIEW_BASES = {
     moon: "/assets/generated/pendant-moon-silver.png",
     drop: "/assets/generated/pendant-drop-silver.png"
   },
-  earrings: "/assets/images/aurora-jewelry-hero.png"
+  earrings: "/assets/generated/earrings-drop-silver.png"
 };
 
 const CONSTRUCTOR_PREVIEW_SLOT_POSITIONS = {
@@ -1818,75 +1815,6 @@ function CatalogPage() {
       </main>
       <Footer />
     </>
-  );
-}
-
-function PreviewStage({ calculation, currentType }) {
-  const layers = calculation?.preview_layers?.length
-    ? calculation.preview_layers
-    : currentType?.preview_base_asset
-      ? [{ layer_key: "base", asset_url: currentType.preview_base_asset, z_index: 1 }]
-      : [];
-
-  const fallbackImage =
-    currentType?.code === "bracelet"
-      ? "/assets/preview/bracelet-base.png"
-      : currentType?.code === "pendant"
-        ? FALLBACK_PRODUCT_IMAGE
-        : "/assets/preview/necklace-base.png";
-
-  return (
-    <div className="constructor-preview-stage">
-      <img className="constructor-preview-fallback" src={fallbackImage} alt="" aria-hidden="true" />
-      {layers.map((layer) =>
-        layer.text_placeholder ? (
-          <div className="constructor-preview-layer" style={{ zIndex: layer.z_index }} key={`${layer.layer_key}-${layer.z_index}`}>
-            <span className="constructor-engraving">{layer.text_placeholder}</span>
-          </div>
-        ) : layer.asset_url ? (
-          <div className="constructor-preview-layer" style={{ zIndex: layer.z_index }} key={`${layer.layer_key}-${layer.asset_url}`}>
-            <img src={layer.asset_url} alt={layer.layer_key || "preview layer"} />
-          </div>
-        ) : null
-      )}
-    </div>
-  );
-}
-
-function ConstructorField({ option, values, value, onChange }) {
-  const { t } = useI18n();
-  if (option.input_type === "text") {
-    return (
-      <label className="constructor-field">
-        <span>
-          {option.label}
-          {option.is_required ? " *" : ""}
-        </span>
-        <input
-          value={value || ""}
-          maxLength={24}
-          placeholder={t("engravingPlaceholder")}
-          onChange={(event) => onChange(option.code, event.target.value)}
-        />
-      </label>
-    );
-  }
-
-  return (
-    <label className="constructor-field">
-      <span>
-        {option.label}
-        {option.is_required ? " *" : ""}
-      </span>
-      <select value={value || ""} onChange={(event) => onChange(option.code, event.target.value)}>
-        <option value="">{t("chooseOption")}</option>
-        {values.map((item) => (
-          <option value={item.code} key={item.id}>
-            {item.label}
-          </option>
-        ))}
-      </select>
-    </label>
   );
 }
 
@@ -3987,237 +3915,6 @@ function localizedConstructorValue(entry, locale, keys = ["label", "name"]) {
   }
 
   return "";
-}
-
-function AboutVisual({ src, alt, className = "", fallbackClassName = "" }) {
-  const [hidden, setHidden] = useState(false);
-
-  return (
-    <div className={`${className}${hidden ? " is-fallback" : ""}`}>
-      {!hidden && src ? <img src={src} alt={alt} loading="lazy" onError={() => setHidden(true)} /> : null}
-      <div className={`about-visual-fallback ${fallbackClassName}`.trim()} aria-hidden={hidden ? "false" : "true"}>
-        <span className="about-visual-fallback-line" />
-        <span className="about-visual-fallback-line short" />
-      </div>
-    </div>
-  );
-}
-
-function AboutPage() {
-  const { locale } = useI18n();
-  const copy = ABOUT_PAGE_CONTENT[locale] || ABOUT_PAGE_CONTENT.en;
-  const [heroVideoUnavailable, setHeroVideoUnavailable] = useState(false);
-  const [heroPosterHidden, setHeroPosterHidden] = useState(false);
-  const [heroVideoReady, setHeroVideoReady] = useState(false);
-  const galleryItems = [
-    {
-      ...copy.gallery.items[0],
-      src: REFERENCE_IMAGES.about?.workshopOverview,
-      className: "about-gallery-card is-large"
-    },
-    {
-      ...copy.gallery.items[1],
-      src: REFERENCE_IMAGES.about?.artisanDetail,
-      className: "about-gallery-card is-medium"
-    },
-    {
-      ...copy.gallery.items[2],
-      src: REFERENCE_IMAGES.about?.materialsTable,
-      className: "about-gallery-card is-medium"
-    },
-    {
-      ...copy.gallery.items[3],
-      src: REFERENCE_IMAGES.about?.packaging,
-      className: "about-gallery-card is-tall"
-    }
-  ];
-
-  function handleAboutAnchorClick(event, href) {
-    if (!href?.startsWith("#")) return;
-    event.preventDefault();
-    const target = document.querySelector(href);
-    if (!target) return;
-    target.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-
-  return (
-    <>
-      <Header />
-      <main className="about-main" data-locale={locale}>
-        <section className="about-hero section">
-          <div className="section-inner about-hero-shell">
-            <div className="about-hero-media-wrap">
-              <div className={`about-hero-media${heroVideoUnavailable ? " is-video-fallback" : ""}`}>
-                {!heroPosterHidden ? (
-                  <img
-                    className={`about-hero-poster${heroVideoReady ? " is-hidden" : ""}`}
-                    src={REFERENCE_IMAGES.about?.heroPoster}
-                    alt=""
-                    aria-hidden="true"
-                    onError={() => setHeroPosterHidden(true)}
-                  />
-                ) : null}
-                {!heroVideoUnavailable ? (
-                  <video
-                    className="about-hero-video"
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    preload="metadata"
-                    poster={REFERENCE_IMAGES.about?.heroPoster}
-                    onLoadedData={() => setHeroVideoReady(true)}
-                    onPlaying={() => setHeroVideoReady(true)}
-                    onError={() => {
-                      setHeroVideoUnavailable(true);
-                      setHeroVideoReady(false);
-                    }}
-                  >
-                    <source src={REFERENCE_IMAGES.about?.heroVideo} type="video/mp4" />
-                  </video>
-                ) : null}
-                <div className="about-hero-overlay" />
-                <div className="about-hero-atmosphere" aria-hidden="true">
-                  <span>atelier</span>
-                  <span>process</span>
-                  <span>materials</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="about-hero-panel">
-              <p className="eyebrow">{copy.hero.eyebrow}</p>
-              <h1 className="about-hero-title">{copy.hero.title}</h1>
-              <p className="about-hero-text">{copy.hero.text}</p>
-              <div className="about-hero-actions">
-                <a className="button" href="/catalog">{copy.hero.primaryCta}</a>
-                <a className="button button-ghost" href="/constructor">{copy.hero.secondaryCta}</a>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="about-section section">
-          <div className="section-inner about-story-grid">
-            <div className="about-story-copy">
-              <h2 className="section-title about-story-title">{copy.whoWeAre.title}</h2>
-              {copy.whoWeAre.paragraphs.map((paragraph) => (
-                <p className="about-story-text" key={paragraph}>{paragraph}</p>
-              ))}
-              <aside className="about-quote-card">
-                <span className="about-quote-mark">“</span>
-                <p>{copy.whoWeAre.quote}</p>
-              </aside>
-            </div>
-
-            <div className="about-story-media-stack">
-              <AboutVisual
-                src={REFERENCE_IMAGES.about?.clientConsultation || REFERENCE_IMAGES.about?.workshopOverview}
-                alt={copy.whoWeAre.title}
-                className="about-story-media"
-                fallbackClassName="is-warm"
-              />
-            </div>
-          </div>
-        </section>
-
-        <section className="about-section section about-create-section">
-          <div className="section-inner">
-            <div className="section-heading about-section-heading">
-              <h2 className="section-title">{copy.create.title}</h2>
-            </div>
-            <div className="about-create-grid" role="list" aria-label={copy.create.title}>
-              {copy.create.cards.map((card, index) => (
-                <article className="about-create-card" key={card.title} role="listitem">
-                  <span className="about-create-index">{`0${index + 1}`}</span>
-                  <h3 className="about-create-title">{card.title}</h3>
-                  <p className="about-create-text">{card.text}</p>
-                  <a
-                    className="about-inline-link"
-                    href={card.href}
-                    onClick={(event) => handleAboutAnchorClick(event, card.href)}
-                  >
-                    <span>{card.cta}</span>
-                    <ChevronRight aria-hidden="true" />
-                  </a>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="about-section section about-process-section" id="about-process">
-          <div className="section-inner">
-            <div className="section-heading about-process-heading">
-              <p className="eyebrow">{copy.process.eyebrow}</p>
-              <h2 className="section-title">{copy.process.title}</h2>
-            </div>
-            <div className="about-process-grid" role="list" aria-label={copy.process.title}>
-              {copy.process.steps.map((step) => (
-                <article className="about-process-card" key={step.number} role="listitem">
-                  <div className="about-process-top">
-                    <span className="about-process-number">{step.number}</span>
-                    <span className="about-process-line" aria-hidden="true" />
-                  </div>
-                  <h3 className="about-process-title">{step.title}</h3>
-                  <p className="about-process-text">{step.text}</p>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="about-section section about-gallery-section">
-          <div className="section-inner">
-            <div className="section-heading about-section-heading">
-              <h2 className="section-title">{copy.gallery.title}</h2>
-            </div>
-            <div className="about-gallery-grid" role="list" aria-label={copy.gallery.title}>
-              {galleryItems.map((item) => (
-                <figure className={item.className} key={item.key} role="listitem">
-                  <AboutVisual src={item.src} alt={item.caption} className="about-gallery-media" fallbackClassName="is-soft" />
-                  <figcaption className="about-gallery-caption">{item.caption}</figcaption>
-                </figure>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="about-section section about-principles-section">
-          <div className="section-inner">
-            <div className="section-heading about-section-heading">
-              <h2 className="section-title">{copy.principles.title}</h2>
-            </div>
-            <div className="about-principles-grid" role="list" aria-label={copy.principles.title}>
-              {copy.principles.items.map((item) => (
-                <article className="about-principle-card" key={item.number} role="listitem">
-                  <span className="about-principle-number">{item.number}</span>
-                  <h3 className="about-principle-title">{item.title}</h3>
-                  <p className="about-principle-text">{item.text}</p>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="about-section section about-final-cta">
-          <div className="section-inner">
-            <div className="about-final-shell">
-              <div className="about-final-copy">
-                <h2 className="about-final-title">{copy.cta.title}</h2>
-                <p className="about-final-text">{copy.cta.text}</p>
-              </div>
-              <div className="about-final-actions">
-                <a className="button" href="/catalog">{copy.cta.primaryCta}</a>
-                <a className="button button-ghost" href="/constructor">{copy.cta.secondaryCta}</a>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-      <Footer />
-    </>
-  );
 }
 
 function Footer() {
