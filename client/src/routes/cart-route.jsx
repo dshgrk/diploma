@@ -8,6 +8,7 @@ import { setPostAuthRedirect, syncCartCount } from "../features/cart/cart-events
 import { CartItemPreview } from "../features/orders/order-preview.jsx";
 import { findTypeOptionLabel, getPendantChainDisplay } from "../features/orders/order-format";
 import { CART_COPY, publicText } from "../i18n/public-copy";
+import { sanitizeQuantityInput } from "../public-form-validation";
 import { formatCurrency } from "../utils";
 import { AuroraBackground, Footer, Header, LOCALE_FORMATS, usePublicLocale } from "./public-shell.jsx";
 import "../styles.css";
@@ -90,7 +91,7 @@ export default function CartRoute() {
   );
 
   async function updateQuantity(item, quantity) {
-    const nextQuantity = Math.min(MAX_CART_ITEM_QUANTITY, Math.max(1, Number(quantity) || 1));
+    const nextQuantity = sanitizeQuantityInput(quantity, MAX_CART_ITEM_QUANTITY);
     setBusyItemId(item.id);
     try {
       const updated = isAuthenticated
@@ -268,7 +269,9 @@ export default function CartRoute() {
                               <input
                                 type="number"
                                 min="1"
+                                step="1"
                                 max={MAX_CART_ITEM_QUANTITY}
+                                inputMode="numeric"
                                 value={item.quantity}
                                 disabled={busyItemId === item.id}
                                 onChange={(event) => updateQuantity(item, event.target.value)}

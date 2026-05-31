@@ -25,6 +25,10 @@ function isUniqueConstraintError(error) {
 }
 
 function validateCartQuantity(quantity) {
+  if (!Number.isInteger(quantity)) {
+    throw createHttpError(422, "VALIDATION_ERROR", "Quantity must be a whole number");
+  }
+
   if (quantity < 1) {
     throw createHttpError(422, "VALIDATION_ERROR", "Quantity must be at least 1");
   }

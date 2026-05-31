@@ -93,6 +93,37 @@ describe("cart and checkout integrity", () => {
     expect(checkedOutCarts[0].active_cart_key).toBeNull();
   });
 
+  test("checkout rejects invalid public contact payload", async () => {
+    await expect(
+      createCheckoutOrder(2, {
+        ...CHECKOUT_PAYLOAD,
+        customer_name: "   ",
+        phone: "12345",
+        delivery_address: "abc"
+      })
+    ).rejects.toMatchObject({
+      code: "VALIDATION_ERROR",
+      details: expect.objectContaining({
+        customer_name: expect.any(String),
+        phone: expect.any(String),
+        delivery_address: expect.any(String)
+      })
+    });
+  });
+
+  test("cart rejects fractional quantity", async () => {
+    await expect(
+      addCartItem(2, {
+        item_type: "ready_product",
+        product_id: 1,
+        quantity: 1.5,
+        configuration: { size: "17" }
+      })
+    ).rejects.toMatchObject({
+      code: "VALIDATION_ERROR"
+    });
+  });
+
   test("payment confirmation is idempotent", async () => {
     const checkoutResult = await createCheckoutOrder(2, CHECKOUT_PAYLOAD);
 

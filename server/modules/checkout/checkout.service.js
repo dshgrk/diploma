@@ -3,26 +3,61 @@ const { db } = require("../../db/knex");
 const { ORDER_STATUSES } = require("../../constants/order-statuses");
 const { createHttpError } = require("../../utils/http-error");
 const { generateOrderNumber } = require("../../utils/order-number");
+const {
+  PUBLIC_FIELD_LIMITS,
+  isValidUkrainianPhone,
+  normalizePhone,
+  normalizePlainText
+} = require("../../utils/public-input-validation");
 const { buildActiveCartKey, getOrCreateActiveCart, serializeCart } = require("../cart/cart.service");
 const { recordPromoCodeRedemption } = require("../promotions/promo-codes.service");
 const { sendOrderStatusNotification } = require("../notifications/notifications.service");
 
 function validateCheckoutPayload(payload) {
   const errors = {};
-  if (!payload.customer_name?.trim()) errors.customer_name = "Customer name is required";
-  if (!payload.phone?.trim()) errors.phone = "Phone is required";
-  if (!payload.delivery_method?.trim()) errors.delivery_method = "Delivery method is required";
-  if (!payload.delivery_address?.trim()) errors.delivery_address = "Delivery address is required";
-  if (!payload.accepted_offer) errors.accepted_offer = "Offer acceptance is required";
-  if (!payload.accepted_return_policy) errors.accepted_return_policy = "Return policy acceptance is required";
+  const normalized = {
+    customer_name: normalizePlainText(payload.customer_name),
+    phone: normalizePhone(payload.phone),
+    delivery_method: String(payload.delivery_method || "").trim(),
+    delivery_address: normalizePlainText(payload.delivery_address),
+    accepted_offer: Boolean(payload.accepted_offer),
+    accepted_return_policy: Boolean(payload.accepted_return_policy)
+  };
+
+  if (!normalized.customer_name) errors.customer_name = "Customer name is required";
+  else if (normalized.customer_name.length > PUBLIC_FIELD_LIMITS.nameMax) {
+    errors.customer_name = `Customer name must be at most ${PUBLIC_FIELD_LIMITS.nameMax} characters long`;
+  }
+
+  if (!normalized.phone) errors.phone = "Phone is required";
+  else if (!isValidUkrainianPhone(normalized.phone)) {
+    errors.phone = "Phone must be a valid Ukrainian number, for example +380991234567";
+  }
+
+  if (!normalized.delivery_method) errors.delivery_method = "Delivery method is required";
+  else if (!["nova_poshta", "courier"].includes(normalized.delivery_method)) {
+    errors.delivery_method = "Delivery method is unsupported";
+  }
+
+  if (!normalized.delivery_address) errors.delivery_address = "Delivery address is required";
+  else if (normalized.delivery_address.length < PUBLIC_FIELD_LIMITS.addressMin) {
+    errors.delivery_address = `Delivery address must be at least ${PUBLIC_FIELD_LIMITS.addressMin} characters long`;
+  } else if (normalized.delivery_address.length > PUBLIC_FIELD_LIMITS.addressMax) {
+    errors.delivery_address = `Delivery address must be at most ${PUBLIC_FIELD_LIMITS.addressMax} characters long`;
+  }
+
+  if (!normalized.accepted_offer) errors.accepted_offer = "Offer acceptance is required";
+  if (!normalized.accepted_return_policy) errors.accepted_return_policy = "Return policy acceptance is required";
 
   if (Object.keys(errors).length > 0) {
     throw createHttpError(422, "VALIDATION_ERROR", "Checkout payload is invalid", errors);
   }
+
+  return normalized;
 }
 
 async function createCheckoutOrder(userId, payload) {
-  validateCheckoutPayload(payload);
+  const validatedPayload = validateCheckoutPayload(payload);
 
   const result = await db.transaction(async (trx) => {
     const user = await trx("users").where({ id: userId }).first();
@@ -62,11 +97,11 @@ async function createCheckoutOrder(userId, payload) {
       order_number: orderNumber,
       user_id: userId,
       status: ORDER_STATUSES.CREATED_PENDING_PAYMENT,
-      customer_name: payload.customer_name.trim(),
+      customer_name: validatedPayload.customer_name,
       email: String(user.email || payload.email || "").trim().toLowerCase(),
-      phone: payload.phone.trim(),
-      delivery_method: payload.delivery_method.trim(),
-      delivery_address: payload.delivery_address.trim(),
+      phone: validatedPayload.phone,
+      delivery_method: validatedPayload.delivery_method,
+      delivery_address: validatedPayload.delivery_address,
       subtotal_amount: serializedCart.subtotal_amount,
       discount_amount: serializedCart.discount_amount,
       total_amount: serializedCart.total_amount,

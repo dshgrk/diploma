@@ -5246,6 +5246,15 @@ body {
   font: inherit;
 }
 
+.checkout-react-form input[aria-invalid="true"],
+.checkout-react-form select[aria-invalid="true"],
+.checkout-react-form textarea[aria-invalid="true"],
+.auth-field input[aria-invalid="true"],
+.catalog-price-field input[aria-invalid="true"] {
+  border-color: rgba(163, 66, 57, 0.42);
+  box-shadow: 0 0 0 3px rgba(163, 66, 57, 0.08);
+}
+
 .constructor-options-grid,
 .checkout-react-form,
 .cart-items-list,
@@ -6020,6 +6029,12 @@ body {
   color: var(--ink-soft);
   font-size: 0.85rem;
   line-height: 1.5;
+}
+
+.form-field-error {
+  color: #93382f;
+  font-size: 0.84rem;
+  line-height: 1.45;
 }
 
 .auth-secondary-actions {

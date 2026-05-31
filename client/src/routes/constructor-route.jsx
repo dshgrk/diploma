@@ -10,6 +10,7 @@ import {
   resolveCustomDesignPendantChain
 } from "../pendant-chain";
 import { buildStoneCodeMap, JewelryPreview, previewStoneStyle } from "../jewelry-preview";
+import { normalizeEngravingText } from "../public-form-validation";
 import { referenceCopy } from "../content";
 import { formatCurrency } from "../utils";
 import { AuroraBackground, Footer, Header, LOCALE_FORMATS, usePublicLocale } from "./public-shell.jsx";
@@ -438,10 +439,17 @@ function ConstructorStudioPage({ locale }) {
   async function handleAddDesign() {
     if (!currentType || !currentVariant || !calculation?.is_valid) return;
     setIsAdding(true);
+    const normalizedConfiguration = {
+      ...configuration,
+      variant_id: Number(currentVariant.id)
+    };
+    const normalizedEngraving = normalizeEngravingText(configuration.engraving_text);
+    if (normalizedEngraving) normalizedConfiguration.engraving_text = normalizedEngraving;
+    else delete normalizedConfiguration.engraving_text;
     const payload = {
       item_type: "custom_design",
       jewelry_type_id: Number(currentType.id),
-      configuration: { ...configuration, variant_id: Number(currentVariant.id) }
+      configuration: normalizedConfiguration
     };
     try {
       const cart = await cartApi.addItem(payload);
@@ -454,7 +462,7 @@ function ConstructorStudioPage({ locale }) {
           jewelry_type_id: Number(currentType.id),
           jewelry_type_code: currentType.code,
           title: calculation?.jewelry_type || currentType.name || t(locale, "personalDesign"),
-          configuration: calculation?.normalized_configuration || { ...configuration, variant_id: Number(currentVariant.id) },
+          configuration: calculation?.normalized_configuration || normalizedConfiguration,
           unit_price: Number(calculation?.price || 0),
           quantity: 1
         });

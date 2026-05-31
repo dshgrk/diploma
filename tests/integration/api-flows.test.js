@@ -87,6 +87,22 @@ describe("api flows", () => {
     expect(user.email_verified_at).toBeNull();
   });
 
+  test("registration normalizes local Ukrainian phone to +380 format", async () => {
+    const app = createApp();
+    const response = await request(app).post("/api/auth/register").send({
+      full_name: "Normalized User",
+      email: "normalized-user@aurora.local",
+      password: "password123",
+      phone: "0991234567"
+    });
+
+    expect(response.status).toBe(201);
+    expect(response.body.data.user.phone).toBe("+380991234567");
+
+    const user = await db("users").where({ email: "normalized-user@aurora.local" }).first();
+    expect(user.phone).toBe("+380991234567");
+  });
+
   test("client login creates a session and logout clears it", async () => {
     const app = createApp();
     const agent = request.agent(app);
@@ -254,6 +270,31 @@ describe("api flows", () => {
     expect(response.body.error.code).toBe("VALIDATION_ERROR");
     expect(response.body.error.details.accepted_offer).toBeTruthy();
     expect(response.body.error.details.accepted_return_policy).toBeTruthy();
+  });
+
+  test("checkout endpoint rejects invalid phone and blank address", async () => {
+    const app = createApp();
+    const agent = request.agent(app);
+
+    await agent.post("/api/auth/login").send({
+      email: "client@aurora.local",
+      password: "password123"
+    });
+
+    const response = await agent.post("/api/checkout").send({
+      customer_name: "Дарина Клієнт",
+      email: "client@aurora.local",
+      phone: "12345",
+      delivery_method: "nova_poshta",
+      delivery_address: "   ",
+      accepted_offer: true,
+      accepted_return_policy: true
+    });
+
+    expect(response.status).toBe(422);
+    expect(response.body.error.code).toBe("VALIDATION_ERROR");
+    expect(response.body.error.details.phone).toBeTruthy();
+    expect(response.body.error.details.delivery_address).toBeTruthy();
   });
 
   test("orders endpoints require ownership and authentication", async () => {

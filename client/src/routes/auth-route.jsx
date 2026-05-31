@@ -2,6 +2,14 @@ import React, { useEffect, useState } from "react";
 import { Award, Check, Shield, Sparkles, Truck } from "lucide-react";
 import { authApi, cartApi } from "../api";
 import { FALLBACK_PRODUCT_IMAGE } from "../content";
+import {
+  extractValidationErrors,
+  normalizeUkrainianPhone,
+  sanitizePhoneDraft,
+  sanitizeVerificationCode,
+  validateAuthForm,
+  validateVerificationCode
+} from "../public-form-validation";
 import { AuroraBackground, Footer, Header, usePublicLocale } from "./public-shell.jsx";
 import "../styles.css";
 
@@ -185,6 +193,7 @@ function AuthPage({ locale }) {
   const [pendingVerificationEmail, setPendingVerificationEmail] = useState("");
   const [googleConfig, setGoogleConfig] = useState({ enabled: false, client_id: "" });
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notice, setNotice] = useState("");
   const googleButtonRef = React.useRef(null);
@@ -306,17 +315,20 @@ function AuthPage({ locale }) {
     event.preventDefault();
     setError("");
     setNotice("");
+    setFieldErrors({});
 
     if (isVerifyStep) {
-      if (!verificationCode.trim()) {
-        setError(`${text(locale, "authVerificationCode")} ${text(locale, "fillRequired")}`);
+      const verification = validateVerificationCode(verificationCode, locale);
+      if (verification.error) {
+        setFieldErrors({ verificationCode: verification.error });
         return;
       }
       setIsSubmitting(true);
       try {
-        await authApi.verifyEmail({ email: pendingVerificationEmail, code: verificationCode.trim() });
+        await authApi.verifyEmail({ email: pendingVerificationEmail, code: verification.value });
         await finalizeAfterAuth();
       } catch (err) {
+        setFieldErrors(extractValidationErrors(err));
         setError(err.message);
       } finally {
         setIsSubmitting(false);
@@ -324,42 +336,37 @@ function AuthPage({ locale }) {
       return;
     }
 
-    if (mode === "register" && !name.trim()) {
-      setError(`${text(locale, "name")} ${text(locale, "fillRequired")}`);
-      return;
-    }
-    if (mode === "register" && !phone.trim()) {
-      setError(`${text(locale, "phone")} ${text(locale, "fillRequired")}`);
-      return;
-    }
-    if (!email.includes("@")) {
-      setError(`${text(locale, "email")} ${text(locale, "fillRequired")}`);
-      return;
-    }
-    if (password.length < 6) {
-      setError(text(locale, "fillRequired"));
+    const validation = validateAuthForm({ mode, name, phone, email, password }, locale);
+    if (Object.keys(validation.errors).length > 0) {
+      setFieldErrors(validation.errors);
       return;
     }
 
     setIsSubmitting(true);
     try {
       if (mode === "register") {
-        const result = await authApi.register({ full_name: name.trim(), phone: phone.trim(), email, password });
+        const result = await authApi.register({
+          full_name: validation.values.full_name,
+          phone: validation.values.phone,
+          email: validation.values.email,
+          password: validation.values.password
+        });
         if (result?.verification_required) {
-          setPendingVerificationEmail(result.verification?.email || email);
+          setPendingVerificationEmail(result.verification?.email || validation.values.email);
           setVerificationCode("");
           setNotice(isUk ? "Ми надіслали код підтвердження на вашу пошту." : "We sent a verification code to your email.");
           return;
         }
       } else {
-        await authApi.login({ email, password });
+        await authApi.login({ email: validation.values.email, password: validation.values.password });
       }
       await finalizeAfterAuth();
     } catch (err) {
       if (err.payload?.error?.code === "EMAIL_NOT_VERIFIED") {
-        setPendingVerificationEmail(email);
+        setPendingVerificationEmail(validation.values.email);
         setNotice(isUk ? "Спершу підтвердьте email кодом з листа." : "Please verify your email with the code from the message first.");
       }
+      setFieldErrors(extractValidationErrors(err));
       setError(err.message);
     } finally {
       setIsSubmitting(false);
@@ -370,11 +377,13 @@ function AuthPage({ locale }) {
     setMode(next);
     setError("");
     setNotice("");
+    setFieldErrors({});
   }
 
   async function resendCode() {
     setError("");
     setNotice("");
+    setFieldErrors({});
     setIsSubmitting(true);
     try {
       await authApi.resendVerificationCode(pendingVerificationEmail);
@@ -391,6 +400,7 @@ function AuthPage({ locale }) {
     setVerificationCode("");
     setError("");
     setNotice("");
+    setFieldErrors({});
   }
 
   return (
@@ -443,11 +453,17 @@ function AuthPage({ locale }) {
                         type="text"
                         inputMode="numeric"
                         autoComplete="one-time-code"
+                        maxLength={6}
+                        aria-invalid={Boolean(fieldErrors.verificationCode || fieldErrors.code)}
                         value={verificationCode}
-                        onChange={(event) => setVerificationCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
+                        onChange={(event) => {
+                          setVerificationCode(sanitizeVerificationCode(event.target.value));
+                          setFieldErrors((current) => ({ ...current, verificationCode: "", code: "" }));
+                        }}
                         placeholder="123456"
                         required
                       />
+                      {fieldErrors.verificationCode || fieldErrors.code ? <small className="form-field-error">{fieldErrors.verificationCode || fieldErrors.code}</small> : null}
                     </label>
                   </>
                 ) : (
@@ -456,29 +472,73 @@ function AuthPage({ locale }) {
                       <div className="auth-field-grid">
                         <label className="auth-field">
                           <span>{text(locale, "name")}</span>
-                          <input type="text" autoComplete="name" value={name} onChange={(event) => setName(event.target.value)} placeholder="Aurora Atelier" required />
+                          <input
+                            type="text"
+                            autoComplete="name"
+                            maxLength={120}
+                            aria-invalid={Boolean(fieldErrors.name || fieldErrors.full_name)}
+                            value={name}
+                            onChange={(event) => {
+                              setName(event.target.value);
+                              setFieldErrors((current) => ({ ...current, name: "", full_name: "" }));
+                            }}
+                            placeholder="Aurora Atelier"
+                            required
+                          />
+                          {fieldErrors.name || fieldErrors.full_name ? <small className="form-field-error">{fieldErrors.name || fieldErrors.full_name}</small> : null}
                         </label>
                         <label className="auth-field">
                           <span>{text(locale, "phone")}</span>
-                          <input type="tel" autoComplete="tel" value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="+380991234567" required />
+                          <input
+                            type="tel"
+                            autoComplete="tel"
+                            inputMode="tel"
+                            aria-invalid={Boolean(fieldErrors.phone)}
+                            value={phone}
+                            onChange={(event) => {
+                              setPhone(sanitizePhoneDraft(event.target.value));
+                              setFieldErrors((current) => ({ ...current, phone: "" }));
+                            }}
+                            onBlur={() => setPhone((current) => normalizeUkrainianPhone(current))}
+                            placeholder="+380991234567"
+                            required
+                          />
+                          {fieldErrors.phone ? <small className="form-field-error">{fieldErrors.phone}</small> : null}
                         </label>
                       </div>
                     ) : null}
                     <label className="auth-field">
                       <span>{text(locale, "email")}</span>
-                      <input type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" required />
+                      <input
+                        type="email"
+                        autoComplete="email"
+                        aria-invalid={Boolean(fieldErrors.email)}
+                        value={email}
+                        onChange={(event) => {
+                          setEmail(event.target.value);
+                          setFieldErrors((current) => ({ ...current, email: "" }));
+                        }}
+                        placeholder="you@example.com"
+                        required
+                      />
+                      {fieldErrors.email ? <small className="form-field-error">{fieldErrors.email}</small> : null}
                     </label>
                     <label className="auth-field">
                       <span>{text(locale, "password")}</span>
                       <input
                         type="password"
                         autoComplete={mode === "login" ? "current-password" : "new-password"}
+                        aria-invalid={Boolean(fieldErrors.password)}
                         value={password}
-                        onChange={(event) => setPassword(event.target.value)}
+                        onChange={(event) => {
+                          setPassword(event.target.value);
+                          setFieldErrors((current) => ({ ...current, password: "" }));
+                        }}
                         placeholder="••••••••"
                         minLength={6}
                         required
                       />
+                      {fieldErrors.password ? <small className="form-field-error">{fieldErrors.password}</small> : null}
                       <small className="auth-field-note">{text(locale, "authPasswordHint")}</small>
                     </label>
                   </>

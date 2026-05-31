@@ -7,6 +7,7 @@ import {
   productTypeLabel,
   referenceCopy
 } from "../content";
+import { normalizeCatalogPriceInput, validateCatalogPriceRange } from "../public-form-validation";
 import { formatCurrency } from "../utils";
 import { AuroraBackground, Footer, Header, LOCALE_FORMATS, usePublicLocale } from "./public-shell.jsx";
 import "../styles.css";
@@ -58,10 +59,6 @@ function sortCatalogFacetValues(values = [], key, locale) {
 
     return localizeProductFilterValue(left, locale).localeCompare(localizeProductFilterValue(right, locale), normalizedLocale);
   });
-}
-
-function normalizeCatalogPriceInput(value) {
-  return String(value || "").replace(/[^\d]/g, "");
 }
 
 function getCatalogTypeFromSearch() {
@@ -164,12 +161,23 @@ function CatalogPage({ locale }) {
   const loadMoreRef = React.useRef(null);
   const copy = referenceCopy(locale);
   const catalogUi = getCatalogUiCopy(locale);
+  const priceRangeValidation = useMemo(
+    () => validateCatalogPriceRange({ priceMin: catalogFilters.priceMin, priceMax: catalogFilters.priceMax }, locale),
+    [catalogFilters.priceMin, catalogFilters.priceMax, locale]
+  );
   const catalogQuery = useMemo(
-    () => ({
-      ...(activeType === "all" ? {} : { type: activeType }),
-      ...catalogFilters
-    }),
-    [activeType, catalogFilters]
+    () => {
+      const nextQuery = {
+        ...(activeType === "all" ? {} : { type: activeType }),
+        ...catalogFilters
+      };
+      if (!priceRangeValidation.isValid) {
+        nextQuery.priceMin = "";
+        nextQuery.priceMax = "";
+      }
+      return nextQuery;
+    },
+    [activeType, catalogFilters, priceRangeValidation.isValid]
   );
   const catalogQuerySignature = useMemo(() => JSON.stringify(catalogQuery), [catalogQuery]);
 
@@ -383,6 +391,7 @@ function CatalogPage({ locale }) {
                 <input
                   type="text"
                   inputMode="numeric"
+                  aria-invalid={!priceRangeValidation.isValid}
                   value={catalogFilters.priceMin}
                   onChange={(event) => setCatalogFilters((current) => ({ ...current, priceMin: normalizeCatalogPriceInput(event.target.value) }))}
                   placeholder={priceBounds.min ? String(priceBounds.min) : "0"}
@@ -393,12 +402,14 @@ function CatalogPage({ locale }) {
                 <input
                   type="text"
                   inputMode="numeric"
+                  aria-invalid={!priceRangeValidation.isValid}
                   value={catalogFilters.priceMax}
                   onChange={(event) => setCatalogFilters((current) => ({ ...current, priceMax: normalizeCatalogPriceInput(event.target.value) }))}
                   placeholder={priceBounds.max ? String(priceBounds.max) : "0"}
                 />
               </label>
             </div>
+            {!priceRangeValidation.isValid ? <small className="form-field-error">{priceRangeValidation.error}</small> : null}
           </section>
         </div>
 

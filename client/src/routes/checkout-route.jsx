@@ -3,6 +3,12 @@ import { Check, ChevronRight } from "lucide-react";
 import { authApi, cartApi, ordersApi } from "../api";
 import { setPostAuthRedirect } from "../features/cart/cart-events";
 import { getReadyProductSizeLabel } from "../ready-product";
+import {
+  extractValidationErrors,
+  normalizeUkrainianPhone,
+  sanitizePhoneDraft,
+  validateCheckoutForm
+} from "../public-form-validation";
 import { CHECKOUT_COPY, publicText } from "../i18n/public-copy";
 import { formatCurrency } from "../utils";
 import { AuroraBackground, Footer, Header, LOCALE_FORMATS, usePublicLocale } from "./public-shell.jsx";
@@ -19,6 +25,7 @@ export default function CheckoutRoute() {
   const [sessionUser, setSessionUser] = useState(null);
   const [loadError, setLoadError] = useState("");
   const [toast, setToast] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
   const [createdOrder, setCreatedOrder] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState({
@@ -83,16 +90,27 @@ export default function CheckoutRoute() {
       ...current,
       [name]: type === "checkbox" ? checked : value
     }));
+    setFieldErrors((current) => ({ ...current, [name]: "" }));
   }
 
   async function handleCheckout(event) {
     event.preventDefault();
+    setFieldErrors({});
+    const validation = validateCheckoutForm(form, locale);
+    if (Object.keys(validation.errors).length > 0) {
+      setFieldErrors(validation.errors);
+      return;
+    }
     setIsSubmitting(true);
     try {
-      const result = await ordersApi.checkout(form);
+      const result = await ordersApi.checkout({
+        ...form,
+        ...validation.values
+      });
       setCreatedOrder(result);
       setToast(t(locale, "orderReservedToast"));
     } catch (error) {
+      setFieldErrors(extractValidationErrors(error));
       setToast(error.message);
     } finally {
       setIsSubmitting(false);
@@ -155,10 +173,18 @@ export default function CheckoutRoute() {
                   <p>{t(locale, "confirmDetailsText")}</p>
                 </div>
 
-                <form className="checkout-react-form" onSubmit={handleCheckout}>
+                <form className="checkout-react-form" onSubmit={handleCheckout} noValidate>
                   <label>
                     <span>{t(locale, "name")}</span>
-                    <input name="customer_name" required value={form.customer_name} onChange={updateForm} />
+                    <input
+                      name="customer_name"
+                      maxLength={120}
+                      aria-invalid={Boolean(fieldErrors.customer_name)}
+                      required
+                      value={form.customer_name}
+                      onChange={updateForm}
+                    />
+                    {fieldErrors.customer_name ? <small className="form-field-error">{fieldErrors.customer_name}</small> : null}
                   </label>
                   {sessionUser ? (
                     <div className="checkout-account-identity">
@@ -168,42 +194,69 @@ export default function CheckoutRoute() {
                   ) : null}
                   <label>
                     <span>{t(locale, "phone")}</span>
-                    <input name="phone" required value={form.phone} onChange={updateForm} />
+                    <input
+                      name="phone"
+                      type="tel"
+                      inputMode="tel"
+                      aria-invalid={Boolean(fieldErrors.phone)}
+                      required
+                      value={form.phone}
+                      onChange={(event) => {
+                        updateForm({
+                          target: {
+                            name: event.target.name,
+                            type: event.target.type,
+                            checked: event.target.checked,
+                            value: sanitizePhoneDraft(event.target.value)
+                          }
+                        });
+                      }}
+                      onBlur={() => setForm((current) => ({ ...current, phone: normalizeUkrainianPhone(current.phone) }))}
+                    />
+                    {fieldErrors.phone ? <small className="form-field-error">{fieldErrors.phone}</small> : null}
                   </label>
                   <label>
                     <span>{t(locale, "deliveryMethod")}</span>
-                    <select name="delivery_method" required value={form.delivery_method} onChange={updateForm}>
+                    <select name="delivery_method" aria-invalid={Boolean(fieldErrors.delivery_method)} required value={form.delivery_method} onChange={updateForm}>
                       <option value="nova_poshta">{t(locale, "novaPoshta")}</option>
                       <option value="courier">{t(locale, "courier")}</option>
                     </select>
+                    {fieldErrors.delivery_method ? <small className="form-field-error">{fieldErrors.delivery_method}</small> : null}
                   </label>
                   <label className="checkout-full">
                     <span>{t(locale, "deliveryAddress")}</span>
                     <textarea
                       name="delivery_address"
+                      maxLength={240}
+                      aria-invalid={Boolean(fieldErrors.delivery_address)}
                       required
                       placeholder={t(locale, "addressPlaceholder")}
                       value={form.delivery_address}
                       onChange={updateForm}
                     />
+                    {fieldErrors.delivery_address ? <small className="form-field-error">{fieldErrors.delivery_address}</small> : null}
                   </label>
                   <label className="checkout-checkbox checkout-full">
                     <input
                       type="checkbox"
                       name="accepted_offer"
+                      aria-invalid={Boolean(fieldErrors.accepted_offer)}
                       checked={form.accepted_offer}
                       onChange={updateForm}
                     />
                     <span>{t(locale, "acceptOffer")}</span>
+                    {fieldErrors.accepted_offer ? <small className="form-field-error">{fieldErrors.accepted_offer}</small> : null}
                   </label>
                   <label className="checkout-checkbox checkout-full">
                     <input
                       type="checkbox"
                       name="accepted_return_policy"
+                      aria-invalid={Boolean(fieldErrors.accepted_return_policy)}
                       checked={form.accepted_return_policy}
                       onChange={updateForm}
                     />
                     <span>{t(locale, "acceptReturn")}</span>
+                    {fieldErrors.accepted_return_policy ? <small className="form-field-error">{fieldErrors.accepted_return_policy}</small> : null}
                   </label>
                   <button className="button checkout-submit" type="submit" disabled={isSubmitting}>
                     {isSubmitting ? t(locale, "creatingOrder") : t(locale, "createOrder")}

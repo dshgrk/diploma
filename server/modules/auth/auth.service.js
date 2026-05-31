@@ -8,6 +8,15 @@ const { createHttpError } = require("../../utils/http-error");
 const { generateSessionToken, hashSessionToken } = require("../../utils/session");
 const { logger } = require("../../utils/logger");
 const {
+  PUBLIC_FIELD_LIMITS,
+  isValidEmail,
+  isValidUkrainianPhone,
+  normalizeEmail,
+  normalizePhone,
+  normalizePlainText,
+  normalizeVerificationCode
+} = require("../../utils/public-input-validation");
+const {
   generateVerificationCode,
   hashVerificationCode,
   sendVerificationCodeEmail
@@ -36,21 +45,6 @@ function serializeUser(user) {
     email_verified_at: user.email_verified_at || null,
     email_verified: Boolean(user.email_verified_at)
   };
-}
-
-function normalizePhone(phone) {
-  const compact = String(phone || "").trim().replace(/[\s()-]/g, "");
-  if (/^0\d{9}$/.test(compact)) return `+38${compact}`;
-  if (/^380\d{9}$/.test(compact)) return `+${compact}`;
-  return compact;
-}
-
-function isValidUkrainianPhone(phone) {
-  return /^\+380\d{9}$/.test(normalizePhone(phone));
-}
-
-function normalizeEmail(email) {
-  return String(email || "").trim().toLowerCase();
 }
 
 async function createSessionForUser(userId, req, res) {
@@ -83,6 +77,7 @@ async function destroySession(req, res) {
 function validateLocalLoginPayload(payload) {
   const errors = {};
   if (!payload.email?.trim()) errors.email = "Email is required";
+  else if (!isValidEmail(payload.email)) errors.email = "Email must be valid";
   if (!payload.password?.trim()) errors.password = "Password is required";
   if (Object.keys(errors).length > 0) {
     throw createHttpError(422, "VALIDATION_ERROR", "Invalid authentication payload", errors);
@@ -92,9 +87,15 @@ function validateLocalLoginPayload(payload) {
 function validateRegisterPayload(payload) {
   const errors = {};
   if (!(payload.full_name || payload.name)?.trim()) errors.full_name = "Full name is required";
+  else if (normalizePlainText(payload.full_name || payload.name).length > PUBLIC_FIELD_LIMITS.nameMax) {
+    errors.full_name = `Full name must be at most ${PUBLIC_FIELD_LIMITS.nameMax} characters long`;
+  }
   if (!payload.email?.trim()) errors.email = "Email is required";
+  else if (!isValidEmail(payload.email)) errors.email = "Email must be valid";
   if (!payload.password?.trim()) errors.password = "Password is required";
-  if (payload.password && payload.password.length < 6) errors.password = "Password must be at least 6 characters long";
+  if (payload.password && payload.password.length < PUBLIC_FIELD_LIMITS.passwordMin) {
+    errors.password = `Password must be at least ${PUBLIC_FIELD_LIMITS.passwordMin} characters long`;
+  }
   if (!payload.phone?.trim()) errors.phone = "Phone is required";
   if (payload.phone?.trim() && !isValidUkrainianPhone(payload.phone)) {
     errors.phone = "Phone must be a valid Ukrainian number, for example +380991234567";
@@ -146,7 +147,7 @@ async function registerClient(payload) {
   const passwordHash = await bcrypt.hash(payload.password, 10);
   const [userId] = await db("users").insert({
     role: ROLES.CLIENT,
-    full_name: String(payload.full_name || payload.name).trim(),
+    full_name: normalizePlainText(payload.full_name || payload.name),
     email,
     phone: normalizedPhone,
     password_hash: passwordHash,
@@ -169,12 +170,20 @@ async function registerClient(payload) {
 
 async function verifyEmailCode(payload, req, res) {
   const email = normalizeEmail(payload.email);
-  const code = String(payload.code || "").trim();
-  if (!email || !code) {
-    throw createHttpError(422, "VALIDATION_ERROR", "Email and code are required", {
-      email: "Email is required",
-      code: "Code is required"
-    });
+  const code = normalizeVerificationCode(payload.code);
+  const errors = {};
+  if (!email) {
+    errors.email = "Email is required";
+  } else if (!isValidEmail(email)) {
+    errors.email = "Email must be valid";
+  }
+  if (!code) {
+    errors.code = "Code is required";
+  } else if (code.length !== PUBLIC_FIELD_LIMITS.verificationCodeLength) {
+    errors.code = `Code must contain ${PUBLIC_FIELD_LIMITS.verificationCodeLength} digits`;
+  }
+  if (Object.keys(errors).length > 0) {
+    throw createHttpError(422, "VALIDATION_ERROR", "Email and code are required", errors);
   }
 
   const user = await db("users").where({ email }).first();
@@ -219,6 +228,9 @@ async function resendVerificationCode(payload) {
   const email = normalizeEmail(payload.email);
   if (!email) {
     throw createHttpError(422, "VALIDATION_ERROR", "Email is required", { email: "Email is required" });
+  }
+  if (!isValidEmail(email)) {
+    throw createHttpError(422, "VALIDATION_ERROR", "Email must be valid", { email: "Email must be valid" });
   }
 
   const user = await db("users").where({ email }).first();
