@@ -57,8 +57,9 @@ export default function OrdersRoute() {
   return (
     <>
       <AuroraBackground />
-      <Header locale={locale} onToggleLocale={toggleLocale} />
-      <main>
+      <div className="app-shell">
+        <Header locale={locale} onToggleLocale={toggleLocale} />
+        <main>
         <section className="orders-react-hero">
           <div className="container orders-react-heading">
             <span className="badge">{t(locale, "purchaseHistory")}</span>
@@ -122,8 +123,9 @@ export default function OrdersRoute() {
             </div>
           </section>
         ) : null}
-      </main>
-      <Footer locale={locale} />
+        </main>
+        <Footer locale={locale} />
+      </div>
     </>
   );
 }

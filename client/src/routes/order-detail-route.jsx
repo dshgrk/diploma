@@ -134,8 +134,9 @@ export default function OrderDetailRoute() {
   return (
     <>
       <AuroraBackground />
-      <Header locale={locale} onToggleLocale={toggleLocale} />
-      <main>
+      <div className="app-shell">
+        <Header locale={locale} onToggleLocale={toggleLocale} />
+        <main>
         {loadError ? (
           <section className="section">
             <div className="container empty-state-react">
@@ -268,8 +269,9 @@ export default function OrderDetailRoute() {
             </section>
           </>
         ) : null}
-      </main>
-      <Footer locale={locale} />
+        </main>
+        <Footer locale={locale} />
+      </div>
     </>
   );
 }

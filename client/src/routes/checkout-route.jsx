@@ -122,8 +122,9 @@ export default function CheckoutRoute() {
   return (
     <>
       <AuroraBackground />
-      <Header locale={locale} onToggleLocale={toggleLocale} />
-      <main>
+      <div className="app-shell">
+        <Header locale={locale} onToggleLocale={toggleLocale} />
+        <main>
         <section className="checkout-react-hero">
           <div className="container checkout-react-heading">
             <span className="badge">{t(locale, "secureCheckout")}</span>
@@ -316,8 +317,9 @@ export default function CheckoutRoute() {
             </div>
           </section>
         ) : null}
-      </main>
-      <Footer locale={locale} />
+        </main>
+        <Footer locale={locale} />
+      </div>
       {toast ? <div className="react-toast">{toast}</div> : null}
     </>
   );

@@ -133,8 +133,9 @@ export default function CartRoute() {
   return (
     <>
       <AuroraBackground />
-      <Header locale={locale} onToggleLocale={toggleLocale} />
-      <main>
+      <div className="app-shell">
+        <Header locale={locale} onToggleLocale={toggleLocale} />
+        <main>
         <section className="cart-react-hero">
           <div className="container cart-react-heading">
             <span className="badge">{t(locale, copy, "almostThere")}</span>
@@ -316,8 +317,9 @@ export default function CartRoute() {
             </div>
           </section>
         ) : null}
-      </main>
-      <Footer locale={locale} />
+        </main>
+        <Footer locale={locale} />
+      </div>
       {toast ? <div className="react-toast">{toast}</div> : null}
     </>
   );

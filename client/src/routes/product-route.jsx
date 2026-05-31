@@ -199,8 +199,9 @@ export default function ProductRoute() {
   return (
     <>
       <AuroraBackground />
-      <Header locale={locale} onToggleLocale={toggleLocale} />
-      <main className="page-main">
+      <div className="app-shell">
+        <Header locale={locale} onToggleLocale={toggleLocale} />
+        <main className="page-main">
         {loadError ? (
           <section className="section">
             <div className="container empty-state-react">
@@ -319,8 +320,9 @@ export default function ProductRoute() {
             </div>
           </div>
         ) : null}
-      </main>
-      <Footer locale={locale} />
+        </main>
+        <Footer locale={locale} />
+      </div>
       {toast ? (
         <div className={`react-toast ${toast.kind === "success" ? "react-toast-success" : "react-toast-error"}`}>
           <div className="react-toast-icon">{toast.kind === "success" ? <Check aria-hidden="true" size={16} /> : <X aria-hidden="true" size={16} />}</div>
