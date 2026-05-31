@@ -5265,6 +5265,34 @@ body {
   gap: 1rem;
 }
 
+.checkout-checkbox {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  column-gap: 0.85rem;
+  row-gap: 0.35rem;
+}
+
+.checkout-checkbox input[type="checkbox"] {
+  width: 20px;
+  min-width: 20px;
+  height: 20px;
+  min-height: 20px;
+  margin-top: 0.2rem;
+  padding: 0;
+  border-radius: 5px;
+  accent-color: var(--accent);
+  justify-self: start;
+}
+
+.checkout-checkbox > span {
+  grid-column: 2;
+}
+
+.checkout-checkbox .form-field-error {
+  grid-column: 2;
+}
+
 .constructor-preview-stage {
   display: grid;
   place-items: center;
