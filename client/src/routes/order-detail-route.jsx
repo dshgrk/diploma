@@ -44,8 +44,6 @@ function OrderDetailItemCard({ item, order, locale, localeFormat, constructorCon
             <span className="badge subtle">{item.item_type === "custom_design" ? (locale === "uk" ? "Налаштований дизайн" : "Configured design") : (locale === "uk" ? "Готовий виріб" : "Finished piece")}</span>
           </div>
           <h3>{item.title}</h3>
-          <p>{item.item_type === "custom_design" ? (locale === "uk" ? "Персональний дизайн" : "Personal design") : (locale === "uk" ? "Готовий виріб" : "Finished piece")}</p>
-
           {item.item_type === "custom_design" ? (
             <div className="order-detail-item-meta-grid">
               <div className="order-detail-item-meta">

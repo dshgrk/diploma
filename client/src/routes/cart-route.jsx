@@ -198,7 +198,6 @@ export default function CartRoute() {
                             <div>
                               <span className="badge subtle">{item.item_type === "custom_design" ? t(locale, copy, "configuredDesign") : t(locale, copy, "finishedPiece")}</span>
                               <h3>{item.title}</h3>
-                              <p>{item.item_type === "custom_design" ? t(locale, copy, "personalDesign") : t(locale, copy, "finishedPiece")}</p>
                             </div>
                           </div>
 
