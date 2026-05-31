@@ -5388,12 +5388,6 @@ body {
   margin: 0 auto;
 }
 
-.cart-item-preview-shell .studio-preview-base {
-  inset: 6%;
-  width: 88%;
-  height: 88%;
-}
-
 .cart-item-preview-shell .studio-preview-stone {
   background-size: 100% 100%;
 }
