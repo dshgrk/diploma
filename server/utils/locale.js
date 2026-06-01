@@ -1,13 +1,18 @@
 const { LOCALES } = require("../constants/locales");
 
 function resolveLocale(req, fallback = LOCALES.UK) {
-  if (req.user?.preferred_locale) {
-    return req.user.preferred_locale;
-  }
+  if (!req) return fallback;
 
-  const queryLocale = req.query.lang || req.headers["x-locale"];
+  const queryLocale = req.query?.lang || req.headers?.["x-locale"];
   if (queryLocale === LOCALES.EN) {
     return LOCALES.EN;
+  }
+  if (queryLocale === LOCALES.UK) {
+    return LOCALES.UK;
+  }
+
+  if (req.user?.preferred_locale) {
+    return req.user.preferred_locale;
   }
 
   return fallback;
@@ -20,10 +25,11 @@ function pickLocalizedFields(record, locale, fields) {
 
   const result = { ...record };
   fields.forEach((field) => {
-    const localizedKey = `${field}_${locale}`;
-    if (Object.prototype.hasOwnProperty.call(record, localizedKey)) {
-      result[field] = record[localizedKey];
-    }
+    const preferredKey = `${field}_${locale}`;
+    const fallbackKey = `${field}_${locale === LOCALES.EN ? LOCALES.UK : LOCALES.EN}`;
+    const preferredValue = Object.prototype.hasOwnProperty.call(record, preferredKey) ? record[preferredKey] : undefined;
+    const fallbackValue = Object.prototype.hasOwnProperty.call(record, fallbackKey) ? record[fallbackKey] : undefined;
+    result[field] = preferredValue || fallbackValue || record[field];
   });
   return result;
 }

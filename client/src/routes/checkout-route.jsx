@@ -75,7 +75,7 @@ export default function CheckoutRoute() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [locale]);
 
   useEffect(() => {
     if (!toast) return undefined;

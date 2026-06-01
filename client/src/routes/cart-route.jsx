@@ -60,7 +60,14 @@ export default function CartRoute() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [locale]);
+
+  useEffect(() => {
+    if (isAuthenticated) return;
+    const guestCart = readGuestCart();
+    setCart(guestCart);
+    syncCartCount(guestCart);
+  }, [isAuthenticated, locale]);
 
   useEffect(() => {
     let active = true;

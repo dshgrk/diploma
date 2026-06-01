@@ -8,6 +8,7 @@ const { attachPromoCodeToCart, detachPromoCodeFromCart, resolveAppliedPromo } = 
 const { resolveProductImage } = require("../../utils/product-image");
 const { normalizeReadyProductConfiguration, readyProductConfigurationsEqual } = require("../../utils/ready-product-size");
 const { calculateReadyProductUnitPrice, resolveReadyProductChainConfiguration } = require("../../utils/pendant-chain");
+const { pickLocalizedFields, resolveLocale } = require("../../utils/locale");
 
 const MAX_CART_ITEM_QUANTITY = 100;
 
@@ -71,6 +72,7 @@ async function getOrCreateActiveCart(userId, options = {}) {
 
 async function serializeCart(cartId, options = {}) {
   const trx = options.trx || db;
+  const locale = options.locale || "uk";
   const cart = await trx("carts").where({ id: cartId }).first();
   if (!cart) {
     throw createHttpError(404, "CART_NOT_FOUND", "Cart not found");
@@ -91,6 +93,8 @@ async function serializeCart(cartId, options = {}) {
       "products.slug as product_slug",
       "products.filter_type as product_type",
       "products.is_active as product_is_active",
+      "products.name_uk as product_name_uk",
+      "products.name_en as product_name_en",
       "jewelry_types.code as jewelry_type_code"
     )
     .where("cart_items.cart_id", cartId)
@@ -105,23 +109,36 @@ async function serializeCart(cartId, options = {}) {
     return accumulator;
   }, {});
 
-  const serializedItems = items.map((item) => ({
-    id: item.id,
-    item_type: item.item_type,
-    product_id: item.product_id,
-    jewelry_type_id: item.jewelry_type_id,
-    product_slug: item.product_slug,
-    product_type: item.product_type || null,
-    jewelry_type_code: item.jewelry_type_code,
-    thumbnail_url: item.product_id
-      ? resolveProductImage(imageByProductId[item.product_id]?.asset_path, item.product_type || item.jewelry_type_code, item.product_slug)
-      : null,
-    title: item.title_snapshot,
-    configuration: parseJsonField(item.configuration_json, {}),
-    unit_price: Number(item.unit_price),
-    quantity: item.quantity,
-    line_total: Number(item.unit_price) * item.quantity
-  }));
+  const serializedItems = items.map((item) => {
+    const localizedProduct = item.product_id
+      ? pickLocalizedFields(
+          {
+            name_uk: item.product_name_uk,
+            name_en: item.product_name_en
+          },
+          locale,
+          ["name"]
+        )
+      : null;
+
+    return {
+      id: item.id,
+      item_type: item.item_type,
+      product_id: item.product_id,
+      jewelry_type_id: item.jewelry_type_id,
+      product_slug: item.product_slug,
+      product_type: item.product_type || null,
+      jewelry_type_code: item.jewelry_type_code,
+      thumbnail_url: item.product_id
+        ? resolveProductImage(imageByProductId[item.product_id]?.asset_path, item.product_type || item.jewelry_type_code, item.product_slug)
+        : null,
+      title: item.item_type === CART_ITEM_TYPES.READY_PRODUCT ? localizedProduct?.name || item.title_snapshot : item.title_snapshot,
+      configuration: parseJsonField(item.configuration_json, {}),
+      unit_price: Number(item.unit_price),
+      quantity: item.quantity,
+      line_total: Number(item.unit_price) * item.quantity
+    };
+  });
 
   const subtotalAmount = sumMoney(serializedItems.map((item) => item.line_total));
   const promoPricing = await resolveAppliedPromo({
@@ -142,9 +159,9 @@ async function serializeCart(cartId, options = {}) {
   };
 }
 
-async function getCartForUser(userId) {
+async function getCartForUser(userId, options = {}) {
   const cart = await getOrCreateActiveCart(userId);
-  const serialized = await serializeCart(cart.id, { userId });
+  const serialized = await serializeCart(cart.id, { userId, locale: options.locale || "uk" });
   return {
     id: cart.id,
     status: cart.status,
@@ -154,6 +171,7 @@ async function getCartForUser(userId) {
 
 async function addCartItem(userId, payload, req) {
   const cart = await getOrCreateActiveCart(userId);
+  const locale = resolveLocale(req);
 
   if (payload.item_type === CART_ITEM_TYPES.READY_PRODUCT) {
     if (!payload.product_id) {
@@ -197,7 +215,7 @@ async function addCartItem(userId, payload, req) {
         item_type: CART_ITEM_TYPES.READY_PRODUCT,
         product_id: product.id,
         configuration_json: configurationJson,
-        title_snapshot: product.name_uk,
+        title_snapshot: pickLocalizedFields(product, locale, ["name"]).name,
         unit_price: unitPrice,
         quantity
       });
@@ -235,11 +253,12 @@ async function addCartItem(userId, payload, req) {
     throw createHttpError(422, "VALIDATION_ERROR", "Unsupported cart item type");
   }
 
-  return getCartForUser(userId);
+  return getCartForUser(userId, { locale });
 }
 
 async function updateCartItem(userId, itemId, payload, req) {
   const cart = await getOrCreateActiveCart(userId);
+  const locale = resolveLocale(req);
   const item = await db("cart_items").where({ id: itemId, cart_id: cart.id }).first();
 
   if (!item) {
@@ -296,16 +315,16 @@ async function updateCartItem(userId, itemId, payload, req) {
     });
   }
 
-  return getCartForUser(userId);
+  return getCartForUser(userId, { locale });
 }
 
-async function deleteCartItem(userId, itemId) {
+async function deleteCartItem(userId, itemId, options = {}) {
   const cart = await getOrCreateActiveCart(userId);
   await db("cart_items").where({ id: itemId, cart_id: cart.id }).del();
-  return getCartForUser(userId);
+  return getCartForUser(userId, options);
 }
 
-async function applyCartPromoCode(userId, code) {
+async function applyCartPromoCode(userId, code, options = {}) {
   const cart = await getOrCreateActiveCart(userId);
   await attachPromoCodeToCart({
     cartId: cart.id,
@@ -313,13 +332,13 @@ async function applyCartPromoCode(userId, code) {
     code
   });
 
-  return getCartForUser(userId);
+  return getCartForUser(userId, options);
 }
 
-async function removeCartPromoCode(userId) {
+async function removeCartPromoCode(userId, options = {}) {
   const cart = await getOrCreateActiveCart(userId);
   await detachPromoCodeFromCart({ cartId: cart.id });
-  return getCartForUser(userId);
+  return getCartForUser(userId, options);
 }
 
 module.exports = {

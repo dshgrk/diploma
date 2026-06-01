@@ -2,8 +2,18 @@ import { getReadyProductNormalizedSize, readyProductConfigurationsEqual } from "
 
 export const GUEST_CART_STORAGE_KEY = "aurora-guest-cart";
 export const MAX_CART_ITEM_QUANTITY = 100;
+const LOCALE_STORAGE_KEY = "aurora-locale";
+
+function getCurrentPublicLocale() {
+  try {
+    return window.localStorage.getItem(LOCALE_STORAGE_KEY) === "en" ? "en" : "uk";
+  } catch {
+    return "uk";
+  }
+}
 
 export function buildGuestCart(items = []) {
+  const locale = getCurrentPublicLocale();
   const safeItems = (items || []).map((item, index) => {
     const quantity = Math.max(1, Number(item?.quantity) || 1);
     const unitPrice = Number(item?.unit_price || 0);
@@ -21,6 +31,10 @@ export function buildGuestCart(items = []) {
     return {
       ...item,
       id: item?.id || `guest-${index + 1}-${Date.now()}`,
+      title:
+        locale === "en"
+          ? item?.title_en || item?.title || item?.title_uk || ""
+          : item?.title_uk || item?.title || item?.title_en || "",
       configuration:
         item?.item_type === "ready_product"
           ? {

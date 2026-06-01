@@ -10,7 +10,7 @@ ordersRouter.use(requireAuth);
 ordersRouter.get(
   "/me",
   asyncHandler(async (req, res) => {
-    const orders = await listOrdersForUser(req.user.id);
+    const orders = await listOrdersForUser(req.user.id, req);
     res.json({ success: true, data: orders });
   })
 );
@@ -18,7 +18,7 @@ ordersRouter.get(
 ordersRouter.get(
   "/:orderId",
   asyncHandler(async (req, res) => {
-    const order = await getOrderDetailsForUser(req.user.id, Number(req.params.orderId));
+    const order = await getOrderDetailsForUser(req.user.id, Number(req.params.orderId), req);
     res.json({ success: true, data: order });
   })
 );

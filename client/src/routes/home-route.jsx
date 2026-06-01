@@ -36,7 +36,7 @@ export default function HomeRoute() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [locale]);
 
   return (
     <>

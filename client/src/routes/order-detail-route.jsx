@@ -111,7 +111,7 @@ export default function OrderDetailRoute() {
     return () => {
       active = false;
     };
-  }, [orderId]);
+  }, [orderId, locale]);
 
   useEffect(() => {
     let active = true;

@@ -70,7 +70,7 @@ export default function AccountRoute() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [locale]);
 
   const user = dashboard?.user || null;
   const currentOrder = dashboard?.current_order || null;

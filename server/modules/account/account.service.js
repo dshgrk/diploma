@@ -1,9 +1,11 @@
 const { db } = require("../../db/knex");
+const { CART_ITEM_TYPES } = require("../../constants/cart-item-types");
 const { parseJsonField } = require("../../utils/json");
+const { pickLocalizedFields, resolveLocale } = require("../../utils/locale");
 const { serializeUser } = require("../auth/auth.service");
 const { isOrderOverdue } = require("../orders/orders.service");
 
-function orderSummary(order, items = [], updatedAt = null) {
+function orderSummary(order, items = [], updatedAt = null, locale = "uk") {
   return {
     id: order.id,
     order_number: order.order_number,
@@ -16,17 +18,30 @@ function orderSummary(order, items = [], updatedAt = null) {
     completed_at: order.completed_at,
     updated_at: updatedAt || order.created_at,
     overdue: isOrderOverdue(order),
-    items: items.map((item) => ({
-      id: item.id,
-      item_type: item.item_type,
-      product_type: item.product_type || null,
-      jewelry_type_code: item.jewelry_type_code || null,
-      title: item.title_snapshot,
-      quantity: item.quantity,
-      unit_price: Number(item.unit_price || 0),
-      line_total: Number(item.line_total || 0),
-      configuration: parseJsonField(item.configuration_json, {})
-    }))
+    items: items.map((item) => {
+      const localizedProduct = item.product_id
+        ? pickLocalizedFields(
+            {
+              name_uk: item.product_name_uk,
+              name_en: item.product_name_en
+            },
+            locale,
+            ["name"]
+          )
+        : null;
+
+      return {
+        id: item.id,
+        item_type: item.item_type,
+        product_type: item.product_type || null,
+        jewelry_type_code: item.jewelry_type_code || null,
+        title: item.item_type === CART_ITEM_TYPES.READY_PRODUCT ? localizedProduct?.name || item.title_snapshot : item.title_snapshot,
+        quantity: item.quantity,
+        unit_price: Number(item.unit_price || 0),
+        line_total: Number(item.line_total || 0),
+        configuration: parseJsonField(item.configuration_json, {})
+      };
+    })
   };
 }
 
@@ -36,7 +51,13 @@ async function getOrderItemsByOrderIds(orderIds) {
     .leftJoin("products", "order_items.product_id", "products.id")
     .leftJoin("jewelry_types", "order_items.jewelry_type_id", "jewelry_types.id")
     .whereIn("order_id", orderIds)
-    .select("order_items.*", "products.filter_type as product_type", "jewelry_types.code as jewelry_type_code")
+    .select(
+      "order_items.*",
+      "products.filter_type as product_type",
+      "products.name_uk as product_name_uk",
+      "products.name_en as product_name_en",
+      "jewelry_types.code as jewelry_type_code"
+    )
     .orderBy([{ column: "order_id", order: "asc" }, { column: "id", order: "asc" }]);
   const byOrderId = new Map();
   for (const row of rows) {
@@ -59,7 +80,8 @@ async function getLatestHistoryByOrderIds(orderIds) {
   return byOrderId;
 }
 
-async function getCurrentOrderForUser(userId) {
+async function getCurrentOrderForUser(userId, req) {
+  const locale = resolveLocale(req);
   const order = await db("orders")
     .where({ user_id: userId })
     .whereNot({ status: "completed" })
@@ -73,10 +95,11 @@ async function getCurrentOrderForUser(userId) {
     getLatestHistoryByOrderIds([order.id])
   ]);
 
-  return orderSummary(order, itemsByOrderId.get(order.id) || [], latestHistoryByOrderId.get(order.id)?.created_at || null);
+  return orderSummary(order, itemsByOrderId.get(order.id) || [], latestHistoryByOrderId.get(order.id)?.created_at || null, locale);
 }
 
-async function listCompletedOrdersForUser(userId) {
+async function listCompletedOrdersForUser(userId, req) {
+  const locale = resolveLocale(req);
   const orders = await db("orders")
     .where({ user_id: userId, status: "completed" })
     .orderBy([{ column: "completed_at", order: "desc" }, { column: "created_at", order: "desc" }]);
@@ -90,14 +113,14 @@ async function listCompletedOrdersForUser(userId) {
   ]);
 
   return orders.map((order) =>
-    orderSummary(order, itemsByOrderId.get(order.id) || [], latestHistoryByOrderId.get(order.id)?.created_at || order.completed_at || null)
+    orderSummary(order, itemsByOrderId.get(order.id) || [], latestHistoryByOrderId.get(order.id)?.created_at || order.completed_at || null, locale)
   );
 }
 
-async function getAccountDashboard(user) {
+async function getAccountDashboard(user, req) {
   const [currentOrder, completedOrders] = await Promise.all([
-    getCurrentOrderForUser(user.id),
-    listCompletedOrdersForUser(user.id)
+    getCurrentOrderForUser(user.id, req),
+    listCompletedOrdersForUser(user.id, req)
   ]);
 
   return {

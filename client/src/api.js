@@ -1,9 +1,11 @@
 export async function http(url, options = {}) {
+  const locale = readPublicLocale();
   const response = await fetch(url, {
     method: options.method || "GET",
     credentials: "include",
     headers: {
       ...(options.body ? { "Content-Type": "application/json" } : {}),
+      ...(locale ? { "x-locale": locale } : {}),
       ...(options.headers || {})
     },
     body: options.body ? JSON.stringify(options.body) : undefined
@@ -22,35 +24,37 @@ export async function http(url, options = {}) {
   return payload?.data;
 }
 
+function readPublicLocale() {
+  try {
+    return window.localStorage.getItem("aurora-locale") === "en" ? "en" : "uk";
+  } catch {
+    return "uk";
+  }
+}
+
+function withLocaleQuery(url, params = {}) {
+  const search = new URLSearchParams();
+  Object.entries({ ...params, lang: readPublicLocale() }).forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      value.filter((item) => item !== "" && item != null).forEach((item) => search.append(key, String(item)));
+      return;
+    }
+    if (value === "" || value == null) return;
+    search.set(key, String(value));
+  });
+  const query = search.toString();
+  return `${url}${query ? `?${query}` : ""}`;
+}
+
 export const catalogApi = {
   listProducts(filters = {}) {
-    const params = new URLSearchParams();
-    Object.entries(filters).forEach(([key, value]) => {
-      if (Array.isArray(value)) {
-        value.filter((item) => item !== "" && item != null).forEach((item) => params.append(key, String(item)));
-        return;
-      }
-      if (value === "" || value == null) return;
-      params.set(key, String(value));
-    });
-    const query = params.toString();
-    return http(`/api/catalog/products${query ? `?${query}` : ""}`);
+    return http(withLocaleQuery("/api/catalog/products", filters));
   },
   getProduct(identifier) {
-    return http(`/api/catalog/products/${identifier}`);
+    return http(withLocaleQuery(`/api/catalog/products/${identifier}`));
   },
   listProductFacets(filters = {}) {
-    const params = new URLSearchParams();
-    Object.entries(filters).forEach(([key, value]) => {
-      if (Array.isArray(value)) {
-        value.filter((item) => item !== "" && item != null).forEach((item) => params.append(key, String(item)));
-        return;
-      }
-      if (value === "" || value == null) return;
-      params.set(key, String(value));
-    });
-    const query = params.toString();
-    return http(`/api/catalog/products/facets${query ? `?${query}` : ""}`);
+    return http(withLocaleQuery("/api/catalog/products/facets", filters));
   }
 };
 

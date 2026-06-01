@@ -1,6 +1,7 @@
 const express = require("express");
 const { asyncHandler } = require("../../middlewares/async-handler");
 const { requireAuth } = require("../../middlewares/auth");
+const { resolveLocale } = require("../../utils/locale");
 const { addCartItem, applyCartPromoCode, deleteCartItem, getCartForUser, removeCartPromoCode, updateCartItem } = require("./cart.service");
 
 const cartRouter = express.Router();
@@ -10,7 +11,7 @@ cartRouter.use(requireAuth);
 cartRouter.get(
   "/",
   asyncHandler(async (req, res) => {
-    const cart = await getCartForUser(req.user.id);
+    const cart = await getCartForUser(req.user.id, { locale: resolveLocale(req) });
     res.json({ success: true, data: cart });
   })
 );
@@ -34,7 +35,7 @@ cartRouter.patch(
 cartRouter.delete(
   "/items/:itemId",
   asyncHandler(async (req, res) => {
-    const cart = await deleteCartItem(req.user.id, Number(req.params.itemId));
+    const cart = await deleteCartItem(req.user.id, Number(req.params.itemId), { locale: resolveLocale(req) });
     res.json({ success: true, data: cart });
   })
 );
@@ -42,7 +43,7 @@ cartRouter.delete(
 cartRouter.post(
   "/promo-code",
   asyncHandler(async (req, res) => {
-    const cart = await applyCartPromoCode(req.user.id, req.body.code);
+    const cart = await applyCartPromoCode(req.user.id, req.body.code, { locale: resolveLocale(req) });
     res.json({ success: true, data: cart });
   })
 );
@@ -50,7 +51,7 @@ cartRouter.post(
 cartRouter.delete(
   "/promo-code",
   asyncHandler(async (req, res) => {
-    const cart = await removeCartPromoCode(req.user.id);
+    const cart = await removeCartPromoCode(req.user.id, { locale: resolveLocale(req) });
     res.json({ success: true, data: cart });
   })
 );

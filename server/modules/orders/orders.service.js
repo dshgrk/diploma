@@ -1,7 +1,9 @@
 const { db } = require("../../db/knex");
 const { BUSINESS_RULES } = require("../../constants/business-rules");
+const { CART_ITEM_TYPES } = require("../../constants/cart-item-types");
 const { createHttpError } = require("../../utils/http-error");
 const { parseJsonField } = require("../../utils/json");
+const { pickLocalizedFields, resolveLocale } = require("../../utils/locale");
 const { resolveProductImage } = require("../../utils/product-image");
 
 function isOrderOverdue(order) {
@@ -28,7 +30,8 @@ async function listOrdersForUser(userId) {
   }));
 }
 
-async function getOrderDetailsForUser(userId, orderId) {
+async function getOrderDetailsForUser(userId, orderId, req) {
+  const locale = resolveLocale(req);
   const order = await db("orders").where({ id: orderId, user_id: userId }).first();
   if (!order) {
     throw createHttpError(404, "ORDER_NOT_FOUND", "Order not found");
@@ -41,6 +44,8 @@ async function getOrderDetailsForUser(userId, orderId) {
       "order_items.*",
       "products.slug as product_slug",
       "products.filter_type as product_type",
+      "products.name_uk as product_name_uk",
+      "products.name_en as product_name_en",
       "jewelry_types.code as jewelry_type_code"
     )
     .where({ order_id: order.id })
@@ -77,21 +82,34 @@ async function getOrderDetailsForUser(userId, orderId) {
     completed_at: order.completed_at,
     overdue: isOrderOverdue(order),
     active_payment_token: order.status === "created_pending_payment" ? pendingPayment?.provider_payment_id || null : null,
-    items: items.map((item) => ({
-      id: item.id,
-      item_type: item.item_type,
-      product_id: item.product_id,
-      jewelry_type_id: item.jewelry_type_id,
-      product_slug: item.product_slug,
-      product_type: item.product_type || null,
-      jewelry_type_code: item.jewelry_type_code,
-      thumbnail_url: item.product_id ? resolveProductImage(imageByProductId[item.product_id]?.asset_path, item.jewelry_type_code, item.product_slug) : null,
-      title: item.title_snapshot,
-      quantity: item.quantity,
-      unit_price: Number(item.unit_price),
-      line_total: Number(item.line_total),
-      configuration: parseJsonField(item.configuration_json, {})
-    })),
+    items: items.map((item) => {
+      const localizedProduct = item.product_id
+        ? pickLocalizedFields(
+            {
+              name_uk: item.product_name_uk,
+              name_en: item.product_name_en
+            },
+            locale,
+            ["name"]
+          )
+        : null;
+
+      return {
+        id: item.id,
+        item_type: item.item_type,
+        product_id: item.product_id,
+        jewelry_type_id: item.jewelry_type_id,
+        product_slug: item.product_slug,
+        product_type: item.product_type || null,
+        jewelry_type_code: item.jewelry_type_code,
+        thumbnail_url: item.product_id ? resolveProductImage(imageByProductId[item.product_id]?.asset_path, item.jewelry_type_code, item.product_slug) : null,
+        title: item.item_type === CART_ITEM_TYPES.READY_PRODUCT ? localizedProduct?.name || item.title_snapshot : item.title_snapshot,
+        quantity: item.quantity,
+        unit_price: Number(item.unit_price),
+        line_total: Number(item.line_total),
+        configuration: parseJsonField(item.configuration_json, {})
+      };
+    }),
     history: history.map((entry) => ({
       id: entry.id,
       old_status: entry.old_status,

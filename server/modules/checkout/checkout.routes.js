@@ -18,7 +18,7 @@ checkoutRouter.post(
   "/",
   checkoutRateLimit,
   asyncHandler(async (req, res) => {
-    const result = await createCheckoutOrder(req.user.id, req.body);
+    const result = await createCheckoutOrder(req.user.id, req.body, req);
     res.status(201).json({ success: true, data: result });
   })
 );

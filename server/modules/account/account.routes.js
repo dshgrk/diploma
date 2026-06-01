@@ -10,7 +10,7 @@ accountRouter.use(requireAuth);
 accountRouter.get(
   "/",
   asyncHandler(async (req, res) => {
-    const data = await getAccountDashboard(req.user);
+    const data = await getAccountDashboard(req.user, req);
     res.json({ success: true, data });
   })
 );

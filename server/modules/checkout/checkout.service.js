@@ -9,6 +9,7 @@ const {
   normalizePhone,
   normalizePlainText
 } = require("../../utils/public-input-validation");
+const { resolveLocale } = require("../../utils/locale");
 const { buildActiveCartKey, getOrCreateActiveCart, serializeCart } = require("../cart/cart.service");
 const { recordPromoCodeRedemption } = require("../promotions/promo-codes.service");
 const { sendOrderStatusNotification } = require("../notifications/notifications.service");
@@ -55,8 +56,9 @@ function validateCheckoutPayload(payload) {
   return normalized;
 }
 
-async function createCheckoutOrder(userId, payload) {
+async function createCheckoutOrder(userId, payload, req) {
   const validatedPayload = validateCheckoutPayload(payload);
+  const locale = resolveLocale(req);
 
   const result = await db.transaction(async (trx) => {
     const user = await trx("users").where({ id: userId }).first();
@@ -68,6 +70,7 @@ async function createCheckoutOrder(userId, payload) {
     const serializedCart = await serializeCart(cart.id, {
       userId,
       trx,
+      locale,
       throwOnInvalidPromo: true
     });
 

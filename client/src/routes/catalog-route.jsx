@@ -179,7 +179,7 @@ function CatalogPage({ locale }) {
     },
     [activeType, catalogFilters, priceRangeValidation.isValid]
   );
-  const catalogQuerySignature = useMemo(() => JSON.stringify(catalogQuery), [catalogQuery]);
+  const catalogQuerySignature = useMemo(() => JSON.stringify({ locale, ...catalogQuery }), [catalogQuery, locale]);
 
   useEffect(() => {
     let active = true;

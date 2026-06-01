@@ -98,7 +98,7 @@ export default function ProductRoute() {
     return () => {
       active = false;
     };
-  }, [slug]);
+  }, [slug, locale]);
 
   useEffect(() => {
     if (!toast) return undefined;
@@ -162,6 +162,8 @@ export default function ProductRoute() {
           product_type: product.filters?.type || product.type || null,
           product_slug: product.slug,
           title: product.name,
+          title_uk: product.name_uk || product.name,
+          title_en: product.name_en || product.name,
           configuration: {
             ...(readyProductSize ? { size: readyProductSize } : {}),
             ...(readyChain ? { chain: readyChain } : {})

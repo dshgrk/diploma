@@ -513,6 +513,43 @@ describe("cart and checkout integrity", () => {
     expect(facetsResponse.body.data.priceBounds.max).toBeGreaterThanOrEqual(facetsResponse.body.data.priceBounds.min);
   });
 
+  test("catalog and product detail return English names and descriptions for lang=en", async () => {
+    const app = createApp();
+
+    const listResponse = await request(app).get("/api/catalog/products").query({ lang: "en", type: "Ring" });
+    const detailResponse = await request(app).get("/api/catalog/products/quiet-pearl-ring").query({ lang: "en" });
+
+    expect(listResponse.status).toBe(200);
+    expect(listResponse.body.data.length).toBeGreaterThan(0);
+    expect(listResponse.body.data.some((product) => product.name === "Quiet Pearl Ring")).toBe(true);
+    expect(detailResponse.status).toBe(200);
+    expect(detailResponse.body.data.name).toBe("Quiet Pearl Ring");
+    expect(detailResponse.body.data.description).toContain("pearl");
+    expect(detailResponse.body.data.name).not.toMatch(/[А-Яа-яІіЇїЄєҐґ]/);
+  });
+
+  test("cart and order detail return English ready-product titles for x-locale=en", async () => {
+    const app = createApp();
+    const agent = request.agent(app);
+
+    await agent.post("/api/auth/login").send({
+      email: "client@aurora.local",
+      password: "password123"
+    });
+
+    const cartResponse = await agent.get("/api/cart").set("x-locale", "en");
+    expect(cartResponse.status).toBe(200);
+    expect(cartResponse.body.data.items[0].title).toBe("Moon Bracelet");
+
+    const checkoutResult = await createCheckoutOrder(2, CHECKOUT_PAYLOAD, {
+      headers: { "x-locale": "en" }
+    });
+
+    const orderResponse = await agent.get(`/api/orders/${checkoutResult.order_id}`).set("x-locale", "en");
+    expect(orderResponse.status).toBe(200);
+    expect(orderResponse.body.data.items.some((item) => item.title === "Moon Bracelet")).toBe(true);
+  });
+
   test("constructor price counts every selected stone slot server-side", async () => {
     const app = createApp();
 
