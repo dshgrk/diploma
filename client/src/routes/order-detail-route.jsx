@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { CreditCard } from "lucide-react";
 import { constructorApi, ordersApi } from "../api";
 import { CartItemPreview } from "../features/orders/order-preview.jsx";
 import { findTypeOptionLabel, formatOrderDate, getPendantChainDisplay } from "../features/orders/order-format";
@@ -241,6 +242,12 @@ export default function OrderDetailRoute() {
                         <strong>{order.delivery_method}</strong>
                       </div>
                     </div>
+                    {order.status === "created_pending_payment" && order.active_payment_token ? (
+                      <a className="button order-payment-button" href={`/payment/${order.id}`}>
+                        {t(locale, "payOrder")}
+                        <CreditCard aria-hidden="true" />
+                      </a>
+                    ) : null}
                   </section>
 
                   <section className="order-detail-card">

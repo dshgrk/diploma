@@ -165,6 +165,33 @@ describe("cart and checkout integrity", () => {
     expect(notifications).toHaveLength(2);
   });
 
+  test("order details expose active payment token only while payment is pending", async () => {
+    const app = createApp();
+    const agent = request.agent(app);
+
+    const loginResponse = await agent.post("/api/auth/login").send({
+      email: "client@aurora.local",
+      password: "password123"
+    });
+
+    expect(loginResponse.status).toBe(200);
+
+    const checkoutResult = await createCheckoutOrder(2, CHECKOUT_PAYLOAD);
+
+    const pendingResponse = await agent.get(`/api/orders/${checkoutResult.order_id}`);
+    expect(pendingResponse.status).toBe(200);
+    expect(pendingResponse.body.data.active_payment_token).toBe(checkoutResult.payment_token);
+
+    await confirmMockPayment(CLIENT_USER, {
+      order_id: checkoutResult.order_id,
+      payment_token: checkoutResult.payment_token
+    });
+
+    const confirmedResponse = await agent.get(`/api/orders/${checkoutResult.order_id}`);
+    expect(confirmedResponse.status).toBe(200);
+    expect(confirmedResponse.body.data.active_payment_token).toBeNull();
+  });
+
   test("admin cannot skip directly to completed", async () => {
     const checkoutResult = await createCheckoutOrder(2, CHECKOUT_PAYLOAD);
     await confirmMockPayment(CLIENT_USER, {

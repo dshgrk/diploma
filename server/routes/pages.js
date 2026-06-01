@@ -18,6 +18,7 @@ function registerPageRoutes(app) {
   app.get("/constructor", (req, res) => sendReactApp(res));
   app.get("/cart", (req, res) => sendReactApp(res));
   app.get("/checkout", (req, res) => sendReactApp(res));
+  app.get("/payment/:orderId", (req, res) => sendReactApp(res));
   app.get("/orders", (req, res) => sendReactApp(res));
   app.get("/orders/:id", (req, res) => sendReactApp(res));
   app.get("/admin/login", (req, res) => sendReactApp(res));

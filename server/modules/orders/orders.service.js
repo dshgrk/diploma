@@ -47,6 +47,7 @@ async function getOrderDetailsForUser(userId, orderId) {
     .orderBy("order_items.id", "asc");
   const history = await db("order_status_history").where({ order_id: order.id }).orderBy("created_at", "asc");
   const payments = await db("payments").where({ order_id: order.id }).orderBy("created_at", "desc");
+  const pendingPayment = payments.find((payment) => payment.status === "pending" && payment.provider === "mock") || null;
   const productIds = items.map((item) => item.product_id).filter(Boolean);
   const productImages = productIds.length
     ? await db("product_images").whereIn("product_id", productIds).andWhere({ is_primary: true })
@@ -75,6 +76,7 @@ async function getOrderDetailsForUser(userId, orderId) {
     in_progress_at: order.in_progress_at,
     completed_at: order.completed_at,
     overdue: isOrderOverdue(order),
+    active_payment_token: order.status === "created_pending_payment" ? pendingPayment?.provider_payment_id || null : null,
     items: items.map((item) => ({
       id: item.id,
       item_type: item.item_type,

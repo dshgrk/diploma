@@ -254,3 +254,8 @@
 - Минимальный legal UX на публичной части теперь устроен так: в `checkout` только один обязательный checkbox `accepted_offer`, а `accepted_return_policy` остаётся только legacy-совместимым server-side полем. Сервер `server/modules/checkout/checkout.service.js` не должен требовать `accepted_return_policy`, но при успешном заказе продолжает заполнять оба timestamp-поля без миграций.
 - Публичные legal-страницы вынесены в отдельные lazy routes `/oferta`, `/returns`, `/privacy-policy`; shared longform-template лежит в `client/src/features/legal/legal-page.jsx`, тексты — в `client/src/features/legal/legal-content.js`, а Express SPA fallback обязан знать эти URL через `server/routes/pages.js`, иначе прямой `GET` по legal route вернёт `404`.
 - В публичном footer теперь есть отдельная колонка `Клієнтам / For clients` со ссылками на `Публічна оферта`, `Повернення та обмін`, `Політика конфіденційності`; grid footer рассчитан уже на 4 колонки. Если в checkout есть хотя бы один `custom_design`, показывается только информационный legal-notice без второй обязательной галочки.
+- Дипломный client payment flow теперь отдельный и public-facing: после `POST /api/checkout` checkout ведёт на `/payment/:orderId`, а сам экран оплаты использует существующий `POST /api/payments/mock/confirm`. Для reload/direct-open страницы оплаты `GET /api/orders/:id` возвращает `active_payment_token` только владельцу заказа и только пока заказ в `created_pending_payment`; после успешной оплаты token обязан исчезать из payload.
+
+## ?????? ?????????? ??????
+
+- 2026-05-31: ????????????? ????????? ????????? ???????? ??? legal/footer ? ??????? ?? ????????? contact-placeholder'? ?? ?????????? ?????????.

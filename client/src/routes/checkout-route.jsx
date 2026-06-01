@@ -188,10 +188,17 @@ export default function CheckoutRoute() {
                     {fieldErrors.customer_name ? <small className="form-field-error">{fieldErrors.customer_name}</small> : null}
                   </label>
                   {sessionUser ? (
-                    <div className="checkout-account-identity">
+                    <label className="checkout-readonly-field">
                       <span>{t(locale, "email")}</span>
-                      <strong>{sessionUser.email}</strong>
-                    </div>
+                      <input
+                        className="checkout-readonly-input"
+                        name="email"
+                        type="email"
+                        readOnly
+                        aria-readonly="true"
+                        value={sessionUser.email}
+                      />
+                    </label>
                   ) : null}
                   <label>
                     <span>{t(locale, "phone")}</span>
@@ -308,7 +315,7 @@ export default function CheckoutRoute() {
                   <div className="payment-card">
                     <span className="badge">{createdOrder.order_number}</span>
                     <p>{t(locale, "orderReservedCopy")}</p>
-                    <a className="button checkout-submit" href={`/orders/${createdOrder.order_id}`}>
+                    <a className="button checkout-submit" href={`/payment/${createdOrder.order_id}`}>
                       {t(locale, "confirmDemoPayment")}
                       <Check aria-hidden="true" />
                     </a>

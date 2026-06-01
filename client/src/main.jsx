@@ -17,6 +17,7 @@ const HomeRoute = React.lazy(() => import("./routes/home-route.jsx"));
 const OfertaRoute = React.lazy(() => import("./routes/oferta-route.jsx"));
 const OrdersRoute = React.lazy(() => import("./routes/orders-route.jsx"));
 const OrderDetailRoute = React.lazy(() => import("./routes/order-detail-route.jsx"));
+const PaymentRoute = React.lazy(() => import("./routes/payment-route.jsx"));
 const PrivacyPolicyRoute = React.lazy(() => import("./routes/privacy-policy-route.jsx"));
 const ProductRoute = React.lazy(() => import("./routes/product-route.jsx"));
 const ReturnsRoute = React.lazy(() => import("./routes/returns-route.jsx"));
@@ -56,6 +57,8 @@ function AppBootstrap() {
                                   ? PrivacyPolicyRoute
                                   : pathname === "/orders"
                                     ? OrdersRoute
+                                    : /^\/payment\/\d+$/.test(pathname)
+                                      ? PaymentRoute
                                     : /^\/orders\/\d+$/.test(pathname)
                                       ? OrderDetailRoute
                                       : pathname === "/returns"
