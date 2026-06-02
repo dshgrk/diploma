@@ -73,18 +73,6 @@
       "sort_order": 6
     },
     {
-      "id": 7,
-      "code": "heart_charm",
-      "name_uk": "Шарм серце",
-      "name_en": "Heart charm",
-      "asset_id": 12,
-      "default_scale_x": 0.88,
-      "default_scale_y": 0.88,
-      "default_layer_mode": "above",
-      "is_active": true,
-      "sort_order": 7
-    },
-    {
       "id": 8,
       "code": "diamond",
       "name_uk": "Діамант",

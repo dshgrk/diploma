@@ -417,6 +417,10 @@
 }
 
 @media (max-width: 900px) {
+  .home-categories-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .home-paths-section {
     --home-path-card-height: 34rem;
     --home-path-overlay-width: min(54%, 22.8rem);
@@ -433,6 +437,18 @@
   .featured-grid,
   .editorial-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .trust-strip {
+    flex-wrap: wrap;
+  }
+
+  .trust-item {
+    flex: 1 0 45%;
+    border-right: none;
+    border-bottom: 1px solid var(--line);
   }
 }
 

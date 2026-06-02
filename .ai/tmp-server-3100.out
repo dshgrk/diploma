@@ -1,0 +1,28 @@
+{"timestamp":"2026-06-01T20:21:51.683Z","level":"info","message":"HTTP server started","port":3100,"appUrl":"http://localhost:3000"}
+{
+  method: 'select',
+  options: {},
+  timeout: false,
+  cancelOnTimeout: false,
+  bindings: [ true, 'Ring', 1 ],
+  __knexQueryUid: 'Gkjq_o1cWd_6HcOkBzvV_',
+  sql: 'select `id`, `slug`, `price`, `currency`, `name_uk`, `name_en`, `description_uk`, `description_en`, `filter_type`, `filter_metal`, `filter_stone_type`, `filter_stone_shape`, `filter_stone_color`, `filter_stone_size`, `filter_ring_size`, `filter_ring_type`, `filter_bracelet_length`, `created_at` from `products` where `is_active` = ? and `filter_type` in (?) order by `created_at` desc limit ?'
+}
+{
+  method: 'first',
+  options: {},
+  timeout: false,
+  cancelOnTimeout: false,
+  bindings: [ true, 'Ring', 1 ],
+  __knexQueryUid: 'IQJDTN1mxSa36lcn0PhWu',
+  sql: 'select count(`products`.`id`) as `total` from `products` where `is_active` = ? and `filter_type` in (?) limit ?'
+}
+{
+  method: 'select',
+  options: {},
+  timeout: false,
+  cancelOnTimeout: false,
+  bindings: [ 1, true ],
+  __knexQueryUid: '3cmB6vnMf8mQhFnVZm_RV',
+  sql: 'select * from `product_images` where `product_id` in (?) and `is_primary` = ?'
+}
