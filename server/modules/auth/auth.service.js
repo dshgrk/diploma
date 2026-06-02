@@ -10,9 +10,7 @@ const { logger } = require("../../utils/logger");
 const {
   PUBLIC_FIELD_LIMITS,
   isValidEmail,
-  isValidUkrainianPhone,
   normalizeEmail,
-  normalizePhone,
   normalizePlainText,
   normalizeVerificationCode
 } = require("../../utils/public-input-validation");
@@ -30,6 +28,14 @@ function getCookieOptions() {
     sameSite: "lax",
     secure: env.isProduction,
     maxAge: env.sessionTtlHours * 60 * 60 * 1000
+  };
+}
+
+function getClearCookieOptions() {
+  return {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: env.isProduction
   };
 }
 
@@ -71,7 +77,7 @@ async function destroySession(req, res) {
     await db("sessions").where({ token_hash: hashSessionToken(token) }).del();
   }
 
-  res.clearCookie(env.sessionCookieName, getCookieOptions());
+  res.clearCookie(env.sessionCookieName, getClearCookieOptions());
 }
 
 function validateLocalLoginPayload(payload) {
@@ -95,10 +101,6 @@ function validateRegisterPayload(payload) {
   if (!payload.password?.trim()) errors.password = "Password is required";
   if (payload.password && payload.password.length < PUBLIC_FIELD_LIMITS.passwordMin) {
     errors.password = `Password must be at least ${PUBLIC_FIELD_LIMITS.passwordMin} characters long`;
-  }
-  if (!payload.phone?.trim()) errors.phone = "Phone is required";
-  if (payload.phone?.trim() && !isValidUkrainianPhone(payload.phone)) {
-    errors.phone = "Phone must be a valid Ukrainian number, for example +380991234567";
   }
   if (Object.keys(errors).length > 0) {
     throw createHttpError(422, "VALIDATION_ERROR", "Invalid authentication payload", errors);
@@ -137,7 +139,6 @@ async function createVerificationChallenge(user) {
 async function registerClient(payload) {
   validateRegisterPayload(payload);
   const email = normalizeEmail(payload.email);
-  const normalizedPhone = normalizePhone(payload.phone);
   const existingUser = await db("users").where({ email }).first();
 
   if (existingUser) {
@@ -149,7 +150,7 @@ async function registerClient(payload) {
     role: ROLES.CLIENT,
     full_name: normalizePlainText(payload.full_name || payload.name),
     email,
-    phone: normalizedPhone,
+    phone: null,
     password_hash: passwordHash,
     preferred_locale: payload.preferred_locale === "en" ? "en" : env.defaultLocale,
     auth_provider: "local",

@@ -54,18 +54,17 @@ describe("api flows", () => {
     expect(response.body.data.user).toBe(null);
   });
 
-  test("registration rejects invalid Ukrainian phone", async () => {
+  test("registration accepts payload without phone", async () => {
     const app = createApp();
     const response = await request(app).post("/api/auth/register").send({
       full_name: "Test User",
       email: "new-user@aurora.local",
-      password: "password123",
-      phone: "12345"
+      password: "password123"
     });
 
-    expect(response.status).toBe(422);
-    expect(response.body.error.code).toBe("VALIDATION_ERROR");
-    expect(response.body.error.details.phone).toBeTruthy();
+    expect(response.status).toBe(201);
+    expect(response.body.success).toBe(true);
+    expect(response.body.data.user.phone).toBeNull();
   });
 
   test("registration creates a pending-verification account", async () => {
@@ -73,8 +72,7 @@ describe("api flows", () => {
     const response = await request(app).post("/api/auth/register").send({
       full_name: "Новий Користувач",
       email: "new-user@aurora.local",
-      password: "password123",
-      phone: "+380991234567"
+      password: "password123"
     });
 
     expect(response.status).toBe(201);
@@ -85,22 +83,22 @@ describe("api flows", () => {
     const user = await db("users").where({ email: "new-user@aurora.local" }).first();
     expect(user).toBeTruthy();
     expect(user.email_verified_at).toBeNull();
+    expect(user.phone).toBeNull();
   });
 
-  test("registration normalizes local Ukrainian phone to +380 format", async () => {
+  test("registration still validates full name, email and password", async () => {
     const app = createApp();
     const response = await request(app).post("/api/auth/register").send({
-      full_name: "Normalized User",
-      email: "normalized-user@aurora.local",
-      password: "password123",
-      phone: "0991234567"
+      full_name: "   ",
+      email: "normalized-user",
+      password: "123"
     });
 
-    expect(response.status).toBe(201);
-    expect(response.body.data.user.phone).toBe("+380991234567");
-
-    const user = await db("users").where({ email: "normalized-user@aurora.local" }).first();
-    expect(user.phone).toBe("+380991234567");
+    expect(response.status).toBe(422);
+    expect(response.body.error.code).toBe("VALIDATION_ERROR");
+    expect(response.body.error.details.full_name).toBeTruthy();
+    expect(response.body.error.details.email).toBeTruthy();
+    expect(response.body.error.details.password).toBeTruthy();
   });
 
   test("client login creates a session and logout clears it", async () => {

@@ -522,6 +522,11 @@ describe("cart and checkout integrity", () => {
     expect(listResponse.status).toBe(200);
     expect(listResponse.body.data.length).toBeGreaterThan(0);
     expect(listResponse.body.data.some((product) => product.name === "Quiet Pearl Ring")).toBe(true);
+    const englishListItem = listResponse.body.data.find((product) => product.slug === "quiet-pearl-ring");
+    expect(englishListItem.name_en).toBe("Quiet Pearl Ring");
+    expect(englishListItem.name_uk).toBeTruthy();
+    expect(englishListItem.description_en).toContain("pearl");
+    expect(englishListItem.description_uk).toBeTruthy();
     expect(detailResponse.status).toBe(200);
     expect(detailResponse.body.data.name).toBe("Quiet Pearl Ring");
     expect(detailResponse.body.data.description).toContain("pearl");

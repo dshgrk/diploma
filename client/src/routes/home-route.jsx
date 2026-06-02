@@ -13,6 +13,7 @@ import {
 } from "../features/home/home-sections.jsx";
 import { AuroraBackground, Footer, Header, usePublicLocale } from "./public-shell.jsx";
 import "../styles.css";
+import "../styles/home-sections.css";
 
 export default function HomeRoute() {
   const { locale, toggleLocale } = usePublicLocale();

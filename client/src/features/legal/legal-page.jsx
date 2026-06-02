@@ -2,6 +2,7 @@ import React from "react";
 import { AuroraBackground, Footer, Header, usePublicLocale } from "../../routes/public-shell.jsx";
 import { getLegalPage } from "./legal-content.js";
 import "../../styles.css";
+import "../../styles/legal-pages.css";
 
 function LegalSection({ section }) {
   return (

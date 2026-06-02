@@ -1,7 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
+﻿import React, { useEffect, useMemo, useState } from "react";
 import { ChevronRight, Menu, ShoppingBag, User, X } from "lucide-react";
 import { authApi, cartApi } from "../api";
 import { ABOUT_PAGE_CONTENT, REFERENCE_IMAGES, referenceCopy } from "../content";
+import { Footer as PublicFooter } from "./public-shell.jsx";
 import "../styles.css";
 
 const LOCAL_STORAGE_KEY = "aurora-locale";
@@ -174,51 +175,6 @@ function Header({ locale, onToggleLocale }) {
         </div>
       ) : null}
     </header>
-  );
-}
-
-function Footer({ locale }) {
-  const copy = referenceCopy(locale);
-  const navigationTitle = locale === "uk" ? "Навігація" : "Navigation";
-  const accountTitle = locale === "uk" ? "Акаунт" : "Account";
-  const ordersTitle = locale === "uk" ? "Мої замовлення" : "My orders";
-  const contactAtelierLabel = locale === "uk" ? "Ательє у Харкові" : "Atelier in Kharkiv";
-  const footerOriginLabel = locale === "uk" ? "Створено в Харкові" : "Made in Kharkiv";
-
-  return (
-    <footer className="site-footer">
-      <div className="section-inner site-footer-inner">
-        <div className="site-footer-brand">
-          <div className="site-footer-mark">Aurora Atelier</div>
-          <p className="site-footer-tagline">{copy.footerText}</p>
-        </div>
-        <div className="site-footer-columns">
-          <div className="site-footer-column">
-            <h4 className="site-footer-title">{navigationTitle}</h4>
-            <a className="site-footer-link" href="/">{copy.navHome}</a>
-            <a className="site-footer-link" href="/about">{copy.navAbout}</a>
-            <a className="site-footer-link" href="/catalog">{copy.navCollection}</a>
-            <a className="site-footer-link" href="/constructor">{copy.navConstructor}</a>
-          </div>
-          <div className="site-footer-column">
-            <h4 className="site-footer-title">{accountTitle}</h4>
-            <a className="site-footer-link" href="/orders">{ordersTitle}</a>
-            <a className="site-footer-link" href="/account">{accountTitle}</a>
-          </div>
-          <div className="site-footer-column">
-            <h4 className="site-footer-title">{copy.contact}</h4>
-            <span className="site-footer-text">{contactAtelierLabel}</span>
-            <a className="site-footer-link site-footer-email" href="mailto:auroraatelier.mail@gmail.com">
-              auroraatelier.mail@gmail.com
-            </a>
-          </div>
-        </div>
-      </div>
-      <div className="section-inner site-footer-bottom">
-        <span className="site-footer-meta">© 2026 Aurora Atelier</span>
-        <span className="site-footer-meta">{footerOriginLabel}</span>
-      </div>
-    </footer>
   );
 }
 
@@ -455,7 +411,7 @@ export default function AboutRoute() {
       <div className="app-shell">
         <Header locale={locale} onToggleLocale={() => setLocale((current) => (current === "uk" ? "en" : "uk"))} />
         <AboutPage locale={locale} />
-        <Footer locale={locale} />
+        <PublicFooter locale={locale} />
       </div>
     </>
   );

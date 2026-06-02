@@ -3,31 +3,15 @@ import { CreditCard } from "lucide-react";
 import { constructorApi, ordersApi } from "../api";
 import { CartItemPreview } from "../features/orders/order-preview.jsx";
 import { findTypeOptionLabel, formatOrderDate, getPendantChainDisplay } from "../features/orders/order-format";
+import { orderStatusClassName, orderStatusLabel } from "../features/orders/order-status.js";
 import { ORDERS_COPY, publicText } from "../i18n/public-copy";
 import { formatCurrency } from "../utils";
 import { AuroraBackground, Footer, Header, LOCALE_FORMATS, usePublicLocale } from "./public-shell.jsx";
 import "../styles.css";
+import "../styles/orders-account.css";
 
 function t(locale, key) {
   return publicText(ORDERS_COPY, locale, key);
-}
-
-function orderStatusLabel(status, locale) {
-  const labels = {
-    created_pending_payment: t(locale, "awaitingPayment"),
-    confirmed: t(locale, "confirmed"),
-    in_progress: t(locale, "inProgress"),
-    completed: t(locale, "completed")
-  };
-  return labels[status] || status;
-}
-
-function statusClassName(status, overdue = false) {
-  if (overdue) return "status-pill overdue";
-  if (status === "confirmed") return "status-pill confirmed";
-  if (status === "in_progress") return "status-pill progress";
-  if (status === "completed") return "status-pill completed";
-  return "status-pill pending";
 }
 
 function OrderDetailItemCard({ item, order, locale, localeFormat, constructorConfig, typeById }) {
@@ -166,7 +150,7 @@ export default function OrderDetailRoute() {
                   <p>{locale === "uk" ? "Статус, склад замовлення та персональні деталі зібрані в одному спокійному досьє." : "Status, order composition, and personal details gathered in one calm dossier."}</p>
                 </div>
                 <div className="order-detail-status-stack">
-                  <span className={statusClassName(order.status, order.overdue)}>{orderStatusLabel(order.status, locale)}</span>
+                  <span className={orderStatusClassName(order.status, order.overdue)}>{orderStatusLabel(order.status, locale)}</span>
                   <div className="order-detail-status-note">
                     <span>{locale === "uk" ? "Оновлено" : "Updated"}</span>
                     <strong>{formatOrderDate(order.history?.at(-1)?.created_at || order.created_at, localeFormat)}</strong>

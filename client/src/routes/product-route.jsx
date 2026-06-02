@@ -5,6 +5,8 @@ import {
   FALLBACK_PRODUCT_IMAGE,
   productAttributeEntries,
   productDisplayImage,
+  productLocalizedDescription,
+  productLocalizedName,
   productTypeLabel,
   referenceCopy
 } from "../content";
@@ -197,6 +199,8 @@ export default function ProductRoute() {
     : null;
   const attributeEntries = productAttributeEntries(displayFilters, locale);
   const displayPrice = Number(product?.price || 0) + Number(selectedChain?.price || 0);
+  const productName = productLocalizedName(product, locale);
+  const productDescription = productLocalizedDescription(product, locale);
 
   return (
     <>
@@ -233,13 +237,13 @@ export default function ProductRoute() {
             <div className="product-layout">
               <div className="product-gallery">
                 <div className="product-main-img">
-                  <img src={primaryImage} alt={product.name} decoding="async" fetchPriority="high" />
+                  <img src={primaryImage} alt={productName} decoding="async" fetchPriority="high" />
                 </div>
               </div>
 
               <div className="product-info">
                 <p className="product-type-label">{productTypeLabel(product, locale)}</p>
-                <h1 className="product-name">{product.name}</h1>
+                <h1 className="product-name">{productName}</h1>
                 <div className="product-price-row">
                   <span className="product-price">{formatCurrency(displayPrice, product.currency, localeFormat)}</span>
                 </div>
@@ -296,7 +300,7 @@ export default function ProductRoute() {
 
                 <div className="product-desc">
                   <p className="product-attr-label" style={{ marginBottom: "0.5rem" }}>{copy.productDescription}</p>
-                  <p className="product-desc-text">{product.description}</p>
+                  <p className="product-desc-text">{productDescription}</p>
                 </div>
 
                 <div className="product-actions">

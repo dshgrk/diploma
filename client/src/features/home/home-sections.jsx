@@ -5,6 +5,7 @@ import {
   REFERENCE_IMAGES,
   localizeProductFilterValue,
   productDisplayImage,
+  productLocalizedName,
   productTypeLabel,
   referenceCopy
 } from "../../content";
@@ -218,11 +219,12 @@ function FeaturedProductCard({ product, locale, index }) {
   const copy = referenceCopy(locale);
   const typeLabel = productTypeLabel(product, locale);
   const metalLabel = localizeProductFilterValue(product?.filters?.metal, locale);
+  const productName = productLocalizedName(product, locale);
 
   return (
     <a className="featured-card" href={`/products/${product.slug}`}>
       <div className="featured-card-media">
-        <img src={productDisplayImage(product, index)} alt={product.name} loading={index === 0 ? "eager" : "lazy"} decoding="async" />
+        <img src={productDisplayImage(product, index)} alt={productName} loading={index === 0 ? "eager" : "lazy"} decoding="async" />
         <div className="featured-card-topline">
           <span className="featured-card-badge">{copy.featuredCardBadge}</span>
           <span className="featured-card-type">{typeLabel}</span>
@@ -235,7 +237,7 @@ function FeaturedProductCard({ product, locale, index }) {
         </div>
       </div>
       <div className="featured-card-info">
-        <div className="featured-card-name">{product.name}</div>
+        <div className="featured-card-name">{productName}</div>
         <div className="featured-card-meta">
           <span>{typeLabel}</span>
           {metalLabel ? <span>{metalLabel}</span> : null}

@@ -66,6 +66,8 @@ function baseProductQuery() {
       "currency",
       "name_uk",
       "name_en",
+      "description_uk",
+      "description_en",
       "filter_type",
       "filter_metal",
       "filter_stone_type",
@@ -91,11 +93,16 @@ async function serializeCatalogProducts(records, locale) {
   }, {});
 
   return records.map((record) => {
-    const localized = pickLocalizedFields(record, locale, ["name"]);
+    const localized = pickLocalizedFields(record, locale, ["name", "description"]);
     return {
       id: localized.id,
       slug: localized.slug,
       name: localized.name,
+      description: localized.description,
+      name_uk: localized.name_uk,
+      name_en: localized.name_en,
+      description_uk: localized.description_uk,
+      description_en: localized.description_en,
       price: Number(localized.price),
       currency: localized.currency,
       createdAt: localized.created_at,

@@ -4,6 +4,7 @@ import { catalogApi } from "../api";
 import {
   localizeProductFilterValue,
   productDisplayImage,
+  productLocalizedName,
   productTypeLabel,
   referenceCopy
 } from "../content";
@@ -11,6 +12,7 @@ import { normalizeCatalogPriceInput, validateCatalogPriceRange } from "../public
 import { formatCurrency } from "../utils";
 import { AuroraBackground, Footer, Header, LOCALE_FORMATS, usePublicLocale } from "./public-shell.jsx";
 import "../styles.css";
+import "../styles/catalog-page.css";
 
 const CATALOG_MULTI_FILTER_KEYS = [
   "metal",
@@ -510,14 +512,14 @@ function CatalogPage({ locale }) {
                     <div className="product-card-img">
                       <img
                         src={productDisplayImage(product, index)}
-                        alt={product.name}
+                        alt={productLocalizedName(product, locale)}
                         loading={index < 4 ? "eager" : "lazy"}
                         decoding="async"
                       />
                     </div>
                     <div className="product-card-body">
                       <div className="product-card-type">{productTypeLabel(product, locale)}</div>
-                      <div className="product-card-name">{product.name}</div>
+                      <div className="product-card-name">{productLocalizedName(product, locale)}</div>
                       <div className="product-card-material">
                         {localizeProductFilterValue(product.filters?.metal, locale) || (locale === "uk" ? "Авторська прикраса" : "Signature piece")}
                       </div>

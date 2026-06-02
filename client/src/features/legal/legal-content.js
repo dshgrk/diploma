@@ -1,4 +1,4 @@
-export const LEGAL_PAGES = {
+﻿export const LEGAL_PAGES = {
   oferta: {
     slug: "oferta",
     title: {
@@ -131,7 +131,7 @@ export const LEGAL_PAGES = {
           paragraphs: [
             "З питань оформлення замовлення, повернення, обміну або обробки персональних даних клієнт може звернутися до Aurora Atelier через контактні дані, зазначені на сайті."
           ],
-          contacts: ["Контактна електронна пошта: [email]", "Телефон: [phone]", "Адреса або місто роботи майстерні: [address/city]"]
+          contacts: ["\u0415\u043b\u0435\u043a\u0442\u0440\u043e\u043d\u043d\u0430 \u043f\u043e\u0448\u0442\u0430: auroraatelier.mail@gmail.com", "\u0422\u0435\u043b\u0435\u0444\u043e\u043d: +38 (099) 000-00-00", "\u0410\u0434\u0440\u0435\u0441\u0430 \u043c\u0430\u0439\u0441\u0442\u0435\u0440\u043d\u0456: \u043c. \u0425\u0430\u0440\u043a\u0456\u0432, \u0432\u0443\u043b. \u0421\u0443\u043c\u0441\u044c\u043a\u0430, 10, \u0422\u0426 Ave Plaza"]
         }
       ],
       en: [
@@ -247,7 +247,7 @@ export const LEGAL_PAGES = {
           paragraphs: [
             "For questions about order placement, returns, exchanges, or personal data processing, the customer may contact Aurora Atelier using the contact details indicated on the website."
           ],
-          contacts: ["Contact email: [email]", "Phone: [phone]", "Atelier address or city: [address/city]"]
+          contacts: ["Email: auroraatelier.mail@gmail.com", "Phone: +38 (099) 000-00-00", "Atelier address: Kharkiv, 10 Sumska Street, Ave Plaza"]
         }
       ]
     }
@@ -341,8 +341,8 @@ export const LEGAL_PAGES = {
         },
         {
           title: "9. Контакти",
-          paragraphs: ["З питань повернення, обміну або якості виробу звертайтеся:"],
-          contacts: ["Електронна пошта: [email]", "Телефон: [phone]"]
+          paragraphs: ["\u0417 \u043f\u0438\u0442\u0430\u043d\u044c \u043f\u043e\u0432\u0435\u0440\u043d\u0435\u043d\u043d\u044f, \u043e\u0431\u043c\u0456\u043d\u0443 \u0430\u0431\u043e \u044f\u043a\u043e\u0441\u0442\u0456 \u0432\u0438\u0440\u043e\u0431\u0443 \u043a\u043b\u0456\u0454\u043d\u0442 \u043c\u043e\u0436\u0435 \u0437\u0432\u0435\u0440\u043d\u0443\u0442\u0438\u0441\u044f \u0434\u043e Aurora Atelier."],
+          contacts: ["\u0415\u043b\u0435\u043a\u0442\u0440\u043e\u043d\u043d\u0430 \u043f\u043e\u0448\u0442\u0430: auroraatelier.mail@gmail.com", "\u0422\u0435\u043b\u0435\u0444\u043e\u043d: +38 (099) 000-00-00", "\u0410\u0434\u0440\u0435\u0441\u0430 \u043c\u0430\u0439\u0441\u0442\u0435\u0440\u043d\u0456: \u043c. \u0425\u0430\u0440\u043a\u0456\u0432, \u0432\u0443\u043b. \u0421\u0443\u043c\u0441\u044c\u043a\u0430, 10, \u0422\u0426 Ave Plaza"]
         }
       ],
       en: [
@@ -419,8 +419,8 @@ export const LEGAL_PAGES = {
         },
         {
           title: "9. Contacts",
-          paragraphs: ["For questions about returns, exchanges, or product quality, contact Aurora Atelier:"],
-          contacts: ["Email: [email]", "Phone: [phone]"]
+          paragraphs: ["For questions about returns, exchanges, or product quality, the customer may contact Aurora Atelier."],
+          contacts: ["Email: auroraatelier.mail@gmail.com", "Phone: +38 (099) 000-00-00", "Atelier address: Kharkiv, 10 Sumska Street, Ave Plaza"]
         }
       ]
     }
@@ -533,8 +533,8 @@ export const LEGAL_PAGES = {
         },
         {
           title: "11. Контакти",
-          paragraphs: ["З питань обробки персональних даних можна звернутися до Aurora Atelier:"],
-          contacts: ["Електронна пошта: [email]", "Телефон: [phone]"]
+          paragraphs: ["\u0417 \u043f\u0438\u0442\u0430\u043d\u044c \u043e\u0431\u0440\u043e\u0431\u043a\u0438, \u0443\u0442\u043e\u0447\u043d\u0435\u043d\u043d\u044f \u0430\u0431\u043e \u0432\u0438\u0434\u0430\u043b\u0435\u043d\u043d\u044f \u043f\u0435\u0440\u0441\u043e\u043d\u0430\u043b\u044c\u043d\u0438\u0445 \u0434\u0430\u043d\u0438\u0445 \u043a\u043b\u0456\u0454\u043d\u0442 \u043c\u043e\u0436\u0435 \u0437\u0432\u0435\u0440\u043d\u0443\u0442\u0438\u0441\u044f \u0434\u043e Aurora Atelier."],
+          contacts: ["\u0415\u043b\u0435\u043a\u0442\u0440\u043e\u043d\u043d\u0430 \u043f\u043e\u0448\u0442\u0430: auroraatelier.mail@gmail.com", "\u0422\u0435\u043b\u0435\u0444\u043e\u043d: +38 (099) 000-00-00", "\u0410\u0434\u0440\u0435\u0441\u0430 \u043c\u0430\u0439\u0441\u0442\u0435\u0440\u043d\u0456: \u043c. \u0425\u0430\u0440\u043a\u0456\u0432, \u0432\u0443\u043b. \u0421\u0443\u043c\u0441\u044c\u043a\u0430, 10, \u0422\u0426 Ave Plaza"]
         }
       ],
       en: [
@@ -630,8 +630,8 @@ export const LEGAL_PAGES = {
         },
         {
           title: "11. Contacts",
-          paragraphs: ["For questions regarding personal data processing, contact Aurora Atelier:"],
-          contacts: ["Email: [email]", "Phone: [phone]"]
+          paragraphs: ["For questions regarding the processing, clarification, or deletion of personal data, the customer may contact Aurora Atelier."],
+          contacts: ["Email: auroraatelier.mail@gmail.com", "Phone: +38 (099) 000-00-00", "Atelier address: Kharkiv, 10 Sumska Street, Ave Plaza"]
         }
       ]
     }

@@ -13,6 +13,7 @@ import { CHECKOUT_COPY, publicText } from "../i18n/public-copy";
 import { formatCurrency } from "../utils";
 import { AuroraBackground, Footer, Header, LOCALE_FORMATS, usePublicLocale } from "./public-shell.jsx";
 import "../styles.css";
+import "../styles/checkout-payment.css";
 
 function t(locale, key) {
   return publicText(CHECKOUT_COPY, locale, key);

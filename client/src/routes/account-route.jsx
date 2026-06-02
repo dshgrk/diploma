@@ -1,32 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { accountApi } from "../api";
 import { formatOrderDate, getPendantChainDisplay } from "../features/orders/order-format";
+import { orderStatusClassName, orderStatusLabel } from "../features/orders/order-status.js";
 import { getReadyProductSizeLabel } from "../ready-product";
 import { ORDERS_COPY, publicText } from "../i18n/public-copy";
 import { formatCurrency } from "../utils";
 import { AuroraBackground, Footer, Header, LOCALE_FORMATS, usePublicLocale } from "./public-shell.jsx";
 import "../styles.css";
+import "../styles/orders-account.css";
 
 function t(locale, key) {
   return publicText(ORDERS_COPY, locale, key);
-}
-
-function orderStatusLabel(status, locale) {
-  const labels = {
-    created_pending_payment: t(locale, "awaitingPayment"),
-    confirmed: t(locale, "confirmed"),
-    in_progress: t(locale, "inProgress"),
-    completed: t(locale, "completed")
-  };
-  return labels[status] || status;
-}
-
-function statusClassName(status, overdue = false) {
-  if (overdue) return "status-pill overdue";
-  if (status === "confirmed") return "status-pill confirmed";
-  if (status === "in_progress") return "status-pill progress";
-  if (status === "completed") return "status-pill completed";
-  return "status-pill pending";
 }
 
 function AccountOrderLine({ item, order, locale, localeFormat }) {
@@ -138,7 +122,7 @@ export default function AccountRoute() {
                     <span className="badge">{locale === "uk" ? "Поточне замовлення" : "Current order"}</span>
                     <h2>{locale === "uk" ? "Нинішній виріб" : "Active order"}</h2>
                   </div>
-                  {currentOrder ? <span className={statusClassName(currentOrder.status, currentOrder.overdue)}>{orderStatusLabel(currentOrder.status, locale)}</span> : null}
+                  {currentOrder ? <span className={orderStatusClassName(currentOrder.status, currentOrder.overdue)}>{orderStatusLabel(currentOrder.status, locale)}</span> : null}
                 </div>
 
                 {!currentOrder ? (

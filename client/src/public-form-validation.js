@@ -125,12 +125,11 @@ export function validateCatalogPriceRange({ priceMin, priceMax }, locale) {
   return { isValid: true, error: "" };
 }
 
-export function validateAuthForm({ mode, name, phone, email, password }, locale) {
+export function validateAuthForm({ mode, name, email, password }, locale) {
   const copy = messages(locale);
   const errors = {};
   const values = {
     full_name: normalizePlainText(name),
-    phone: normalizeUkrainianPhone(phone),
     email: normalizeEmail(email),
     password: String(password || "")
   };
@@ -138,9 +137,6 @@ export function validateAuthForm({ mode, name, phone, email, password }, locale)
   if (mode === "register") {
     if (!values.full_name) errors.name = copy.nameRequired;
     else if (values.full_name.length > PUBLIC_FIELD_LIMITS.nameMax) errors.name = copy.nameTooLong;
-
-    if (!values.phone) errors.phone = copy.phoneRequired;
-    else if (!isValidUkrainianPhone(values.phone)) errors.phone = copy.phoneInvalid;
   }
 
   if (!values.email) errors.email = copy.emailRequired;

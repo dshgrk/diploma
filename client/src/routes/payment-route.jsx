@@ -5,6 +5,7 @@ import { PAYMENT_COPY, publicText } from "../i18n/public-copy";
 import { formatCurrency } from "../utils";
 import { AuroraBackground, Footer, Header, LOCALE_FORMATS, usePublicLocale } from "./public-shell.jsx";
 import "../styles.css";
+import "../styles/checkout-payment.css";
 
 function t(locale, key) {
   return publicText(PAYMENT_COPY, locale, key);
@@ -249,7 +250,7 @@ export default function PaymentRoute() {
                 <aside className="checkout-summary-panel payment-summary-panel">
                   <span className="badge">{t(locale, "paymentSummary")}</span>
                   <h2>{order.order_number}</h2>
-                  <div className="checkout-total">
+                  <div className="checkout-total payment-total-highlight">
                     <span>{t(locale, "amountToPay")}</span>
                     <strong>{orderTotal}</strong>
                   </div>

@@ -421,20 +421,36 @@ export const REFERENCE_COPY = {
     faqTitle: "Поширені питання",
     faqs: [
       {
-        q: "Як довго виготовляється замовлення?",
-        a: "Стандартний виріб — 10–14 днів, bespoke — від 3 до 6 тижнів залежно від складності."
+        q: "Чи можна обрати готовий виріб без конструктора?",
+        a: "Так. У колекції доступні готові каблучки, сережки, браслети та підвіски. Їх можна відкрити з каталогу, переглянути матеріали та деталі й додати до кошика без персоналізації."
       },
       {
-        q: "Чи можна замовити гравіювання?",
-        a: "Так, у конструкторі є поле для тексту. Латиниця, кирилиця, до 30 символів."
+        q: "Що саме можна змінити у конструкторі?",
+        a: "У конструкторі можна обрати тип прикраси, варіант дизайну, матеріал, камені, розмір, а для окремих виробів — гравіювання або довжину ланцюжка. Ціна оновлюється одразу під час налаштування."
       },
       {
-        q: "Яка гарантія на вироби?",
-        a: "Усі вироби мають гарантію 12 місяців. Безкоштовне обслуговування та чищення раз на рік."
+        q: "Як оформити замовлення на сайті?",
+        a: "Додайте готовий виріб або власну конфігурацію з конструктора до кошика, а потім увійдіть в акаунт, заповніть дані доставки, оберіть спосіб отримання та підтвердіть Публічну оферту."
       },
       {
-        q: "Як працює оплата і підтвердження?",
-        a: "Після оформлення ми резервуємо виріб і зв’язуємося з вами для підтвердження деталей та передплати."
+        q: "Де побачити кошик та статус замовлень?",
+        a: "Кошик доступний у верхній панелі сайту. Після оформлення замовлення його можна відкрити в розділах «Акаунт» та «Мої замовлення», де показується склад замовлення, сума та поточний статус."
+      },
+      {
+        q: "Чи потрібен акаунт для оформлення замовлення?",
+        a: "Так. Перехід до checkout веде через вхід або реєстрацію. Після авторизації сайт повертає до оформлення, щоб завершити замовлення."
+      },
+      {
+        q: "Чи можна змінити кількість або видалити виріб з кошика?",
+        a: "Так. У кошику можна змінити кількість позицій, видалити окремий виріб або повернутися в каталог чи конструктор перед оформленням."
+      },
+      {
+        q: "Де знайти умови оформлення, повернення та конфіденційності?",
+        a: "У футері та під час checkout є посилання на «Публічну оферту», «Повернення та обмін» і «Політику конфіденційності». Їх можна відкрити окремими сторінками ще до підтвердження замовлення."
+      },
+      {
+        q: "Чи видно попередній перегляд прикраси перед додаванням до кошика?",
+        a: "Так. На сторінках готових виробів є основне зображення та опис, а в конструкторі зміни в матеріалах, каменях і розмірах одразу відображаються в попередньому перегляді до додавання в кошик."
       }
     ],
     finalTitle: "Готові обрати своє?",
@@ -611,20 +627,36 @@ export const REFERENCE_COPY = {
     faqTitle: "Frequently Asked",
     faqs: [
       {
-        q: "How long does production take?",
-        a: "Standard pieces take 10–14 days, bespoke from 3 to 6 weeks depending on complexity."
+        q: "Can I choose a ready-made piece without using the constructor?",
+        a: "Yes. The collection includes ready-made rings, earrings, bracelets, and pendants. You can open a product page from the catalog, review its material and details, and add it to the cart without personalization."
       },
       {
-        q: "Can I order engraving?",
-        a: "Yes, the constructor includes a text field. Latin, Cyrillic, up to 30 characters."
+        q: "What can I change in the constructor?",
+        a: "The constructor lets you choose the piece type, design variant, material, stones, and size. Some pieces also include engraving or chain-length options, and the price updates immediately while you configure them."
       },
       {
-        q: "What warranty do pieces have?",
-        a: "All pieces carry a 12-month warranty. Free servicing and cleaning once a year."
+        q: "How do I place an order on the site?",
+        a: "Add a ready-made piece or your custom configuration to the cart, sign in, fill in the delivery details, choose the delivery method, and confirm the public offer during checkout."
       },
       {
-        q: "How do payment and confirmation work?",
-        a: "After checkout we reserve the piece and contact you to confirm details and prepayment."
+        q: "Where can I see my cart and order status?",
+        a: "The cart is available from the top navigation. After checkout, your orders can be opened from Account and My Orders, where the site shows the selected items, total amount, and current order status."
+      },
+      {
+        q: "Do I need an account before checkout?",
+        a: "Yes. The checkout flow goes through sign-in or registration first. After authentication, the site returns you to checkout so you can finish the order."
+      },
+      {
+        q: "Can I change quantity or remove an item from the cart?",
+        a: "Yes. The cart lets you update quantities, remove a selected piece, or return to the catalog or constructor before checkout."
+      },
+      {
+        q: "Where can I read the offer, returns, and privacy terms?",
+        a: "The footer and checkout include links to the Public Offer, Returns & Exchanges, and Privacy Policy. These pages can be opened separately before you confirm the order."
+      },
+      {
+        q: "Can I preview the piece before adding it to the cart?",
+        a: "Yes. Ready-made product pages include the main product image and details, while the constructor updates the preview immediately when you change materials, stones, sizes, or other available options."
       }
     ],
     finalTitle: "Ready to choose yours?",
@@ -835,6 +867,20 @@ export function productDisplayImage(product, index = 0) {
     REFERENCE_IMAGES.featured[index % REFERENCE_IMAGES.featured.length] ||
     FALLBACK_PRODUCT_IMAGE
   );
+}
+
+export function productLocalizedName(product, locale = "uk") {
+  if (locale === "en") {
+    return product?.name_en || product?.name || product?.name_uk || "";
+  }
+  return product?.name_uk || product?.name || product?.name_en || "";
+}
+
+export function productLocalizedDescription(product, locale = "uk") {
+  if (locale === "en") {
+    return product?.description_en || product?.description || product?.description_uk || "";
+  }
+  return product?.description_uk || product?.description || product?.description_en || "";
 }
 
 export function productTypeLabel(product, locale) {

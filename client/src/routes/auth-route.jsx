@@ -4,14 +4,13 @@ import { authApi, cartApi } from "../api";
 import { FALLBACK_PRODUCT_IMAGE } from "../content";
 import {
   extractValidationErrors,
-  normalizeUkrainianPhone,
-  sanitizePhoneDraft,
   sanitizeVerificationCode,
   validateAuthForm,
   validateVerificationCode
 } from "../public-form-validation";
 import { AuroraBackground, Footer, Header, usePublicLocale } from "./public-shell.jsx";
 import "../styles.css";
+import "../styles/auth-page.css";
 
 const GUEST_CART_STORAGE_KEY = "aurora-guest-cart";
 const PENDING_CART_ITEM_KEY = "aurora-pending-cart-item";
@@ -54,9 +53,8 @@ const COPY = {
     creatingOrder: "Зачекайте...",
     email: "Email",
     fillRequired: "обов'язкове поле",
-    name: "Ім'я",
+    name: "Ім’я та прізвище",
     password: "Пароль",
-    phone: "Телефон",
     trustDelivery: "Доставка",
     trustDeliveryText: "Акуратне пакування і супровід.",
     trustGuarantee: "Гарантія",
@@ -102,9 +100,8 @@ const COPY = {
     creatingOrder: "Please wait...",
     email: "Email",
     fillRequired: "is required",
-    name: "Name",
+    name: "Full name",
     password: "Password",
-    phone: "Phone",
     trustDelivery: "Delivery",
     trustDeliveryText: "Careful packaging and support.",
     trustGuarantee: "Guarantee",
@@ -186,7 +183,6 @@ function consumePostAuthRedirect() {
 function AuthPage({ locale }) {
   const [mode, setMode] = useState("login");
   const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
@@ -336,7 +332,7 @@ function AuthPage({ locale }) {
       return;
     }
 
-    const validation = validateAuthForm({ mode, name, phone, email, password }, locale);
+    const validation = validateAuthForm({ mode, name, email, password }, locale);
     if (Object.keys(validation.errors).length > 0) {
       setFieldErrors(validation.errors);
       return;
@@ -347,7 +343,6 @@ function AuthPage({ locale }) {
       if (mode === "register") {
         const result = await authApi.register({
           full_name: validation.values.full_name,
-          phone: validation.values.phone,
           email: validation.values.email,
           password: validation.values.password
         });
@@ -469,43 +464,23 @@ function AuthPage({ locale }) {
                 ) : (
                   <>
                     {mode === "register" ? (
-                      <div className="auth-field-grid">
-                        <label className="auth-field">
-                          <span>{text(locale, "name")}</span>
-                          <input
-                            type="text"
-                            autoComplete="name"
-                            maxLength={120}
-                            aria-invalid={Boolean(fieldErrors.name || fieldErrors.full_name)}
-                            value={name}
-                            onChange={(event) => {
-                              setName(event.target.value);
-                              setFieldErrors((current) => ({ ...current, name: "", full_name: "" }));
-                            }}
-                            placeholder="Aurora Atelier"
-                            required
-                          />
-                          {fieldErrors.name || fieldErrors.full_name ? <small className="form-field-error">{fieldErrors.name || fieldErrors.full_name}</small> : null}
-                        </label>
-                        <label className="auth-field">
-                          <span>{text(locale, "phone")}</span>
-                          <input
-                            type="tel"
-                            autoComplete="tel"
-                            inputMode="tel"
-                            aria-invalid={Boolean(fieldErrors.phone)}
-                            value={phone}
-                            onChange={(event) => {
-                              setPhone(sanitizePhoneDraft(event.target.value));
-                              setFieldErrors((current) => ({ ...current, phone: "" }));
-                            }}
-                            onBlur={() => setPhone((current) => normalizeUkrainianPhone(current))}
-                            placeholder="+380991234567"
-                            required
-                          />
-                          {fieldErrors.phone ? <small className="form-field-error">{fieldErrors.phone}</small> : null}
-                        </label>
-                      </div>
+                      <label className="auth-field">
+                        <span>{text(locale, "name")}</span>
+                        <input
+                          type="text"
+                          autoComplete="name"
+                          maxLength={120}
+                          aria-invalid={Boolean(fieldErrors.name || fieldErrors.full_name)}
+                          value={name}
+                          onChange={(event) => {
+                            setName(event.target.value);
+                            setFieldErrors((current) => ({ ...current, name: "", full_name: "" }));
+                          }}
+                          placeholder={isUk ? "Анна Коваленко" : "Anna Kovalenko"}
+                          required
+                        />
+                        {fieldErrors.name || fieldErrors.full_name ? <small className="form-field-error">{fieldErrors.name || fieldErrors.full_name}</small> : null}
+                      </label>
                     ) : null}
                     <label className="auth-field">
                       <span>{text(locale, "email")}</span>

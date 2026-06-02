@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import { Menu, ShoppingBag, User, X } from "lucide-react";
 import { authApi, cartApi } from "../api";
 import { referenceCopy } from "../content";
+import "../styles/public-footer.css";
 
 const LOCAL_STORAGE_KEY = "aurora-locale";
 const GUEST_CART_STORAGE_KEY = "aurora-guest-cart";
@@ -214,7 +215,11 @@ export function Footer({ locale }) {
   const accountTitle = locale === "uk" ? "Акаунт" : "Account";
   const clientsTitle = locale === "uk" ? "Клієнтам" : "For clients";
   const ordersTitle = locale === "uk" ? "Мої замовлення" : "My orders";
-  const contactAtelierLabel = locale === "uk" ? "Ательє у Харкові" : "Atelier in Kharkiv";
+  const atelierAddress =
+    locale === "uk"
+      ? "\u043c. \u0425\u0430\u0440\u043a\u0456\u0432, \u0432\u0443\u043b. \u0421\u0443\u043c\u0441\u044c\u043a\u0430, 10, \u0422\u0426 Ave Plaza"
+      : "Kharkiv, 10 Sumska St., Ave Plaza Mall";
+  const atelierPhone = "+38 (099) 000-00-00";
   const footerOriginLabel = locale === "uk" ? "Створено в Харкові" : "Made in Kharkiv";
 
   return (
@@ -245,9 +250,12 @@ export function Footer({ locale }) {
           </div>
           <div className="site-footer-column">
             <h4 className="site-footer-title">{copy.contact}</h4>
-            <span className="site-footer-text">{contactAtelierLabel}</span>
+            <span className="site-footer-text">{atelierAddress}</span>
             <a className="site-footer-link site-footer-email" href="mailto:auroraatelier.mail@gmail.com">
               auroraatelier.mail@gmail.com
+            </a>
+            <a className="site-footer-link" href="tel:+380990000000">
+              {atelierPhone}
             </a>
           </div>
         </div>
