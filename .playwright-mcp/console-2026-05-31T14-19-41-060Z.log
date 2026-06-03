@@ -1,0 +1,10 @@
+[ 4383655ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/api/cart:0
+[ 4387264ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/api/cart:0
+[ 4393612ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/api/cart:0
+[ 4397531ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/api/cart/items:0
+[ 4401042ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/api/cart/items:0
+[ 4405522ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/api/cart:0
+[ 4411059ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/api/cart:0
+[ 4424816ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/api/cart:0
+[ 4426056ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://accounts.google.com/gsi/button?theme=outline&size=large&shape=pill&text=continue_with&width=420&is_fedcm_supported=true&client_id=701558294387-k6moe23aehtradsuf0p56lghdh47i3dl.apps.googleusercontent.com&iframe_id=gsi_606006_450907&cas=Gj1DaK1jfl2JCH27fnRtm7DWJA5R36sTBAJ2pzh61A8:0
+[ 4426142ms] [ERROR] [GSI_LOGGER]: The given origin is not allowed for the given client ID. @ https://ssl.gstatic.com/_/gsi/_/js/k=gsi.gsi.ru.AWdd4WU-o5Y.O/am=AAAAAAkCmAIC/d=1/rs=AF0KOtW9hA_njr-COYYjKXytclsNQ-AKZA/m=credential_button_library:85

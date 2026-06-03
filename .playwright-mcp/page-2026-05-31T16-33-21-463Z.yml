@@ -1,0 +1,150 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link "Aurora Atelier" [ref=e6] [cursor=pointer]:
+        - /url: /
+      - navigation "Primary navigation" [ref=e7]:
+        - link "Home" [ref=e142] [cursor=pointer]:
+          - /url: /
+        - link "About" [ref=e143] [cursor=pointer]:
+          - /url: /about
+        - link "Collection" [ref=e144] [cursor=pointer]:
+          - /url: /catalog
+        - link "Constructor" [ref=e145] [cursor=pointer]:
+          - /url: /constructor
+      - generic [ref=e12]:
+        - button "Change language" [active] [ref=e146] [cursor=pointer]:
+          - generic [ref=e14]: UK
+        - link "Cart" [ref=e147] [cursor=pointer]:
+          - /url: /cart
+          - img [ref=e16]
+        - link "Account" [ref=e148] [cursor=pointer]:
+          - /url: /auth
+          - img [ref=e20]
+  - main [ref=e23]:
+    - generic [ref=e25]:
+      - generic [ref=e26]: Legal information
+      - heading "Public Offer" [level=1] [ref=e149]
+      - paragraph [ref=e28]: This Public Offer sets out the terms for ordering, payment, production, delivery, and receipt of orders placed through the Aurora Atelier website.
+    - generic [ref=e30]:
+      - complementary [ref=e31]:
+        - generic [ref=e32]: Current version
+        - heading "May 31, 2026" [level=2] [ref=e150]
+        - paragraph [ref=e34]: By placing an order on the website, the customer confirms that they have reviewed this Public Offer and accept its terms in full.
+      - generic [ref=e35]:
+        - generic [ref=e151]:
+          - heading "1. General provisions" [level=2] [ref=e152]
+          - paragraph [ref=e153]: 1.1. Aurora Atelier is an online storefront of a jewelry atelier where a customer may choose a finished piece from the catalog or create a personalized piece with the constructor.
+          - paragraph [ref=e154]: 1.2. This Public Offer is an offer to conclude an electronic contract for the sale of goods or for the ordering of a personalized item.
+          - paragraph [ref=e155]: 1.3. Acceptance of this offer takes place when the customer places an order on the website and confirms agreement with the offer terms during checkout.
+          - paragraph [ref=e156]: 1.4. The terms of this offer apply to all orders placed through the Aurora Atelier website.
+        - generic [ref=e157]:
+          - heading "2. Definitions" [level=2] [ref=e158]
+          - paragraph [ref=e159]: 2.1. Website means the Aurora Atelier web system intended for catalog browsing, creation of personalized jewelry, adding items to the cart, and order placement.
+          - paragraph [ref=e160]: 2.2. Customer means an individual who browses products, adds them to the cart, or places an order on the website.
+          - paragraph [ref=e161]: 2.3. Finished piece means a catalog product with predefined characteristics that can be added to the cart without individual customization.
+          - paragraph [ref=e162]: 2.4. Personalized piece means a piece created or modified according to the customer's individual parameters, including through the constructor, selection of metal, stone, size, engraving, or other configuration.
+          - paragraph [ref=e163]: 2.5. Order means a request placed by the customer to purchase a finished piece or to manufacture a personalized piece.
+        - generic [ref=e164]:
+          - heading "3. Subject of the contract" [level=2] [ref=e165]
+          - paragraph [ref=e166]: 3.1. Aurora Atelier enables the customer to choose a finished piece from the catalog or to form an individual jewelry configuration using the constructor.
+          - paragraph [ref=e167]: 3.2. The customer independently chooses the product, jewelry parameters, quantity, delivery method, and contact details required for order placement.
+          - paragraph [ref=e168]: 3.3. After the order is placed, Aurora Atelier receives the order data and processes it according to the selected parameters.
+        - generic [ref=e169]:
+          - heading "4. Order placement" [level=2] [ref=e170]
+          - paragraph [ref=e171]: 4.1. To place an order, the customer adds a product or personalized piece to the cart, fills in contact details, and confirms the order.
+          - paragraph [ref=e172]: 4.2. Before confirming the order, the customer must review the cart contents, item quantities, selected jewelry parameters, size, material, stone, engraving, and any other characteristics.
+          - paragraph [ref=e173]: 4.3. After order placement, the customer receives order confirmation on the website or via the contact details provided during checkout.
+          - paragraph [ref=e174]: 4.4. If an error is discovered in the order, the customer should contact Aurora Atelier as soon as possible before processing or production begins.
+        - generic [ref=e175]:
+          - heading "5. Personalized pieces" [level=2] [ref=e176]
+          - paragraph [ref=e177]: 5.1. A piece is considered personalized if it is created or configured according to the customer's individual parameters.
+          - paragraph [ref=e178]: 5.2. Personalized pieces include pieces created through the constructor as well as pieces with an individual selection of metal, stone, size, engraving, or other configuration.
+          - paragraph [ref=e179]: 5.3. The customer confirms that all parameters of the personalized piece have been reviewed before the order is placed.
+          - paragraph [ref=e180]: 5.4. Once processing or manufacturing of a personalized order has started, changing the parameters may be limited or impossible.
+          - paragraph [ref=e181]: 5.5. Return conditions for personalized pieces are determined by this offer and by the “Returns & exchanges” page.
+        - generic [ref=e182]:
+          - heading "6. Prices and payment" [level=2] [ref=e183]
+          - paragraph [ref=e184]: 6.1. Prices on the website are shown in hryvnias.
+          - paragraph [ref=e185]: 6.2. The cost of a finished piece is determined by the price shown in the catalog.
+          - paragraph [ref=e186]: 6.3. The cost of a personalized piece may depend on the selected product type, metal, stone, size, additional parameters, and configuration.
+          - paragraph [ref=e187]: 6.4. The final order price is shown in the cart before the order is confirmed.
+          - paragraph [ref=e188]: 6.5. Payment is made using the method available on the website. If the website uses a test or demo payment flow, this must be indicated in the project interface.
+        - generic [ref=e189]:
+          - heading "7. Delivery and receipt" [level=2] [ref=e190]
+          - paragraph [ref=e191]: 7.1. Delivery terms depend on the selected delivery method, city, and carrier.
+          - paragraph [ref=e192]: 7.2. Approximate delivery or production timeframes may be shown on the website or clarified after the order is placed.
+          - paragraph [ref=e193]: 7.3. Personalized pieces may require a longer fulfillment period because the piece is made according to the customer's individual parameters.
+          - paragraph [ref=e194]: 7.4. Aurora Atelier is not responsible for delays caused by the delivery service if the order was transferred to the carrier on time.
+        - generic [ref=e195]:
+          - heading "8. Quality, warranty, and care" [level=2] [ref=e196]
+          - paragraph [ref=e197]: 8.1. Aurora Atelier aims to deliver pieces of proper quality that correspond to the product description or to the agreed parameters of the personalized order.
+          - paragraph [ref=e198]: 8.2. The customer may contact Aurora Atelier regarding the quality of a piece if a defect, damage, or mismatch with the order is discovered.
+          - paragraph [ref=e199]: 8.3. Warranty claims are reviewed individually with regard to the nature of the piece, conditions of use, and the reason for the claim.
+          - paragraph [ref=e200]: 8.4. The warranty does not cover damage caused by improper use, mechanical impact, contact with aggressive substances, or failure to follow care recommendations.
+        - generic [ref=e201]:
+          - heading "9. Returns and exchanges" [level=2] [ref=e202]
+          - paragraph [ref=e203]: 9.1. Return and exchange conditions are described on the “Returns & exchanges” page.
+          - paragraph [ref=e204]: 9.2. Finished pieces may be returned or exchanged according to the terms stated on the website and the requirements of Ukrainian law.
+          - paragraph [ref=e205]: 9.3. Personalized pieces manufactured according to the customer's individual parameters are not subject to a standard return as goods of proper quality if they do not have defects or mismatches caused by Aurora Atelier.
+          - paragraph [ref=e206]: 9.4. If a piece has a defect, damage, or does not correspond to the agreed order parameters due to Aurora Atelier's fault, the customer's request is reviewed individually.
+        - generic [ref=e207]:
+          - heading "10. Personal data" [level=2] [ref=e208]
+          - paragraph [ref=e209]: 10.1. When an order is placed, Aurora Atelier processes the customer's personal data required to receive, process, and fulfill the order.
+          - paragraph [ref=e210]: 10.2. Such data may include the customer's name, phone number, email address, delivery address, and information about the order contents.
+          - paragraph [ref=e211]: 10.3. Detailed terms of personal data processing are described on the “Privacy policy” page.
+        - generic [ref=e212]:
+          - heading "11. Liability of the parties" [level=2] [ref=e213]
+          - paragraph [ref=e214]: 11.1. The customer is responsible for the accuracy of the data provided when placing an order.
+          - paragraph [ref=e215]: 11.2. Aurora Atelier is not responsible for the inability to fulfill an order if the customer provided incorrect contact details or does not respond to requests for clarification of the order.
+          - paragraph [ref=e216]: 11.3. Aurora Atelier is not responsible for differences in shades of materials or stones that may occur due to screen settings, lighting, or the specifics of product visualization on the website.
+        - generic [ref=e217]:
+          - heading "12. Changes to the offer" [level=2] [ref=e218]
+          - paragraph [ref=e219]: 12.1. Aurora Atelier may update the terms of this Public Offer.
+          - paragraph [ref=e220]: 12.2. The current version of the offer is always published on this page.
+          - paragraph [ref=e221]: 12.3. The version of the offer effective at the time the order is placed applies to the order.
+        - generic [ref=e222]:
+          - heading "13. Contacts" [level=2] [ref=e223]
+          - paragraph [ref=e224]: For questions about order placement, returns, exchanges, or personal data processing, the customer may contact Aurora Atelier using the contact details indicated on the website.
+          - generic [ref=e225]:
+            - paragraph [ref=e226]: "Contact email: [email]"
+            - paragraph [ref=e227]: "Phone: [phone]"
+            - paragraph [ref=e228]: "Atelier address or city: [address/city]"
+  - contentinfo [ref=e114]:
+    - generic [ref=e115]:
+      - generic [ref=e116]:
+        - generic [ref=e117]: Aurora Atelier
+        - paragraph [ref=e118]: Quietly expressive jewelry made for personal rituals, meaningful gifts and everyday elegance.
+      - generic [ref=e119]:
+        - generic [ref=e120]:
+          - heading "Navigation" [level=4] [ref=e229]
+          - link "Home" [ref=e230] [cursor=pointer]:
+            - /url: /
+          - link "About" [ref=e231] [cursor=pointer]:
+            - /url: /about
+          - link "Collection" [ref=e232] [cursor=pointer]:
+            - /url: /catalog
+          - link "Constructor" [ref=e233] [cursor=pointer]:
+            - /url: /constructor
+        - generic [ref=e126]:
+          - heading "Account" [level=4] [ref=e234]
+          - link "My orders" [ref=e235] [cursor=pointer]:
+            - /url: /orders
+          - link "Account" [ref=e236] [cursor=pointer]:
+            - /url: /account
+        - generic [ref=e130]:
+          - heading "For clients" [level=4] [ref=e237]
+          - link "Public offer" [ref=e238] [cursor=pointer]:
+            - /url: /oferta
+          - link "Returns & exchanges" [ref=e239] [cursor=pointer]:
+            - /url: /returns
+          - link "Privacy policy" [ref=e240] [cursor=pointer]:
+            - /url: /privacy-policy
+        - generic [ref=e135]:
+          - heading "Contact" [level=4] [ref=e241]
+          - generic [ref=e137]: Atelier in Kharkiv
+          - link "auroraatelier.mail@gmail.com" [ref=e138] [cursor=pointer]:
+            - /url: mailto:auroraatelier.mail@gmail.com
+    - generic [ref=e139]:
+      - generic [ref=e140]: © 2026 Aurora Atelier
+      - generic [ref=e141]: Made in Kharkiv

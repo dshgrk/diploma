@@ -1,0 +1,3 @@
+[     797ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/api/cart:0
+[    1627ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://accounts.google.com/gsi/button?theme=outline&size=large&shape=pill&text=continue_with&width=420&is_fedcm_supported=true&client_id=701558294387-k6moe23aehtradsuf0p56lghdh47i3dl.apps.googleusercontent.com&iframe_id=gsi_326922_67615&cas=%2BJx8dxn1r%2FA2AtOegJIV4GxskcA60AE9n4lGw8gYMMs:0
+[    1779ms] [ERROR] [GSI_LOGGER]: The given origin is not allowed for the given client ID. @ https://ssl.gstatic.com/_/gsi/_/js/k=gsi.gsi.ru.AWdd4WU-o5Y.O/am=AAAAAAkCmAIC/d=1/rs=AF0KOtW9hA_njr-COYYjKXytclsNQ-AKZA/m=credential_button_library:85
