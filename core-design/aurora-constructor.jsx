@@ -1,3 +1,4 @@
+// Файл містить дизайн-макет aurora-constructor для демонстрації інтерфейсу Aurora Atelier.
 // aurora-constructor.jsx — Full jewelry crafting constructor with stone slots
 
 const JEWELRY_TYPES = [
@@ -78,16 +79,19 @@ const SIZES = {
   ],
 };
 
+// Отримує значення get default size для розрахунків конструктора.
 function getDefaultSize(type) {
   const s = SIZES[type]?.find(s => s.default) || SIZES[type]?.[0];
   return s ? (typeof s.val === 'function' ? s.val('uk') : s.val) : '';
 }
+// Отримує значення get size price для розрахунків конструктора.
 function getSizePrice(type, sizeVal) {
   const s = SIZES[type]?.find(s => (typeof s.val === 'function' ? s.val('uk') : s.val) === sizeVal ||
     (typeof s.val === 'function' ? s.val('en') : s.val) === sizeVal);
   return s ? s.price : 0;
 }
 
+// Обчислює calc price для демонстраційної логіки конструктора.
 function calcPrice(type, materialId, stonesMap, sizeVal) {
   const mat = MATERIALS.find(m => m.id === materialId) || MATERIALS[0];
   const typeBase = { ring: 3500, necklace: 4200, bracelet: 2800, earrings: 3000 }[type] || 3500;
@@ -104,15 +108,18 @@ function StoneSlots({ type, stonesMap, setStones, lang }) {
   const [activeSlot, setActiveSlot] = React.useState(null);
   const slots = SLOT_CONFIGS[type] || [];
 
+  // Допоміжна функція виконує дію pick stone у дизайн-макеті.
   function pickStone(slotId, stoneId) {
     setStones(prev => ({ ...prev, [slotId]: stoneId }));
     setActiveSlot(null);
   }
+  // Допоміжна функція виконує дію remove stone у дизайн-макеті.
   function removeStone(slotId, e) {
     e.stopPropagation();
     setStones(prev => { const n = { ...prev }; delete n[slotId]; return n; });
     if (activeSlot === slotId) setActiveSlot(null);
   }
+  // Допоміжна функція виконує дію toggle slot у дизайн-макеті.
   function toggleSlot(slotId) {
     setActiveSlot(a => a === slotId ? null : slotId);
   }
@@ -198,6 +205,7 @@ function JewelryPreview({ type, material, stonesMap, engraving }) {
   const mat = MATERIALS.find(m => m.id === material) || MATERIALS[0];
   const mc = mat.color;
 
+  // Компонент рендерить блок gem dot у дизайн-макеті.
   function GemDot({ slotId, cx, cy, r }) {
     const stoneId = stonesMap[slotId];
     const stone = stoneId ? STONES.find(s => s.id === stoneId) : null;
@@ -299,6 +307,7 @@ function ConstructorPage({ lang, addToCart, setPage }) {
   const sizeOpts = SIZES[type] || [];
   const filledSlots = Object.entries(stonesMap).filter(([,v]) => v);
 
+  // Допоміжна функція виконує дію handle add у дизайн-макеті.
   function handleAdd() {
     const item = {
       id: `custom-${Date.now()}`,
@@ -487,6 +496,7 @@ function ConstructorPage({ lang, addToCart, setPage }) {
   );
 }
 
+// Компонент рендерить блок type icon у дизайн-макеті.
 function TypeIcon({ type, active }) {
   const color = active ? 'var(--accent)' : 'var(--ink-muted)';
   if (type === 'ring') return (

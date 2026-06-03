@@ -1,3 +1,4 @@
+// Файл описує React-сторінку about-route та її локальну UI-логіку.
 ﻿import React, { useEffect, useMemo, useState } from "react";
 import { ChevronRight, Menu, ShoppingBag, User, X } from "lucide-react";
 import { authApi, cartApi } from "../api";
@@ -23,11 +24,13 @@ const NAV_LABELS = {
   }
 };
 
+// Отримує get initial locale з поточного набору даних або конфігурації.
 function getInitialLocale() {
   const stored = window.localStorage.getItem(LOCAL_STORAGE_KEY);
   return stored === "en" ? "en" : "uk";
 }
 
+// Зчитує дані для read guest cart count з URL, localStorage, файлу або вхідного payload.
 function readGuestCartCount() {
   try {
     const raw = window.localStorage.getItem(GUEST_CART_STORAGE_KEY);
@@ -38,6 +41,7 @@ function readGuestCartCount() {
   }
 }
 
+// Компонент рендерить блок header і отримує потрібні дані через props або локальний state.
 function Header({ locale, onToggleLocale }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -50,6 +54,7 @@ function Header({ locale, onToggleLocale }) {
   const labels = NAV_LABELS[locale] || NAV_LABELS.en;
 
   useEffect(() => {
+    // Обробляє дію користувача або системну подію для on scroll.
     function onScroll() {
       if (scrollFrameRef.current) return;
       scrollFrameRef.current = window.requestAnimationFrame(() => {
@@ -72,6 +77,7 @@ function Header({ locale, onToggleLocale }) {
 
   useEffect(() => {
     let active = true;
+    // Виконує локальну логіку refresh session для модуля сторінки about-route.
     async function refreshSession() {
       try {
         const session = await authApi.getSession();
@@ -91,6 +97,7 @@ function Header({ locale, onToggleLocale }) {
 
   useEffect(() => {
     let active = true;
+    // Виконує локальну логіку refresh cart count для модуля сторінки about-route.
     async function refreshCartCount() {
       try {
         const cart = await cartApi.getCart();
@@ -101,12 +108,14 @@ function Header({ locale, onToggleLocale }) {
       }
     }
 
+    // Обробляє дію користувача або системну подію для handle cart updated.
     function handleCartUpdated(event) {
       if (!active) return;
       const nextCount = Number(event?.detail?.count);
       setCartCount(Number.isFinite(nextCount) ? nextCount : 0);
     }
 
+    // Обробляє дію користувача або системну подію для handle item added.
     function handleItemAdded() {
       if (!active) return;
       setCartCelebrating(false);
@@ -180,6 +189,7 @@ function Header({ locale, onToggleLocale }) {
   );
 }
 
+// Компонент рендерить блок aurora background і отримує потрібні дані через props або локальний state.
 function AuroraBackground() {
   return (
     <div id="aurora-bg" aria-hidden="true">
@@ -193,6 +203,7 @@ function AuroraBackground() {
   );
 }
 
+// Компонент рендерить блок about visual і отримує потрібні дані через props або локальний state.
 function AboutVisual({ src, alt, className = "", fallbackClassName = "" }) {
   const [hidden, setHidden] = useState(false);
 
@@ -207,6 +218,7 @@ function AboutVisual({ src, alt, className = "", fallbackClassName = "" }) {
   );
 }
 
+// Компонент рендерить блок about page і отримує потрібні дані через props або локальний state.
 function AboutPage({ locale }) {
   const copy = ABOUT_PAGE_CONTENT[locale] || ABOUT_PAGE_CONTENT.en;
   const [heroVideoUnavailable, setHeroVideoUnavailable] = useState(false);
@@ -222,6 +234,7 @@ function AboutPage({ locale }) {
     [copy]
   );
 
+  // Обробляє дію користувача або системну подію для handle about anchor click.
   function handleAboutAnchorClick(event, href) {
     if (!href?.startsWith("#")) return;
     event.preventDefault();

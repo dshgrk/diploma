@@ -1,3 +1,4 @@
+// Файл містить бізнес-логіку серверного модуля account та готує дані для API.
 const { db } = require("../../db/knex");
 const { CART_ITEM_TYPES } = require("../../constants/cart-item-types");
 const { parseJsonField } = require("../../utils/json");
@@ -5,6 +6,7 @@ const { pickLocalizedFields, resolveLocale } = require("../../utils/locale");
 const { serializeUser } = require("../auth/auth.service");
 const { isOrderOverdue } = require("../orders/orders.service");
 
+// Виконує локальну логіку order summary для модуля серверного модуля account.
 function orderSummary(order, items = [], updatedAt = null, locale = "uk") {
   return {
     id: order.id,
@@ -45,6 +47,7 @@ function orderSummary(order, items = [], updatedAt = null, locale = "uk") {
   };
 }
 
+// Отримує get order items by order ids з поточного набору даних або конфігурації.
 async function getOrderItemsByOrderIds(orderIds) {
   if (!orderIds.length) return new Map();
   const rows = await db("order_items")
@@ -68,6 +71,7 @@ async function getOrderItemsByOrderIds(orderIds) {
   return byOrderId;
 }
 
+// Отримує get latest history by order ids з поточного набору даних або конфігурації.
 async function getLatestHistoryByOrderIds(orderIds) {
   if (!orderIds.length) return new Map();
   const rows = await db("order_status_history")
@@ -80,6 +84,7 @@ async function getLatestHistoryByOrderIds(orderIds) {
   return byOrderId;
 }
 
+// Отримує get current order for user з поточного набору даних або конфігурації.
 async function getCurrentOrderForUser(userId, req) {
   const locale = resolveLocale(req);
   const order = await db("orders")
@@ -98,6 +103,7 @@ async function getCurrentOrderForUser(userId, req) {
   return orderSummary(order, itemsByOrderId.get(order.id) || [], latestHistoryByOrderId.get(order.id)?.created_at || null, locale);
 }
 
+// Повертає список даних list completed orders for user у форматі, готовому для API або UI.
 async function listCompletedOrdersForUser(userId, req) {
   const locale = resolveLocale(req);
   const orders = await db("orders")
@@ -117,6 +123,7 @@ async function listCompletedOrdersForUser(userId, req) {
   );
 }
 
+// Отримує get account dashboard з поточного набору даних або конфігурації.
 async function getAccountDashboard(user, req) {
   const [currentOrder, completedOrders] = await Promise.all([
     getCurrentOrderForUser(user.id, req),

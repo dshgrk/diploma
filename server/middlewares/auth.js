@@ -1,6 +1,8 @@
+// Файл містить Express middleware для спільної обробки HTTP-запитів.
 const { ROLES } = require("../constants/roles");
 const { createHttpError } = require("../utils/http-error");
 
+// Перевіряє require auth і повертає результат або кидає помилку валідації.
 function requireAuth(req, res, next) {
   if (!req.user) {
     return next(createHttpError(401, "UNAUTHORIZED", "Authentication required"));
@@ -9,6 +11,7 @@ function requireAuth(req, res, next) {
   next();
 }
 
+// Перевіряє require role і повертає результат або кидає помилку валідації.
 function requireRole(role) {
   return (req, res, next) => {
     if (!req.user) {

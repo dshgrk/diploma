@@ -1,3 +1,4 @@
+// Файл описує React-сторінку payment-route та її локальну UI-логіку.
 import React, { useEffect, useMemo, useState } from "react";
 import { Check, CreditCard, Lock, ShieldCheck } from "lucide-react";
 import { ordersApi } from "../api";
@@ -7,15 +8,18 @@ import { AuroraBackground, Footer, Header, LOCALE_FORMATS, usePublicLocale } fro
 import "../styles.css";
 import "../styles/checkout-payment.css";
 
+// Виконує локальну логіку t для модуля сторінки payment-route.
 function t(locale, key) {
   return publicText(PAYMENT_COPY, locale, key);
 }
 
+// Форматує format card number у вигляд, зручний для відображення користувачу.
 function formatCardNumber(value) {
   const digits = value.replace(/\D/g, "").slice(0, 16);
   return digits.replace(/(.{4})/g, "$1 ").trim();
 }
 
+// Форматує format expiry у вигляд, зручний для відображення користувачу.
 function formatExpiry(value) {
   const digits = value.replace(/\D/g, "").slice(0, 4);
   if (digits.length <= 2) return digits;
@@ -79,6 +83,7 @@ export default function PaymentRoute() {
     cardForm.expiryDate.length === 5 &&
     cardForm.cvc.length >= 3;
 
+  // Оновлює існуючі дані update field без зміни решти стану.
   function updateField(event) {
     const { name, value } = event.target;
     setCardForm((current) => ({
@@ -94,6 +99,7 @@ export default function PaymentRoute() {
     }));
   }
 
+  // Обробляє дію користувача або системну подію для handle confirm payment.
   async function handleConfirmPayment(event) {
     event.preventDefault();
     if (!order?.active_payment_token || order.status !== "created_pending_payment") {

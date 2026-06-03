@@ -1,3 +1,4 @@
+// Файл описує React-сторінку admin-orders-route та її локальну UI-логіку.
 import React, { useEffect, useState } from "react";
 import { adminOrdersApi } from "../api";
 import { AdminShell } from "../features/admin/admin-shell.jsx";
@@ -12,6 +13,7 @@ import "../styles.css";
 
 const ADMIN_LOCALE = "uk-UA";
 
+// Компонент рендерить блок admin metric і отримує потрібні дані через props або локальний state.
 function AdminMetric({ label, value }) {
   return (
     <article className="admin-metric-card">

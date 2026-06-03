@@ -1,3 +1,4 @@
+// Файл містить логіку business-rules.
 const BUSINESS_RULES = {
   CURRENCY: "UAH",
   OVERDUE_DAYS: 14,

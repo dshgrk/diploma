@@ -1,3 +1,5 @@
+// Файл описує зміну схеми SQLite через Knex migration.
+// Виконує локальну логіку up для модуля міграції бази даних.
 exports.up = async function up(knex) {
   await knex.schema.alterTable("promo_codes", (table) => {
     table.integer("redemption_count").notNullable().defaultTo(0);
@@ -46,6 +48,7 @@ exports.up = async function up(knex) {
   });
 };
 
+// Виконує локальну логіку down для модуля міграції бази даних.
 exports.down = async function down(knex) {
   await knex.schema.alterTable("promo_code_redemptions", (table) => {
     table.dropUnique(["order_id"]);

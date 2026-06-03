@@ -1,3 +1,4 @@
+// Файл містить логіку юридичних сторінок.
 ﻿export const LEGAL_PAGES = {
   oferta: {
     slug: "oferta",
@@ -638,6 +639,7 @@
   }
 };
 
+// Отримує get legal page з поточного набору даних або конфігурації.
 export function getLegalPage(pageKey, locale) {
   const page = LEGAL_PAGES[pageKey];
   if (!page) return null;

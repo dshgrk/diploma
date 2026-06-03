@@ -1,3 +1,4 @@
+// Файл описує React-сторінку admin-constructor-route та її локальну UI-логіку.
 import React, { useEffect, useState } from "react";
 import { adminCatalogApi } from "../api";
 import { buildMaterialAwareBaseAssetCandidates } from "../jewelry-preview";
@@ -104,14 +105,17 @@ const ADMIN_CONSTRUCTOR_CODE_LABELS = {
   arc: "Дуга"
 };
 
+// Повертає зрозумілу назву типу прикраси за технічним кодом.
 function adminTypeCodeLabel(code) {
   return ADMIN_TYPE_CODE_LABELS[code] || code || "";
 }
 
+// Повертає підпис категорії asset'а для списків адмін-конструктора.
 function adminAssetKindLabel(kind) {
   return ADMIN_ASSET_KIND_LABELS[kind] || kind;
 }
 
+// Перетворює технічні коди конструктора на людиночитні підписи.
 function adminConstructorCodeLabel(code) {
   const normalized = String(code || "").trim().toLowerCase();
   if (!normalized) return "";
@@ -125,11 +129,13 @@ function adminConstructorCodeLabel(code) {
   return String(code || "").replace(/[_-]+/g, " ").trim();
 }
 
+// Вибирає назву типу прикраси з даних або fallback-підпису.
 function adminConstructorTypeName(type, fallback = "Тип прикраси") {
   if (!type) return fallback;
   return type.name_uk || adminTypeCodeLabel(type.code) || adminConstructorCodeLabel(type.code) || fallback;
 }
 
+// Формує назву варіанта прикраси з локалізованого імені, типу та subtype.
 function adminConstructorVariantName(variant, typeCode = "") {
   if (!variant) return "";
   if (variant.name_uk) return variant.name_uk;
@@ -139,16 +145,19 @@ function adminConstructorVariantName(variant, typeCode = "") {
   return typeLabel || adminConstructorCodeLabel(variant.code) || variant.code || "";
 }
 
+// Повертає підпис слота для outline, canvas та форм редагування.
 function adminConstructorSlotName(slot, fallback = "") {
   if (!slot) return fallback;
   return slot.label_uk || adminConstructorCodeLabel(slot.code) || fallback;
 }
 
+// Повертає назву каменю для бібліотеки, матриці цін та preview.
 function adminConstructorStoneName(stone, fallback = "") {
   if (!stone) return fallback;
   return stone.name_uk || adminConstructorCodeLabel(stone.code) || fallback;
 }
 
+// Визначає дружню назву asset'а через пов'язаний варіант, камінь або назву файлу.
 function adminConstructorAssetName(asset, options = {}) {
   if (!asset) return "";
   const { variants = [], types = [], stones = [] } = options;
@@ -188,6 +197,7 @@ function adminConstructorAssetName(asset, options = {}) {
   return asset.label || assetPath;
 }
 
+// Компонент рендерить блок studio admin constructor page і отримує потрібні дані через props або локальний state.
 function StudioAdminConstructorPage() {
   const initialAdminConstructorStateRef = React.useRef(null);
   if (!initialAdminConstructorStateRef.current) {
@@ -225,11 +235,13 @@ function StudioAdminConstructorPage() {
   const lastCanvasInteractionDraftRef = React.useRef(null);
   const previewSelectionsVariantRef = React.useRef("");
 
+  // Шукає активний слот у межах поточного варіанта прикраси.
   function findCurrentVariantSlotById(slotId) {
     if (!slotId) return null;
     return currentSlotsAdmin.find((item) => String(item.id) === String(slotId)) || null;
   }
 
+  // Перевіряє is slot draft dirty against studio і повертає результат або кидає помилку валідації.
   function isSlotDraftDirtyAgainstStudio(draft) {
     return isSlotDraftDirtyAgainstPersisted(draft, findCurrentVariantSlotById(draft?.id));
   }
@@ -245,6 +257,7 @@ function StudioAdminConstructorPage() {
     setSelectedStoneId(nextState.selectedStoneId);
   }, []);
 
+  // Оновлює route-state адмін-конструктора без втрати поточного контексту.
   function navigateConstructorAdmin(nextStatePatch = {}) {
     const baseState = {
       section,
@@ -260,6 +273,7 @@ function StudioAdminConstructorPage() {
     applyAdminConstructorState(nextState);
   }
 
+  // Завантажує повну конфігурацію студії та нормалізує вибраний розділ.
   async function loadStudio(preferred = {}) {
     const data = await adminCatalogApi.getConstructorConfig();
     setStudio(data);
@@ -413,10 +427,12 @@ function StudioAdminConstructorPage() {
     setPendingDelete(null);
   }, [selectedTypeId, selectedVariantId, selectedStoneId, jewelryStep, stoneStep, section]);
 
+  // Повертає URL базового зображення для варіанта прикраси.
   function variantBaseAssetUrl(variant) {
     return variant?.base_asset_id ? assetsById[variant.base_asset_id]?.path || null : null;
   }
 
+  // Готує список можливих preview-зображень з урахуванням матеріалу.
   function variantAdminPreviewCandidates(variant, preferredMaterials = ["gold", "silver", "rose_gold"]) {
     if (!variant) return [];
     const previewVariant = { ...variant, base_asset_url: variantBaseAssetUrl(variant) };
@@ -427,6 +443,7 @@ function StudioAdminConstructorPage() {
     ];
   }
 
+  // Вибирає найкращий preview asset для поточного варіанта.
   function variantAdminPreviewAssetUrl(variant, preferredMaterials = ["gold", "silver", "rose_gold"]) {
     return variantAdminPreviewCandidates(variant, preferredMaterials)[0] || variantBaseAssetUrl(variant);
   }
@@ -442,6 +459,7 @@ function StudioAdminConstructorPage() {
     slotDraftDirtyRef.current = slotDraftDirty;
   }, [slotDraftDirty]);
 
+  // Зберігає тип прикраси та оновлює список варіантів після відповіді API.
   async function saveType() {
     if (!typeForm) return;
     setIsSaving(true);
@@ -451,7 +469,7 @@ function StudioAdminConstructorPage() {
         ? await adminCatalogApi.updateType(typeForm.id, typeForm)
         : await adminCatalogApi.createType(typeForm);
       await loadStudio(buildStudioJewelryVariantsState(saved.id));
-      setNotice("��� ���������");
+      setNotice("Тип збережено");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -459,6 +477,7 @@ function StudioAdminConstructorPage() {
     }
   }
 
+  // Зберігає варіант прикраси та повертає редактор до цього варіанта.
   async function saveVariant() {
     if (!variantForm) return;
     setIsSaving(true);
@@ -472,7 +491,7 @@ function StudioAdminConstructorPage() {
         selectedTypeId,
         selectedVariantId: saved.id
       }));
-      setNotice("������ ���������");
+      setNotice("Варіант збережено");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -480,12 +499,14 @@ function StudioAdminConstructorPage() {
     }
   }
 
+  // Скидає запланований autosave слота, якщо користувач продовжив редагування.
   function clearSlotAutosaveTimer() {
     if (!slotAutosaveTimerRef.current) return;
     window.clearTimeout(slotAutosaveTimerRef.current);
     slotAutosaveTimerRef.current = null;
   }
 
+  // Патчить слот у локальному state після успішного збереження на сервері.
   function patchStudioSlot(savedSlot, snapshot) {
     const savedDraft = cloneSlotDraft(savedSlot);
     setStudio((currentStudio) => {
@@ -515,6 +536,7 @@ function StudioAdminConstructorPage() {
     }
   }
 
+  // Зберігає snapshot слота через create/update API і оновлює local-first state.
   async function performSlotPersist(snapshot, options = {}) {
     if (!snapshot || !currentVariantAdmin) return true;
     const persistedSlot = snapshot.id ? findCurrentVariantSlotById(snapshot.id) : null;
@@ -542,7 +564,7 @@ function StudioAdminConstructorPage() {
         patchStudioSlot(saved, snapshot);
       }
       if (!options.silent) {
-        setNotice("���� ���������");
+        setNotice("Слот збережено");
       }
       setSlotSaveStatus("saved");
       lastCanvasInteractionDraftRef.current = null;
@@ -557,6 +579,7 @@ function StudioAdminConstructorPage() {
     }
   }
 
+  // Послідовно виконує чергу slot autosave, щоб запити не перезаписували один одного.
   async function flushQueuedSlotPersists() {
     if (slotSaveLoopPromiseRef.current) {
       return slotSaveLoopPromiseRef.current;
@@ -581,6 +604,7 @@ function StudioAdminConstructorPage() {
     return slotSaveLoopPromiseRef.current;
   }
 
+  // Додає поточну чернетку слота до черги збереження.
   async function persistSlotDraft(draftInput, options = {}) {
     const snapshot = cloneSlotDraft(draftInput ?? slotFormRef.current);
     if (!snapshot || !currentVariantAdmin) return true;
@@ -595,6 +619,7 @@ function StudioAdminConstructorPage() {
     return flushQueuedSlotPersists();
   }
 
+  // Планує відкладений autosave слота після drag або зміни полів.
   function queueSlotAutosave(draftInput, options = {}) {
     const snapshot = cloneSlotDraft(draftInput ?? slotFormRef.current);
     if (!snapshot) return;
@@ -606,6 +631,7 @@ function StudioAdminConstructorPage() {
     }, options.delay ?? 500);
   }
 
+  // Дозберігає чернетку слота перед переходом у інший розділ.
   async function flushSlotDraftBeforeNavigation() {
     clearSlotAutosaveTimer();
     if (slotSaveLoopPromiseRef.current) {
@@ -618,6 +644,7 @@ function StudioAdminConstructorPage() {
     return persistSlotDraft(slotFormRef.current, { silent: true });
   }
 
+  // Виконує навігацію тільки після безпечного завершення slot autosave.
   async function navigateAfterSlotPersist(nextStatePatch = {}) {
     const saved = await flushSlotDraftBeforeNavigation();
     if (!saved) return false;
@@ -625,24 +652,28 @@ function StudioAdminConstructorPage() {
     return true;
   }
 
+  // Зберігає зміни save current slot draft та синхронізує їх із постійним сховищем.
   async function saveCurrentSlotDraft(options = {}) {
     clearSlotAutosaveTimer();
     return persistSlotDraft(slotFormRef.current, { silent: options.silent !== false, force: options.force });
   }
 
+  // Зберігає зміни save slot та синхронізує їх із постійним сховищем.
   async function saveSlot() {
     await saveCurrentSlotDraft({ silent: false, force: true });
   }
 
+  // Повертає короткий UI-статус збереження слота.
   function slotSaveStatusLabel() {
-    if (slotInteractionActive || slotSaveStatus === "dirty") return "��������";
-    if (slotSaveStatus === "waiting") return "���������� ����� 0.5�";
-    if (slotSaveStatus === "saving") return "����������...";
-    if (slotSaveStatus === "saved") return "���������";
-    if (slotSaveStatus === "error") return "������� ����������";
-    return "������";
+    if (slotInteractionActive || slotSaveStatus === "dirty") return "Є незбережені зміни";
+    if (slotSaveStatus === "waiting") return "Автозбереження через 0.5с";
+    if (slotSaveStatus === "saving") return "Збереження...";
+    if (slotSaveStatus === "saved") return "Збережено";
+    if (slotSaveStatus === "error") return "Помилка збереження";
+    return "Готово";
   }
 
+  // Зберігає слот тільки тоді, коли чернетка відрізняється від persisted state.
   async function commitSlotIfDirty(slotId) {
     clearSlotAutosaveTimer();
     const draft = slotFormRef.current;
@@ -652,6 +683,7 @@ function StudioAdminConstructorPage() {
     return persistSlotDraft(draft, { silent: true });
   }
 
+  // Перемикає активний слот і попередньо зберігає попередню чернетку.
   async function selectSlotDraft(slotId) {
     const nextSlot = currentSlotsAdmin.find((item) => String(item.id) === String(slotId)) || null;
     if (!nextSlot) return;
@@ -665,6 +697,7 @@ function StudioAdminConstructorPage() {
     setSlotForm(nextDraft);
   }
 
+  // Перемикає активний слот локально без додаткового API-запиту.
   function selectSlotDraftLocally(slotId) {
     const nextSlot = currentSlotsAdmin.find((item) => String(item.id) === String(slotId)) || null;
     if (!nextSlot) return;
@@ -676,6 +709,7 @@ function StudioAdminConstructorPage() {
     setSlotSaveStatus("idle");
   }
 
+  // Застосовує новий snapshot слота до форми, refs і локального studio state.
   function applySlotDraftSnapshot(nextDraft, options = {}) {
     const snapshot = cloneSlotDraft(nextDraft);
     slotFormRef.current = snapshot;
@@ -688,6 +722,7 @@ function StudioAdminConstructorPage() {
     return snapshot;
   }
 
+  // Оновлює існуючі дані update slot form draft без зміни решти стану.
   function updateSlotFormDraft(updater, options = {}) {
     const baseDraft = cloneSlotDraft(slotFormRef.current || slotForm || {});
     const nextDraft = typeof updater === "function"
@@ -700,6 +735,7 @@ function StudioAdminConstructorPage() {
     clearSlotAutosaveTimer();
   }, []);
 
+  // Видаляє або деактивує запис delete slot admin згідно з правилами модуля.
   async function deleteSlotAdmin() {
     if (!currentSlotAdmin?.id) return;
     setIsSaving(true);
@@ -710,7 +746,7 @@ function StudioAdminConstructorPage() {
         selectedTypeId,
         selectedVariantId
       }));
-      setNotice("���� ��������");
+      setNotice("Слот видалено");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -718,6 +754,7 @@ function StudioAdminConstructorPage() {
     }
   }
 
+  // Створює локальну копію поточного слота як нову чернетку.
   async function duplicateCurrentSlot() {
     if (!currentSlotAdmin || !currentVariantAdmin) return;
     setIsSaving(true);
@@ -728,14 +765,14 @@ function StudioAdminConstructorPage() {
         id: undefined,
         variant_id: Number(currentVariantAdmin.id),
         code: currentSlotAdmin.code + "-copy",
-        label_uk: (currentSlotAdmin.label_uk || currentSlotAdmin.code) + " ����",
+        label_uk: (currentSlotAdmin.label_uk || currentSlotAdmin.code) + " копія",
         label_en: (currentSlotAdmin.label_en || currentSlotAdmin.code) + " copy",
         sort_order: currentSlotsAdmin.length + 1,
         x: Math.min(95, Number(currentSlotAdmin.x || 50) + 4),
         y: Math.min(95, Number(currentSlotAdmin.y || 50) + 4)
       });
       await loadStudio();
-      setNotice("���� ����������");
+      setNotice("Слот дубльовано");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -743,6 +780,7 @@ function StudioAdminConstructorPage() {
     }
   }
 
+  // Зберігає камінь бібліотеки та залишає відкритим його редактор.
   async function saveStone() {
     if (!stoneForm2) return;
     setIsSaving(true);
@@ -752,7 +790,7 @@ function StudioAdminConstructorPage() {
         ? await adminCatalogApi.updateStone(stoneForm2.id, stoneForm2)
         : await adminCatalogApi.createStone(stoneForm2);
       await loadStudio(buildStudioStoneEditorState(saved.id, { selectedTypeId, selectedVariantId }));
-      setNotice("����� ���������");
+      setNotice("Камінь збережено");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -760,6 +798,7 @@ function StudioAdminConstructorPage() {
     }
   }
 
+  // Видаляє або деактивує запис delete stone admin згідно з правилами модуля.
   async function deleteStoneAdmin() {
     if (!stoneForm2?.id) return;
     setIsSaving(true);
@@ -767,7 +806,7 @@ function StudioAdminConstructorPage() {
     try {
       await adminCatalogApi.deactivateStone(stoneForm2.id);
       await loadStudio(buildStudioStonesListState({ selectedTypeId, selectedVariantId }));
-      setNotice("����� ��������");
+      setNotice("Камінь видалено");
       setPendingDelete(null);
     } catch (err) {
       setError(err.message);
@@ -776,6 +815,7 @@ function StudioAdminConstructorPage() {
     }
   }
 
+  // Обробляє дію користувача або системну подію для handle asset upload.
   async function handleAssetUpload(event) {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -790,13 +830,14 @@ function StudioAdminConstructorPage() {
         data_url: dataUrl
       });
       await loadStudio();
-      setNotice("���� �����������");
+      setNotice("Файл завантажено");
       event.target.value = "";
     } catch (err) {
       setError(err.message);
     }
   }
 
+  // Видаляє або деактивує запис delete asset admin згідно з правилами модуля.
   async function deleteAssetAdmin(asset) {
     if (!asset?.id) return;
     setIsSaving(true);
@@ -805,7 +846,7 @@ function StudioAdminConstructorPage() {
       await adminCatalogApi.deleteAsset(asset.id);
       await loadStudio(buildStudioAssetsState({ selectedTypeId, selectedVariantId, selectedStoneId }));
       setPendingDelete(null);
-      setNotice("���� ��������");
+      setNotice("Файл видалено");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -813,6 +854,7 @@ function StudioAdminConstructorPage() {
     }
   }
 
+  // Синхронізує set variant stone між локальним станом, URL, подіями або сховищем.
   async function setVariantStone(entry, patch) {
     if (!currentVariantAdmin) return;
     try {
@@ -823,6 +865,7 @@ function StudioAdminConstructorPage() {
     }
   }
 
+  // Створює порожню чернетку нового слота для поточного варіанта.
   async function startNewSlot() {
     if (!currentVariantAdmin) return;
     const saved = await flushSlotDraftBeforeNavigation();
@@ -833,6 +876,7 @@ function StudioAdminConstructorPage() {
     setSlotForm(nextDraft);
   }
 
+  // Готує форму створення нового типу прикраси.
   async function startNewType() {
     const saved = await flushSlotDraftBeforeNavigation();
     if (!saved) return;
@@ -847,6 +891,7 @@ function StudioAdminConstructorPage() {
     setVariantForm(null);
   }
 
+  // Готує форму нового варіанта для вибраного типу прикраси.
   async function startNewVariant() {
     if (!selectedTypeId) return;
     const saved = await flushSlotDraftBeforeNavigation();
@@ -861,6 +906,7 @@ function StudioAdminConstructorPage() {
     setVariantForm(createStudioVariantDraft(selectedTypeId, variants.length + 1));
   }
 
+  // Готує форму створення нового каменю в бібліотеці.
   async function startNewStone() {
     const saved = await flushSlotDraftBeforeNavigation();
     if (!saved) return;
@@ -880,6 +926,7 @@ function StudioAdminConstructorPage() {
     });
   }
 
+  // Видаляє або деактивує запис delete variant admin згідно з правилами модуля.
   async function deleteVariantAdmin() {
     if (!currentVariantAdmin?.id) return;
     setIsSaving(true);
@@ -888,7 +935,7 @@ function StudioAdminConstructorPage() {
       const nextTypeId = selectedTypeId;
       await adminCatalogApi.deactivateVariant(currentVariantAdmin.id);
       await loadStudio(buildStudioJewelryVariantsState(nextTypeId));
-      setNotice("������ ��������");
+      setNotice("Варіант видалено");
       setPendingDelete(null);
     } catch (err) {
       setError(err.message);
@@ -897,6 +944,7 @@ function StudioAdminConstructorPage() {
     }
   }
 
+  // Видаляє або деактивує запис delete type admin згідно з правилами модуля.
   async function deleteTypeAdmin() {
     if (!currentTypeAdmin?.id) return;
     setIsSaving(true);
@@ -904,7 +952,7 @@ function StudioAdminConstructorPage() {
     try {
       await adminCatalogApi.deactivateType(currentTypeAdmin.id);
       await loadStudio(buildStudioJewelryTypesState({ selectedTypeId: "" }));
-      setNotice("��� ��������");
+      setNotice("Тип видалено");
       setPendingDelete(null);
     } catch (err) {
       setError(err.message);
@@ -913,18 +961,22 @@ function StudioAdminConstructorPage() {
     }
   }
 
+  // Вмикає двокрокове підтвердження видалення для небезпечної дії.
   function requestDelete(kind, id) {
     setPendingDelete({ kind, id: String(id) });
   }
 
+  // Скасовує pending delete і повертає UI у звичайний режим.
   function cancelDelete() {
     setPendingDelete(null);
   }
 
+  // Перевіряє is delete pending і повертає результат або кидає помилку валідації.
   function isDeletePending(kind, id) {
     return pendingDelete?.kind === kind && String(pendingDelete?.id) === String(id);
   }
 
+  // Оновлює існуючі дані update selected slot preview без зміни решти стану.
   async function updateSelectedSlotPreview(stoneCode) {
     const targetCode = slotForm?.code || currentSlotAdmin?.code;
     if (!targetCode) return;
@@ -933,6 +985,7 @@ function StudioAdminConstructorPage() {
     setPreviewSelections((current) => ({ ...current, [targetCode]: stoneCode }));
   }
 
+  // Відкриває верхній розділ робочого простору конструктора.
   async function openSection(nextSection) {
     if (nextSection === "jewelry") {
       await navigateAfterSlotPersist(buildStudioJewelryTypesState());
@@ -953,10 +1006,12 @@ function StudioAdminConstructorPage() {
     await navigateAfterSlotPersist(buildStudioHomeState());
   }
 
+  // Переходить зі списку типів до варіантів вибраного типу прикраси.
   async function openJewelryVariantsStep(nextTypeId = selectedTypeId, extra = {}) {
     await navigateAfterSlotPersist(buildStudioJewelryVariantsState(nextTypeId, extra));
   }
 
+  // Відкриває базові налаштування вибраного типу прикраси.
   async function openJewelryBasicStep(nextTypeId = selectedTypeId, extra = {}) {
     await navigateAfterSlotPersist(buildStudioJewelryEditorState({
       selectedTypeId: nextTypeId,
@@ -967,6 +1022,7 @@ function StudioAdminConstructorPage() {
     }));
   }
 
+  // Перемикає subview редактора прикраси: slots, basic, matrix або preview.
   async function openJewelryEditorSubview(nextSubview, extra = {}) {
     await navigateAfterSlotPersist(buildStudioJewelryEditorState({
       selectedTypeId: extra.selectedTypeId ?? selectedTypeId,
@@ -977,14 +1033,17 @@ function StudioAdminConstructorPage() {
     }));
   }
 
+  // Відкриває pricing-матрицю для конкретного варіанта прикраси.
   async function openPricingForVariant(nextVariantId = selectedVariantId, nextTypeId = selectedTypeId, extra = {}) {
     await navigateAfterSlotPersist(buildStudioPricingState(nextTypeId, nextVariantId, extra));
   }
 
+  // Відкриває форму редагування вибраного типу прикраси.
   async function openType(typeId) {
     await openJewelryVariantsStep(String(typeId));
   }
 
+  // Відкриває редактор конкретного варіанта прикраси.
   async function openVariant(variantId, subview = "slots") {
     const variant = (studio?.variants || []).find((item) => String(item.id) === String(variantId)) || null;
     await openJewelryEditorSubview(subview, {
@@ -995,6 +1054,7 @@ function StudioAdminConstructorPage() {
     });
   }
 
+  // Відкриває редактор каменю або форму створення нового каменю.
   async function openStoneEditor(stoneId) {
     await navigateAfterSlotPersist(buildStudioStoneEditorState(String(stoneId)));
   }
@@ -1004,10 +1064,12 @@ function StudioAdminConstructorPage() {
   const selectedTypeCard = jewelryTypes.find(([code]) => code === currentTypeAdmin?.code);
   const currentStoneUsage = stoneForm2?.id ? allMatrix.filter((item) => String(item.stone_id) === String(stoneForm2.id) && item.is_enabled !== false) : [];
 
+  // Оновлює одне поле форми типу прикраси.
   function updateTypeField(key, value) {
     setTypeForm((current) => ({ ...(current || {}), [key]: value }));
   }
 
+  // Оновлює матеріал усередині форми типу прикраси.
   function updateTypeMaterial(index, key, value) {
     setTypeForm((current) => ({
       ...(current || {}),
@@ -1017,6 +1079,7 @@ function StudioAdminConstructorPage() {
     }));
   }
 
+  // Додає новий матеріал у форму типу прикраси.
   function addTypeMaterial() {
     setTypeForm((current) => ({
       ...(current || {}),
@@ -1024,6 +1087,7 @@ function StudioAdminConstructorPage() {
     }));
   }
 
+  // Прибирає матеріал з локальної форми типу прикраси.
   function removeTypeMaterial(index) {
     setTypeForm((current) => ({
       ...(current || {}),
@@ -1031,6 +1095,7 @@ function StudioAdminConstructorPage() {
     }));
   }
 
+  // Оновлює розмір усередині форми типу прикраси.
   function updateTypeSize(index, key, value) {
     setTypeForm((current) => {
       const nextSizes = (current?.size_options || []).map((item, itemIndex) => (
@@ -1045,6 +1110,7 @@ function StudioAdminConstructorPage() {
     });
   }
 
+  // Додає новий розмір у форму типу прикраси.
   function addTypeSize() {
     setTypeForm((current) => ({
       ...(current || {}),
@@ -1052,6 +1118,7 @@ function StudioAdminConstructorPage() {
     }));
   }
 
+  // Прибирає розмір з локальної форми типу прикраси.
   function removeTypeSize(index) {
     setTypeForm((current) => ({
       ...(current || {}),
@@ -1059,6 +1126,7 @@ function StudioAdminConstructorPage() {
     }));
   }
 
+  // Оновлює налаштування гравіювання в локальній формі типу.
   function updateEngravingField(key, value) {
     setTypeForm((current) => ({
       ...(current || {}),
@@ -1085,10 +1153,12 @@ function StudioAdminConstructorPage() {
     navigateAfterSlotPersist
   });
 
+  // Повертає базову чернетку слота для canvas-редагування.
   function resolveCanvasBaseDraft(slotId) {
     return resolveSlotDraftById(slotId, slotFormRef.current, currentSlotsAdmin);
   }
 
+  // Застосовує зміни з canvas drag до slot draft і запускає autosave.
   function applyCanvasDraftPatch(slotId, patch) {
     const baseDraft = resolveCanvasBaseDraft(slotId);
     if (!baseDraft) return;
@@ -1344,10 +1414,10 @@ function StudioAdminConstructorPage() {
   );
 
   return (
-    <AdminShell title="������������� �����" subtitle="³������� CMS �� JSON ��� ����, �������, �����, ������� � �����.">
+    <AdminShell title="Конструктор студії" subtitle="Візуальна CMS на JSON для типів, варіантів, слотів, каменів і цін.">
       {error ? <p className="admin-error">{error}</p> : null}
       {notice ? <p className="admin-success">{notice}</p> : null}
-      {!studio ? <div className="empty-state-react"><h2>������������ �����</h2></div> : (
+      {!studio ? <div className="empty-state-react"><h2>Завантаження студії</h2></div> : (
         <div className="studio-shell">
           <StudioWorkspaceBar sections={workspaceSections} currentSection={section} breadcrumbs={breadcrumbs} onOpenSection={openSection} />
           <StudioWorkspaceMainPanel
@@ -1369,6 +1439,7 @@ function StudioAdminConstructorPage() {
   );
 }
 
+// Компонент рендерить блок aurora background і отримує потрібні дані через props або локальний state.
 function AuroraBackground() {
   return (
     <div id="aurora-bg" aria-hidden="true">

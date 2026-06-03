@@ -21,6 +21,9 @@
 | `payments` | mock-подтверждение оплаты и аудит результата |
 | `orders` | чтение клиентом своих заказов и их деталей |
 | `admin-orders` | чтение списка заказов, детальных данных и смена статусов администратором |
+| `admin-catalog` | управление товарами, материалами и option values конструктора |
+| `admin-constructor` | управление типами, вариантами, слотами, камнями и связями камней |
+| `admin-assets` | управление ассетами и загрузка product/preview изображений |
 | `notifications` | генерация email-событий и журнал отправок |
 | `i18n` | выбор локали ответа для словарных данных |
 
@@ -370,14 +373,47 @@ created_pending_payment -> confirmed -> in_progress -> completed
 - ошибки email-уведомлений;
 - попытки доступа в чужой заказ или админские endpoint-ы без роли.
 
-## Phase 2 API
+## Admin Catalog API
 
-Во второй фазе добавляются:
+Все endpoint-ы ниже доступны только роли `admin`.
 
-- `POST /api/admin/products`
-- `PATCH /api/admin/products/:id`
-- `DELETE /api/admin/products/:id`
-- `POST /api/admin/materials`
-- `PATCH /api/admin/materials/:id`
-- `DELETE /api/admin/materials/:id`
-- endpoint загрузки изображений с валидацией типа и разрешения.
+- `GET /api/admin/catalog/jewelry-types` - список типов украшений для форм.
+- `GET /api/admin/catalog/products` - список товаров.
+- `POST /api/admin/catalog/products` - создание товара.
+- `PATCH /api/admin/catalog/products/:productId` - обновление товара.
+- `DELETE /api/admin/catalog/products/:productId` - деактивация товара.
+- `POST /api/admin/catalog/uploads/product-image` - загрузка изображения товара.
+- `GET /api/admin/catalog/materials` - список материалов.
+- `POST /api/admin/catalog/materials` - создание материала.
+- `PATCH /api/admin/catalog/materials/:materialId` - обновление материала.
+- `DELETE /api/admin/catalog/materials/:materialId` - деактивация материала.
+- `GET /api/admin/catalog/constructor` - admin-представление старой модели option values.
+- `POST /api/admin/catalog/constructor/values` - создание option value.
+- `PATCH /api/admin/catalog/constructor/values/:valueId` - обновление option value.
+- `DELETE /api/admin/catalog/constructor/values/:valueId` - деактивация option value.
+- `PATCH /api/admin/catalog/constructor/layouts` - обновление preview layout metadata.
+
+## Admin Constructor API
+
+- `GET /api/admin/constructor` - полный studio config.
+- `POST /api/admin/constructor/types` - создание типа украшения.
+- `PATCH /api/admin/constructor/types/:typeId` - обновление типа.
+- `DELETE /api/admin/constructor/types/:typeId` - деактивация типа.
+- `POST /api/admin/constructor/variants` - создание варианта.
+- `PATCH /api/admin/constructor/variants/:variantId` - обновление варианта.
+- `DELETE /api/admin/constructor/variants/:variantId` - деактивация варианта.
+- `POST /api/admin/constructor/slots` - создание слота камня.
+- `PATCH /api/admin/constructor/slots/:slotId` - обновление слота.
+- `DELETE /api/admin/constructor/slots/:slotId` - деактивация слота.
+- `POST /api/admin/constructor/stones` - создание камня.
+- `PATCH /api/admin/constructor/stones/:stoneId` - обновление камня.
+- `DELETE /api/admin/constructor/stones/:stoneId` - деактивация камня.
+- `PATCH /api/admin/constructor/variant-stones` - обновление матрицы доступности камней.
+- `DELETE /api/admin/constructor/variant-stones/:variantId/:stoneId` - отключение камня для варианта.
+
+## Admin Assets API
+
+- `GET /api/admin/assets` - список ассетов.
+- `POST /api/admin/assets` - создание записи ассета.
+- `POST /api/admin/assets/upload` - загрузка ассета.
+- `DELETE /api/admin/assets/:assetId` - удаление ассета.

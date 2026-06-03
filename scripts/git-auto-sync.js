@@ -1,3 +1,4 @@
+// Файл містить службовий Node.js-скрипт для підтримки проєкту.
 const fs = require("fs");
 const path = require("path");
 const { spawn, spawnSync } = require("child_process");
@@ -20,16 +21,19 @@ let timer = null;
 let syncing = false;
 let pending = false;
 
+// Виконує локальну логіку timestamp для модуля службового скрипта.
 function timestamp() {
   return new Date().toISOString().replace("T", " ").replace(/\..+/, "");
 }
 
+// Виконує локальну логіку append log для модуля службового скрипта.
 function appendLog(message) {
   const line = `[${timestamp()}] ${message}\n`;
   fs.appendFileSync(logFile, line);
   process.stdout.write(line);
 }
 
+// Виконує локальну логіку run git для модуля службового скрипта.
 function runGit(args, options = {}) {
   return spawnSync("git", args, {
     cwd: repoRoot,
@@ -38,11 +42,13 @@ function runGit(args, options = {}) {
   });
 }
 
+// Перевіряє is ignored і повертає результат або кидає помилку валідації.
 function isIgnored(targetPath) {
   const normalized = targetPath.replace(/\\/g, "/");
   return ignoredParts.some((part) => normalized.includes(part));
 }
 
+// Перевіряє has pending changes і повертає результат або кидає помилку валідації.
 function hasPendingChanges() {
   const result = runGit(["status", "--porcelain"]);
   if (result.status !== 0) {
@@ -53,11 +59,13 @@ function hasPendingChanges() {
   return Boolean(result.stdout.trim());
 }
 
+// Виконує локальну логіку current branch для модуля службового скрипта.
 function currentBranch() {
   const result = runGit(["branch", "--show-current"]);
   return result.status === 0 ? result.stdout.trim() : "main";
 }
 
+// Виконує локальну логіку schedule sync для модуля службового скрипта.
 function scheduleSync(reason) {
   if (timer) clearTimeout(timer);
   timer = setTimeout(() => {
@@ -67,6 +75,7 @@ function scheduleSync(reason) {
   }, debounceMs);
 }
 
+// Синхронізує sync now між локальним станом, URL, подіями або сховищем.
 async function syncNow(reason) {
   if (syncing) {
     pending = true;
@@ -119,6 +128,7 @@ async function syncNow(reason) {
   }
 }
 
+// Виконує локальну логіку watch repo для модуля службового скрипта.
 function watchRepo() {
   appendLog("auto-sync watcher is running");
 
@@ -132,6 +142,7 @@ function watchRepo() {
     appendLog(`watcher error: ${error.message}`);
   });
 
+  // Виконує локальну логіку cleanup для модуля службового скрипта.
   const cleanup = () => {
     try {
       watcher.close();
@@ -149,6 +160,7 @@ function watchRepo() {
   process.on("SIGTERM", cleanup);
 }
 
+// Виконує локальну логіку start daemon для модуля службового скрипта.
 function startDaemon() {
   if (fs.existsSync(pidFile)) {
     const pid = fs.readFileSync(pidFile, "utf8").trim();
@@ -172,6 +184,7 @@ function startDaemon() {
   console.log(`Auto-sync started with PID ${child.pid}`);
 }
 
+// Виконує локальну логіку stop daemon для модуля службового скрипта.
 function stopDaemon() {
   if (!fs.existsSync(pidFile)) {
     console.log("Auto-sync is not running");
@@ -190,6 +203,7 @@ function stopDaemon() {
   console.log(`Auto-sync stopped${pid ? ` (PID ${pid})` : ""}`);
 }
 
+// Виконує локальну логіку print status для модуля службового скрипта.
 function printStatus() {
   if (!fs.existsSync(pidFile)) {
     console.log("Auto-sync status: stopped");

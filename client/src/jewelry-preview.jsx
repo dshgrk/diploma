@@ -1,3 +1,4 @@
+// Файл містить логіку jewelry-preview.
 import React from "react";
 
 const METAL_GAMMA_LEVELS = {
@@ -7,10 +8,12 @@ const METAL_GAMMA_LEVELS = {
 
 const recoloredBaseAssetCache = new Map();
 
+// Виконує локальну логіку clamp channel для модуля jewelry-preview.
 function clampChannel(value) {
   return Math.max(0, Math.min(255, Math.round(value)));
 }
 
+// Нормалізує normalize material code, щоб API та UI працювали з однаковим форматом даних.
 function normalizeMaterialCode(materialCode) {
   const normalized = String(materialCode || "").trim().toLowerCase();
   if (normalized === "gold_plated" || normalized === "solid_gold") return "gold";
@@ -18,6 +21,7 @@ function normalizeMaterialCode(materialCode) {
   return normalized;
 }
 
+// Нормалізує normalize material asset slug, щоб API та UI працювали з однаковим форматом даних.
 function normalizeMaterialAssetSlug(materialCode) {
   const normalized = normalizeMaterialCode(materialCode);
   if (!normalized) return "";
@@ -25,6 +29,7 @@ function normalizeMaterialAssetSlug(materialCode) {
   return normalized.replaceAll("_", "-");
 }
 
+// Виконує локальну логіку asset stem from url для модуля jewelry-preview.
 function assetStemFromUrl(assetUrl) {
   const normalized = String(assetUrl || "").trim();
   if (!normalized) return "";
@@ -32,11 +37,13 @@ function assetStemFromUrl(assetUrl) {
   return filename.replace(/\.[^.]+$/, "");
 }
 
+// Визначає потрібне значення resolve metal gamma levels за поточним контекстом або вхідними параметрами.
 function resolveMetalGammaLevels(materialCode) {
   const normalized = normalizeMaterialCode(materialCode);
   return METAL_GAMMA_LEVELS[normalized] || null;
 }
 
+// Виконує локальну логіку apply channel levels для модуля jewelry-preview.
 function applyChannelLevels(imageData, materialCode) {
   const gamma = resolveMetalGammaLevels(materialCode);
   if (!gamma) return imageData;
@@ -60,10 +67,12 @@ function applyChannelLevels(imageData, materialCode) {
   return next;
 }
 
+// Формує структуру build stone code map для UI, API-відповіді або подальших розрахунків.
 export function buildStoneCodeMap(stones = []) {
   return Object.fromEntries((stones || []).map((stone) => [stone.code, stone]));
 }
 
+// Формує структуру build material aware base asset candidates для UI, API-відповіді або подальших розрахунків.
 export function buildMaterialAwareBaseAssetCandidates(variant, materialCode) {
   const fallbackAsset = String(variant?.base_asset_url || "").trim();
   const variantCode = String(variant?.code || "").trim();
@@ -92,6 +101,7 @@ export function buildMaterialAwareBaseAssetCandidates(variant, materialCode) {
   return [...new Set(candidates.filter(Boolean))];
 }
 
+// Виконує локальну логіку preview stone style для модуля jewelry-preview.
 export function previewStoneStyle(slot, stone, mode = "preview", options = {}) {
   const includeRotation = options.includeRotation === true;
   const diameter = Number(slot?.diameter || 12);
@@ -129,6 +139,7 @@ export function previewStoneStyle(slot, stone, mode = "preview", options = {}) {
   };
 }
 
+// Компонент рендерить блок canvas base asset і отримує потрібні дані через props або локальний state.
 function CanvasBaseAsset({ assetUrl, materialCode = "", onError }) {
   const canvasRef = React.useRef(null);
   const [isReady, setIsReady] = React.useState(false);
@@ -240,6 +251,7 @@ function CanvasBaseAsset({ assetUrl, materialCode = "", onError }) {
   );
 }
 
+// Компонент рендерить блок jewelry preview і отримує потрібні дані через props або локальний state.
 export function JewelryPreview({
   variant,
   slots = [],
@@ -270,6 +282,7 @@ export function JewelryPreview({
 
   const activeBaseAssetUrl = resolvedBaseAssetCandidates[baseAssetIndex] || null;
 
+  // Готує JSX або HTML-представлення для render slot stone.
   function renderSlotStone(slot) {
     const stone = stonesByCode[selections?.[slot.code]];
     if (!stone?.asset_url) return null;

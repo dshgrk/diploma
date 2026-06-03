@@ -1,3 +1,5 @@
+// Файл містить невеликі серверні helper'и, які перевикористовуються в різних модулях.
+// Виконує локальну логіку log для модуля серверних утиліт.
 function log(level, message, payload = {}) {
   const entry = {
     timestamp: new Date().toISOString(),

@@ -1,11 +1,14 @@
+// Файл містить бізнес-логіку серверного модуля promotions та готує дані для API.
 const { db } = require("../../db/knex");
 const { createHttpError } = require("../../utils/http-error");
 const { roundCurrency } = require("../../utils/money");
 
+// Нормалізує normalize promo code, щоб API та UI працювали з однаковим форматом даних.
 function normalizePromoCode(code) {
   return String(code || "").trim().toUpperCase();
 }
 
+// Виконує локальну логіку map promo code для модуля серверного модуля promotions.
 function mapPromoCode(row) {
   if (!row) return null;
 
@@ -25,6 +28,7 @@ function mapPromoCode(row) {
   };
 }
 
+// Отримує get promo code by code з поточного набору даних або конфігурації.
 async function getPromoCodeByCode(code, trx = db) {
   const normalizedCode = normalizePromoCode(code);
   if (!normalizedCode) {
@@ -35,12 +39,14 @@ async function getPromoCodeByCode(code, trx = db) {
   return mapPromoCode(promo);
 }
 
+// Отримує get promo code by id з поточного набору даних або конфігурації.
 async function getPromoCodeById(promoCodeId, trx = db) {
   if (!promoCodeId) return null;
   const promo = await trx("promo_codes").where({ id: promoCodeId }).first();
   return mapPromoCode(promo);
 }
 
+// Обчислює calculate promo discount та повертає стабільний результат для бізнес-логіки.
 function calculatePromoDiscount(promoCode, subtotalAmount) {
   const subtotal = Number(subtotalAmount || 0);
   if (!promoCode || subtotal <= 0) return 0;
@@ -52,6 +58,7 @@ function calculatePromoDiscount(promoCode, subtotalAmount) {
   return roundCurrency(Math.min(subtotal, promoCode.discount_value));
 }
 
+// Перевіряє validate promo code availability і повертає результат або кидає помилку валідації.
 function validatePromoCodeAvailability(promoCode) {
   if (!promoCode) {
     throw createHttpError(404, "PROMO_CODE_NOT_FOUND", "Promo code was not found");
@@ -71,6 +78,7 @@ function validatePromoCodeAvailability(promoCode) {
   }
 }
 
+// Перевіряє validate promo code for cart і повертає результат або кидає помилку валідації.
 async function validatePromoCodeForCart({ promoCode, userId, subtotalAmount, trx = db }) {
   validatePromoCodeAvailability(promoCode);
 
@@ -105,6 +113,7 @@ async function validatePromoCodeForCart({ promoCode, userId, subtotalAmount, trx
   return promoCode;
 }
 
+// Визначає потрібне значення resolve applied promo за поточним контекстом або вхідними параметрами.
 async function resolveAppliedPromo({ promoCodeId, userId, subtotalAmount, trx = db, throwOnInvalid = false }) {
   if (!promoCodeId) {
     return {
@@ -154,6 +163,7 @@ async function resolveAppliedPromo({ promoCodeId, userId, subtotalAmount, trx = 
   };
 }
 
+// Виконує локальну логіку attach promo code to cart для модуля серверного модуля promotions.
 async function attachPromoCodeToCart({ cartId, userId, code, trx = db }) {
   const promoCode = await getPromoCodeByCode(code, trx);
   const cart = await trx("carts").where({ id: cartId, user_id: userId }).first();
@@ -180,6 +190,7 @@ async function attachPromoCodeToCart({ cartId, userId, code, trx = db }) {
   });
 }
 
+// Виконує локальну логіку detach promo code from cart для модуля серверного модуля promotions.
 async function detachPromoCodeFromCart({ cartId, trx = db }) {
   await trx("carts").where({ id: cartId }).update({
     promo_code_id: null,
@@ -187,6 +198,7 @@ async function detachPromoCodeFromCart({ cartId, trx = db }) {
   });
 }
 
+// Виконує локальну логіку record promo code redemption для модуля серверного модуля promotions.
 async function recordPromoCodeRedemption({ promoCodeId, userId, cartId, orderId, codeSnapshot, discountAmount, trx }) {
   if (!promoCodeId || !discountAmount) return;
 

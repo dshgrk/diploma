@@ -1,3 +1,5 @@
+// Файл містить Express middleware для спільної обробки HTTP-запитів.
+// Виконує локальну логіку apply security headers для модуля Express middleware.
 function applySecurityHeaders(req, res, next) {
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("X-Frame-Options", "DENY");

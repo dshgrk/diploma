@@ -1,3 +1,4 @@
+// Файл містить автоматичні перевірки ключових сценаріїв системи.
 import { createRequire } from "module";
 import { afterEach, describe, expect, test } from "vitest";
 import request from "supertest";

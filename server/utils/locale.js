@@ -1,5 +1,7 @@
+// Файл містить невеликі серверні helper'и, які перевикористовуються в різних модулях.
 const { LOCALES } = require("../constants/locales");
 
+// Визначає потрібне значення resolve locale за поточним контекстом або вхідними параметрами.
 function resolveLocale(req, fallback = LOCALES.UK) {
   if (!req) return fallback;
 
@@ -18,6 +20,7 @@ function resolveLocale(req, fallback = LOCALES.UK) {
   return fallback;
 }
 
+// Виконує локальну логіку pick localized fields для модуля серверних утиліт.
 function pickLocalizedFields(record, locale, fields) {
   if (!record) {
     return record;

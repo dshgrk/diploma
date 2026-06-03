@@ -1,6 +1,8 @@
+// Файл містить логіку адмін-конструктора.
 import React, { useEffect, useState } from "react";
 import { clampPercent, getConstructorSlotKeys, getLayoutEditorModel } from "./studio-state.js";
 
+// Компонент рендерить блок admin layout board і отримує потрібні дані через props або локальний state.
 export function AdminLayoutBoard({
   typeCode,
   pendantShape,
@@ -16,6 +18,7 @@ export function AdminLayoutBoard({
 
   useEffect(() => {
     if (!dragKey) return undefined;
+    // Обробляє дію користувача або системну подію для handle move.
     function handleMove(event) {
       if (!boardRef.current) return;
       const rect = boardRef.current.getBoundingClientRect();
@@ -24,6 +27,7 @@ export function AdminLayoutBoard({
       onMove(dragKey, { left: nextLeft, top: nextTop });
     }
 
+    // Обробляє дію користувача або системну подію для handle up.
     function handleUp() {
       setDragKey(null);
     }

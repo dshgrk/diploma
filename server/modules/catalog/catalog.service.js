@@ -1,3 +1,4 @@
+// Файл містить бізнес-логіку серверного модуля catalog та готує дані для API.
 const { db } = require("../../db/knex");
 const { pickLocalizedFields, resolveLocale } = require("../../utils/locale");
 const { createHttpError } = require("../../utils/http-error");
@@ -7,21 +8,25 @@ const { FILTER_COLUMN_BY_KEY, normalizeCatalogQuery, serializeProductFilters } =
 const DEFAULT_CATALOG_PAGE_SIZE = 12;
 const MAX_CATALOG_PAGE_SIZE = 48;
 
+// Нормалізує normalize catalog page, щоб API та UI працювали з однаковим форматом даних.
 function normalizeCatalogPage(value) {
   const page = Number.parseInt(String(value || "1"), 10);
   return Number.isFinite(page) && page > 0 ? page : 1;
 }
 
+// Нормалізує normalize catalog limit, щоб API та UI працювали з однаковим форматом даних.
 function normalizeCatalogLimit(value) {
   const limit = Number.parseInt(String(value || DEFAULT_CATALOG_PAGE_SIZE), 10);
   if (!Number.isFinite(limit) || limit <= 0) return DEFAULT_CATALOG_PAGE_SIZE;
   return Math.min(limit, MAX_CATALOG_PAGE_SIZE);
 }
 
+// Перевіряє is paginated catalog request і повертає результат або кидає помилку валідації.
 function isPaginatedCatalogRequest(req) {
   return req.query.page != null || req.query.limit != null || req.query.paginated === "true";
 }
 
+// Виконує локальну логіку apply catalog filters для модуля серверного модуля catalog.
 function applyCatalogFilters(query, req) {
   if (req.query.jewelry_type) {
     query.where("products.jewelry_type_id", Number(req.query.jewelry_type));
@@ -43,6 +48,7 @@ function applyCatalogFilters(query, req) {
   return { sort };
 }
 
+// Виконує локальну логіку apply catalog sort для модуля серверного модуля catalog.
 function applyCatalogSort(query, sort) {
   if (sort === "price_asc") {
     query.orderBy("price", "asc").orderBy("created_at", "desc");
@@ -57,6 +63,7 @@ function applyCatalogSort(query, sort) {
   query.orderBy("created_at", "desc");
 }
 
+// Виконує локальну логіку base product query для модуля серверного модуля catalog.
 function baseProductQuery() {
   return db("products")
     .select(
@@ -82,6 +89,7 @@ function baseProductQuery() {
     .where("is_active", true);
 }
 
+// Виконує локальну логіку serialize catalog products для модуля серверного модуля catalog.
 async function serializeCatalogProducts(records, locale) {
   const productIds = records.map((item) => item.id);
   const images = productIds.length
@@ -112,6 +120,7 @@ async function serializeCatalogProducts(records, locale) {
   });
 }
 
+// Повертає список даних list products у форматі, готовому для API або UI.
 async function listProducts(req) {
   const locale = resolveLocale(req);
   const query = baseProductQuery();
@@ -147,6 +156,7 @@ async function listProducts(req) {
   };
 }
 
+// Повертає список даних list product facets у форматі, готовому для API або UI.
 async function listProductFacets(req) {
   const query = db("products")
     .select(
@@ -192,6 +202,7 @@ async function listProductFacets(req) {
   };
 }
 
+// Отримує get product by id or slug з поточного набору даних або конфігурації.
 async function getProductByIdOrSlug(identifier, req) {
   const locale = resolveLocale(req);
 

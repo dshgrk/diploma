@@ -1,3 +1,4 @@
+// Файл описує React-сторінку checkout-route та її локальну UI-логіку.
 import React, { useEffect, useState } from "react";
 import { Check, ChevronRight } from "lucide-react";
 import { authApi, cartApi, ordersApi } from "../api";
@@ -15,6 +16,7 @@ import { AuroraBackground, Footer, Header, LOCALE_FORMATS, usePublicLocale } fro
 import "../styles.css";
 import "../styles/checkout-payment.css";
 
+// Виконує локальну логіку t для модуля сторінки checkout-route.
 function t(locale, key) {
   return publicText(CHECKOUT_COPY, locale, key);
 }
@@ -41,6 +43,7 @@ export default function CheckoutRoute() {
   useEffect(() => {
     let active = true;
 
+    // Завантажує дані load checkout context з API або локального джерела.
     async function loadCheckoutContext() {
       try {
         const session = await authApi.getSession();
@@ -84,6 +87,7 @@ export default function CheckoutRoute() {
     return () => window.clearTimeout(timer);
   }, [toast]);
 
+  // Оновлює існуючі дані update form без зміни решти стану.
   function updateForm(event) {
     const { name, type, checked, value } = event.target;
     setForm((current) => ({
@@ -93,6 +97,7 @@ export default function CheckoutRoute() {
     setFieldErrors((current) => ({ ...current, [name]: "" }));
   }
 
+  // Обробляє дію користувача або системну подію для handle checkout.
   async function handleCheckout(event) {
     event.preventDefault();
     setFieldErrors({});

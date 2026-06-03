@@ -1,7 +1,9 @@
+// Файл містить Express middleware для спільної обробки HTTP-запитів.
 const { db } = require("../db/knex");
 const { env } = require("../config/env");
 const { hashSessionToken } = require("../utils/session");
 
+// Виконує локальну логіку attach session user для модуля Express middleware.
 async function attachSessionUser(req, res, next) {
   try {
     const sessionToken = req.cookies?.[env.sessionCookieName];

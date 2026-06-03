@@ -1,3 +1,4 @@
+// Файл містить службовий Node.js-скрипт для підтримки проєкту.
 const fs = require("fs/promises");
 const path = require("path");
 const { CATALOG_PRODUCTS } = require("../db/catalog-products");
@@ -26,6 +27,7 @@ const STONE_GRADIENTS = {
   Ice: ["#eaf8ff", "#77bcd9", "#c4edff"]
 };
 
+// Виконує локальну логіку metal gradient для модуля службового скрипта.
 function metalGradient(id, tones) {
   return `
     <linearGradient id="${id}" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -36,6 +38,7 @@ function metalGradient(id, tones) {
   `;
 }
 
+// Виконує локальну логіку stone gradient для модуля службового скрипта.
 function stoneGradient(id, tones) {
   return `
     <radialGradient id="${id}" cx="34%" cy="30%" r="76%">
@@ -46,6 +49,7 @@ function stoneGradient(id, tones) {
   `;
 }
 
+// Отримує get stone shape з поточного набору даних або конфігурації.
 function getStoneShape(shape, cx, cy, size, fillId) {
   const stroke = 'stroke="rgba(255,255,255,0.4)" stroke-width="8"';
   switch (shape) {
@@ -68,6 +72,7 @@ function getStoneShape(shape, cx, cy, size, fillId) {
   }
 }
 
+// Виконує локальну логіку draw ring для модуля службового скрипта.
 function drawRing(product, metalId, stoneId) {
   const band = `<ellipse cx="600" cy="728" rx="258" ry="162" fill="none" stroke="url(#${metalId})" stroke-width="74" />`;
   const innerBand = `<ellipse cx="600" cy="728" rx="193" ry="112" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="6" />`;
@@ -94,6 +99,7 @@ function drawRing(product, metalId, stoneId) {
   `;
 }
 
+// Виконує локальну логіку draw bracelet для модуля службового скрипта.
 function drawBracelet(product, metalId, stoneId) {
   const links = Array.from({ length: 7 }, (_, index) => {
     const x = 210 + index * 120;
@@ -118,7 +124,9 @@ function drawBracelet(product, metalId, stoneId) {
   `;
 }
 
+// Виконує локальну логіку draw earrings для модуля службового скрипта.
 function drawEarrings(product, metalId, stoneId) {
+  // Виконує локальну логіку unit для модуля службового скрипта.
   function unit(cx) {
     const top = `<circle cx="${cx}" cy="344" r="28" fill="url(#${metalId})"/>`;
     const hook = `<path d="M ${cx} 372 C ${cx} 420, ${cx - 16} 432, ${cx - 16} 470" fill="none" stroke="url(#${metalId})" stroke-width="18" stroke-linecap="round"/>`;
@@ -138,6 +146,7 @@ function drawEarrings(product, metalId, stoneId) {
   return `${unit(438)}${unit(762)}`;
 }
 
+// Виконує локальну логіку draw pendant для модуля службового скрипта.
 function drawPendant(product, metalId, stoneId) {
   const bail = `<path d="M 600 222 C 650 222, 666 268, 642 304 C 622 334, 578 334, 558 304 C 534 268, 550 222, 600 222 Z" fill="none" stroke="url(#${metalId})" stroke-width="18"/>`;
   const jumpRing = `<circle cx="600" cy="342" r="30" fill="none" stroke="url(#${metalId})" stroke-width="12"/>`;
@@ -176,6 +185,7 @@ function drawPendant(product, metalId, stoneId) {
   `;
 }
 
+// Готує JSX або HTML-представлення для render product svg.
 function renderProductSvg(product) {
   const metalId = `${product.slug}-metal`;
   const stoneId = `${product.slug}-stone`;
@@ -213,6 +223,7 @@ function renderProductSvg(product) {
   `;
 }
 
+// Виконує локальну логіку main для модуля службового скрипта.
 async function main() {
   await fs.mkdir(OUTPUT_DIR, { recursive: true });
   await Promise.all(

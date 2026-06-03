@@ -1,3 +1,4 @@
+// Файл містить автоматичні перевірки ключових сценаріїв системи.
 import { createRequire } from "module";
 import { beforeAll, beforeEach, describe, expect, test } from "vitest";
 import request from "supertest";
@@ -27,6 +28,7 @@ const CLIENT_USER = {
   role: "client"
 };
 
+// Виконує локальну логіку reset database для модуля автоматичних тестів.
 async function resetDatabase() {
   if (db.client.config.client === "sqlite3") {
     await db.raw("PRAGMA foreign_keys = OFF");

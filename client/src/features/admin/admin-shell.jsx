@@ -1,7 +1,9 @@
+// Файл містить логіку адмін-панелі.
 import React from "react";
 import { BRAND_LOGO_MARK } from "../../content";
 import { ADMIN_UI } from "../../i18n/admin-copy";
 
+// Компонент рендерить блок admin shell і отримує потрібні дані через props або локальний state.
 export function AdminShell({ children, title, subtitle }) {
   return (
     <main className="admin-react-page">

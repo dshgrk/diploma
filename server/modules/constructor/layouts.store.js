@@ -1,3 +1,4 @@
+// Файл містить логіку серверного модуля constructor.
 const fs = require("fs/promises");
 const path = require("path");
 
@@ -40,6 +41,7 @@ const DEFAULT_CONSTRUCTOR_LAYOUTS = {
   }
 };
 
+// Виконує локальну логіку deep merge для модуля серверного модуля constructor.
 function deepMerge(target, source) {
   const output = { ...target };
   for (const [key, value] of Object.entries(source || {})) {
@@ -52,6 +54,7 @@ function deepMerge(target, source) {
   return output;
 }
 
+// Зчитує дані для read constructor layouts з URL, localStorage, файлу або вхідного payload.
 async function readConstructorLayouts() {
   try {
     const raw = await fs.readFile(LAYOUTS_FILE, "utf8");
@@ -65,6 +68,7 @@ async function readConstructorLayouts() {
   }
 }
 
+// Нормалізує normalize percent, щоб API та UI працювали з однаковим форматом даних.
 function normalizePercent(value, fallback) {
   const number = Number.parseFloat(String(value || "").replace("%", ""));
   if (!Number.isFinite(number)) return fallback;
@@ -72,6 +76,7 @@ function normalizePercent(value, fallback) {
   return `${Number(clamped.toFixed(2))}%`;
 }
 
+// Нормалізує normalize layout payload, щоб API та UI працювали з однаковим форматом даних.
 function normalizeLayoutPayload(payload = {}) {
   const merged = deepMerge(DEFAULT_CONSTRUCTOR_LAYOUTS, payload);
   const normalized = {
@@ -115,6 +120,7 @@ function normalizeLayoutPayload(payload = {}) {
   return normalized;
 }
 
+// Записує підготовлені дані write constructor layouts у файл, базу або зовнішнє сховище.
 async function writeConstructorLayouts(payload = {}) {
   const nextLayouts = normalizeLayoutPayload(payload);
   await fs.mkdir(path.dirname(LAYOUTS_FILE), { recursive: true });

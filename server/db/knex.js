@@ -1,3 +1,4 @@
+// Файл створює єдине Knex-підключення до SQLite та задає локальні PRAGMA-налаштування.
 const knex = require("knex");
 const { env } = require("../config/env");
 
@@ -17,7 +18,7 @@ const db = knex({
     }
   },
   useNullAsDefault: true,
-  debug: env.nodeEnv === "development"
+  debug: env.dbDebug
 });
 
 module.exports = { db };

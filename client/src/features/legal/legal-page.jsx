@@ -1,9 +1,11 @@
+// Файл містить логіку юридичних сторінок.
 import React from "react";
 import { AuroraBackground, Footer, Header, usePublicLocale } from "../../routes/public-shell.jsx";
 import { getLegalPage } from "./legal-content.js";
 import "../../styles.css";
 import "../../styles/legal-pages.css";
 
+// Компонент рендерить блок legal section і отримує потрібні дані через props або локальний state.
 function LegalSection({ section }) {
   return (
     <section className="legal-article-card">
@@ -29,6 +31,7 @@ function LegalSection({ section }) {
   );
 }
 
+// Компонент рендерить блок legal page і отримує потрібні дані через props або локальний state.
 export function LegalPage({ pageKey }) {
   const { locale, toggleLocale } = usePublicLocale();
   const page = getLegalPage(pageKey, locale);

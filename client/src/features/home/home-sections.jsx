@@ -1,3 +1,4 @@
+// Файл містить логіку головної сторінки.
 import React, { useEffect, useMemo, useState } from "react";
 import { Award, ChevronRight, Search, Truck, User } from "lucide-react";
 import { constructorApi } from "../../api";
@@ -38,6 +39,7 @@ const HOME_HERO_COPY = {
   }
 };
 
+// Компонент рендерить блок hero і отримує потрібні дані через props або локальний state.
 export function Hero({ locale }) {
   const hero = HOME_HERO_COPY[locale] || HOME_HERO_COPY.uk;
 
@@ -80,6 +82,7 @@ export function Hero({ locale }) {
   );
 }
 
+// Компонент рендерить блок trust metrics і отримує потрібні дані через props або локальний state.
 export function TrustMetrics({ locale }) {
   const copy = referenceCopy(locale);
   const metrics = [
@@ -103,6 +106,7 @@ export function TrustMetrics({ locale }) {
   );
 }
 
+// Компонент рендерить блок home two paths і отримує потрібні дані через props або локальний state.
 export function HomeTwoPaths({ locale }) {
   const copy = referenceCopy(locale);
   const [hiddenImages, setHiddenImages] = useState({ collection: false, constructor: false });
@@ -111,6 +115,7 @@ export function HomeTwoPaths({ locale }) {
     { key: "constructor", image: REFERENCE_IMAGES.homePaths?.constructor, ...copy.twoPaths.constructor }
   ];
 
+  // Обробляє дію користувача або системну подію для handle image error.
   function handleImageError(key) {
     setHiddenImages((current) => (current[key] ? current : { ...current, [key]: true }));
   }
@@ -151,6 +156,7 @@ export function HomeTwoPaths({ locale }) {
   );
 }
 
+// Компонент рендерить блок home categories і отримує потрібні дані через props або локальний state.
 export function HomeCategories({ locale }) {
   const copy = referenceCopy(locale);
   const [hiddenImages, setHiddenImages] = useState({ rings: false, earrings: false, bracelets: false, pendants: false });
@@ -161,6 +167,7 @@ export function HomeCategories({ locale }) {
     { key: "pendants", image: REFERENCE_IMAGES.homeCategories?.pendants, ...copy.homeCategories.pendants }
   ];
 
+  // Обробляє дію користувача або системну подію для handle image error.
   function handleImageError(key) {
     setHiddenImages((current) => (current[key] ? current : { ...current, [key]: true }));
   }
@@ -196,11 +203,13 @@ export function HomeCategories({ locale }) {
   );
 }
 
+// Нормалізує normalize featured product price, щоб API та UI працювали з однаковим форматом даних.
 function normalizeFeaturedProductPrice(product) {
   const value = Number(product?.price);
   return Number.isFinite(value) ? value : null;
 }
 
+// Виконує локальну логіку select featured products для модуля головної сторінки.
 function selectFeaturedProducts(products = []) {
   return [...(products || [])]
     .sort((left, right) => {
@@ -215,6 +224,7 @@ function selectFeaturedProducts(products = []) {
     .slice(0, 4);
 }
 
+// Компонент рендерить блок featured product card і отримує потрібні дані через props або локальний state.
 function FeaturedProductCard({ product, locale, index }) {
   const copy = referenceCopy(locale);
   const typeLabel = productTypeLabel(product, locale);
@@ -248,6 +258,7 @@ function FeaturedProductCard({ product, locale, index }) {
   );
 }
 
+// Компонент рендерить блок featured collections і отримує потрібні дані через props або локальний state.
 export function FeaturedCollections({ products, locale }) {
   const featured = useMemo(() => selectFeaturedProducts(products), [products]);
   const copy = referenceCopy(locale);
@@ -282,6 +293,7 @@ export function FeaturedCollections({ products, locale }) {
   );
 }
 
+// Компонент рендерить блок bespoke і отримує потрібні дані через props або локальний state.
 export function Bespoke({ locale }) {
   const copy = referenceCopy(locale);
   const [config, setConfig] = useState(null);
@@ -379,6 +391,7 @@ export function Bespoke({ locale }) {
   );
 }
 
+// Компонент рендерить блок editorial і отримує потрібні дані через props або локальний state.
 export function Editorial({ locale }) {
   const copy = referenceCopy(locale);
   const sectionRef = React.useRef(null);
@@ -429,6 +442,7 @@ export function Editorial({ locale }) {
   );
 }
 
+// Компонент рендерить блок care and faq і отримує потрібні дані через props або локальний state.
 export function CareAndFaq({ locale }) {
   const copy = referenceCopy(locale);
   const [open, setOpen] = useState(null);

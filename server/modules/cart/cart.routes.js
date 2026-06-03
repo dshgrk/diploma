@@ -1,3 +1,4 @@
+// Файл підключає HTTP-endpoint'и для серверного модуля cart до Express-router.
 const express = require("express");
 const { asyncHandler } = require("../../middlewares/async-handler");
 const { requireAuth } = require("../../middlewares/auth");

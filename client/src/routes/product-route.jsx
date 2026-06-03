@@ -1,3 +1,4 @@
+// Файл описує React-сторінку product-route та її локальну UI-логіку.
 import React, { useEffect, useState } from "react";
 import { Check, X } from "lucide-react";
 import { cartApi, catalogApi } from "../api";
@@ -61,10 +62,12 @@ const PRODUCT_COPY = {
   }
 };
 
+// Виконує локальну логіку text для модуля сторінки product-route.
 function text(locale, key) {
   return PRODUCT_COPY[locale]?.[key] || PRODUCT_COPY.en[key] || key;
 }
 
+// Отримує get product slug from path з поточного набору даних або конфігурації.
 function getProductSlugFromPath() {
   return window.location.pathname.split("/").filter(Boolean).at(-1) || "";
 }
@@ -114,6 +117,7 @@ export default function ProductRoute() {
     setSelectedChainOption("none");
   }, [locale, product]);
 
+  // Виконує локальну логіку show added feedback для модуля сторінки product-route.
   function showAddedFeedback(quantityValue, sizeCode, chain) {
     const sizeLabel = sizeCode ? getReadyProductSizeLabel(product, sizeCode, locale) : "";
     const chainLabel = chain?.option && chain.option !== "none" ? getPendantChainOptionLabel(chain.option, locale) : "";
@@ -136,6 +140,7 @@ export default function ProductRoute() {
     });
   }
 
+  // Обробляє дію користувача або системну подію для handle add to cart.
   async function handleAddToCart() {
     if (!product) return;
     setIsAdding(true);

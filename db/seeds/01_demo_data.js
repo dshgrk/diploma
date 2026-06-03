@@ -1,3 +1,4 @@
+// Файл наповнює SQLite демонстраційними даними для локального запуску та захисту.
 const fs = require("fs");
 const path = require("path");
 const bcrypt = require("bcryptjs");
@@ -13,6 +14,7 @@ const PRODUCT_IMAGE_FALLBACKS = {
   earrings: "/assets/images/aurora-jewelry-hero.png"
 };
 
+// Визначає потрібне значення resolve product image asset за поточним контекстом або вхідними параметрами.
 function resolveProductImageAsset(product) {
   const candidates = [
     `${product.slug}.png`,
@@ -36,6 +38,7 @@ function resolveProductImageAsset(product) {
   return PRODUCT_IMAGE_FALLBACKS[product.type] || "/assets/images/aurora-jewelry-hero.png";
 }
 
+// Виконує локальну логіку seed для модуля seed-даних.
 exports.seed = async function seed(knex) {
   await knex("notification_logs").del();
   await knex("payments").del();
@@ -217,6 +220,7 @@ exports.seed = async function seed(knex) {
   const ringProductId = productIdBySlug["quiet-pearl-ring"];
   const earringsProductId = productIdBySlug["white-diamond-earrings"];
 
+  // Виконує локальну логіку insert option для модуля seed-даних.
   async function insertOption(jewelryTypeId, code, labelUk, labelEn, sortOrder, overrides = {}) {
     const [id] = await knex("design_options").insert({
       jewelry_type_id: jewelryTypeId,
@@ -233,6 +237,7 @@ exports.seed = async function seed(knex) {
     return id;
   }
 
+  // Виконує локальну логіку insert values для модуля seed-даних.
   async function insertValues(designOptionId, values) {
     await knex("design_option_values").insert(
       values.map((value) => ({

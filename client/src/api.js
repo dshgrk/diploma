@@ -1,3 +1,5 @@
+// Файл містить логіку api.
+// Виконує локальну логіку http для модуля api.
 export async function http(url, options = {}) {
   const locale = readPublicLocale();
   const response = await fetch(url, {
@@ -24,6 +26,7 @@ export async function http(url, options = {}) {
   return payload?.data;
 }
 
+// Зчитує дані для read public locale з URL, localStorage, файлу або вхідного payload.
 function readPublicLocale() {
   try {
     return window.localStorage.getItem("aurora-locale") === "en" ? "en" : "uk";
@@ -32,6 +35,7 @@ function readPublicLocale() {
   }
 }
 
+// Виконує локальну логіку with locale query для модуля api.
 function withLocaleQuery(url, params = {}) {
   const search = new URLSearchParams();
   Object.entries({ ...params, lang: readPublicLocale() }).forEach(([key, value]) => {

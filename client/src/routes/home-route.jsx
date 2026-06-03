@@ -1,3 +1,4 @@
+// Файл описує React-сторінку home-route та її локальну UI-логіку.
 import React, { useEffect, useState } from "react";
 import { catalogApi } from "../api";
 import { referenceCopy } from "../content";

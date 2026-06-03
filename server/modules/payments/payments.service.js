@@ -1,8 +1,10 @@
+// Файл містить бізнес-логіку серверного модуля payments та готує дані для API.
 const { db } = require("../../db/knex");
 const { ORDER_STATUSES } = require("../../constants/order-statuses");
 const { createHttpError } = require("../../utils/http-error");
 const { sendOrderStatusNotification } = require("../notifications/notifications.service");
 
+// Виконує локальну логіку confirm mock payment для модуля серверного модуля payments.
 async function confirmMockPayment(user, payload) {
   if (!payload.order_id || !payload.payment_token) {
     throw createHttpError(422, "VALIDATION_ERROR", "order_id and payment_token are required");

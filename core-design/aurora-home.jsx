@@ -1,3 +1,4 @@
+// Файл містить дизайн-макет aurora-home для демонстрації інтерфейсу Aurora Atelier.
 // aurora-home.jsx — Home page
 
 const HERO_SLIDES = [
@@ -18,6 +19,7 @@ const HERO_SLIDES = [
 }];
 
 
+// Компонент рендерить блок hero slider у дизайн-макеті.
 function HeroSlider({ lang, setPage, accentColor }) {
   const t = window.useT(lang);
   const [current, setCurrent] = React.useState(0);
@@ -28,6 +30,7 @@ function HeroSlider({ lang, setPage, accentColor }) {
     return () => clearInterval(id);
   }, [current]);
 
+  // Допоміжна функція виконує дію go to у дизайн-макеті.
   function goTo(idx) {
     if (animating) return;
     setAnimating(true);
@@ -71,6 +74,7 @@ function HeroSlider({ lang, setPage, accentColor }) {
 
 }
 
+// Компонент рендерить блок trust strip у дизайн-макеті.
 function TrustStrip({ lang }) {
   const t = window.useT(lang);
   const items = [
@@ -107,6 +111,7 @@ function TrustStrip({ lang }) {
 
 }
 
+// Компонент рендерить блок featured section у дизайн-макеті.
 function FeaturedSection({ lang, setPage, addToCart, accentColor }) {
   const t = window.useT(lang);
   const products = window.AURORA_PRODUCTS.slice(0, 4);
@@ -155,6 +160,7 @@ function FeaturedSection({ lang, setPage, addToCart, accentColor }) {
 
 }
 
+// Компонент рендерить блок bespoke section у дизайн-макеті.
 function BespokeSection({ lang, setPage }) {
   const t = window.useT(lang);
   return (
@@ -175,6 +181,7 @@ function BespokeSection({ lang, setPage }) {
 
 }
 
+// Компонент рендерить блок editorial section у дизайн-макеті.
 function EditorialSection({ lang }) {
   const t = window.useT(lang);
   const cards = [
@@ -217,6 +224,7 @@ function EditorialSection({ lang }) {
 
 }
 
+// Компонент рендерить блок faq section у дизайн-макеті.
 function FaqSection({ lang }) {
   const t = window.useT(lang);
   const [open, setOpen] = React.useState(null);
@@ -249,6 +257,7 @@ function FaqSection({ lang }) {
 
 }
 
+// Компонент рендерить блок final cta у дизайн-макеті.
 function FinalCta({ lang, setPage }) {
   const t = window.useT(lang);
   return (
@@ -269,6 +278,7 @@ function FinalCta({ lang, setPage }) {
 
 }
 
+// Компонент рендерить блок home page у дизайн-макеті.
 function HomePage({ lang, setPage, addToCart, accentColor }) {
   const t = window.useT(lang);
   return (

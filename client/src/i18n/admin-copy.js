@@ -1,3 +1,4 @@
+// Файл містить логіку словників локалізації.
 export const ADMIN_UI = {
   shell: {
     navAria: "Навігація адмінки",
@@ -90,16 +91,19 @@ export const ADMIN_ORDER_STATUS_COPY = {
   completed: "Завершено"
 };
 
+// Виконує локальну логіку admin order status label для модуля словників локалізації.
 export function adminOrderStatusLabel(status) {
   return ADMIN_ORDER_STATUS_COPY[status] || status || "—";
 }
 
+// Виконує локальну логіку admin payment state label для модуля словників локалізації.
 export function adminPaymentStateLabel(state) {
   if (state === "paid") return "Оплачено";
   if (state === "unpaid") return "Не оплачено";
   return state || "—";
 }
 
+// Виконує локальну логіку admin status class name для модуля словників локалізації.
 export function adminStatusClassName(status, overdue = false) {
   if (overdue) return "status-pill overdue";
   if (status === "confirmed") return "status-pill confirmed";
@@ -115,6 +119,7 @@ const ADMIN_TYPE_CODE_LABELS = {
   earrings: "Сережки"
 };
 
+// Виконує локальну логіку admin type code label для модуля словників локалізації.
 export function adminTypeCodeLabel(code) {
   return ADMIN_TYPE_CODE_LABELS[code] || code || "";
 }
@@ -179,14 +184,17 @@ const ADMIN_PRODUCT_FILTER_VALUE_LABELS = {
   }
 };
 
+// Виконує локальну логіку admin product filter label для модуля словників локалізації.
 export function adminProductFilterLabel(key) {
   return ADMIN_PRODUCT_FILTER_LABELS[key] || key;
 }
 
+// Виконує локальну логіку admin product filter value label для модуля словників локалізації.
 export function adminProductFilterValueLabel(key, value) {
   return ADMIN_PRODUCT_FILTER_VALUE_LABELS[key]?.[value] || value;
 }
 
+// Виконує локальну логіку admin localized entry для модуля словників локалізації.
 export function adminLocalizedEntry(primary, fallback, finalValue = "") {
   return primary || fallback || finalValue;
 }

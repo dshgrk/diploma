@@ -1,3 +1,5 @@
+// Файл містить логіку адмін-конструктора.
+// Формує структуру build jewelry slots section props для UI, API-відповіді або подальших розрахунків.
 export function buildJewelrySlotsSectionProps(options) {
   return {
     currentVariantAdmin: options.currentVariantAdmin,
@@ -37,6 +39,7 @@ export function buildJewelrySlotsSectionProps(options) {
   };
 }
 
+// Формує структуру build jewelry basic section props для UI, API-відповіді або подальших розрахунків.
 export function buildJewelryBasicSectionProps(options) {
   return {
     typeForm: options.typeForm,
@@ -68,6 +71,7 @@ export function buildJewelryBasicSectionProps(options) {
   };
 }
 
+// Формує структуру build jewelry preview section props для UI, API-відповіді або подальших розрахунків.
 export function buildJewelryPreviewSectionProps(options) {
   return {
     currentVariantPreview: options.currentVariantPreview,

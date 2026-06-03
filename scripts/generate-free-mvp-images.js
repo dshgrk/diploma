@@ -1,3 +1,4 @@
+// Файл містить службовий Node.js-скрипт для підтримки проєкту.
 const fs = require("fs/promises");
 const path = require("path");
 const sharp = require("sharp");
@@ -21,6 +22,7 @@ const assets = [
   }
 ];
 
+// Формує структуру build url для UI, API-відповіді або подальших розрахунків.
 function buildUrl({ prompt, seed }) {
   const params = new URLSearchParams({
     width: "1200",
@@ -37,6 +39,7 @@ function buildUrl({ prompt, seed }) {
   return `${PROVIDER}/${encodeURIComponent(prompt)}?${params.toString()}`;
 }
 
+// Виконує локальну логіку download image для модуля службового скрипта.
 async function downloadImage(asset) {
   const url = buildUrl(asset);
   const response = await fetch(url, {
@@ -65,6 +68,7 @@ async function downloadImage(asset) {
   return { targetPath, url };
 }
 
+// Записує підготовлені дані write manifest у файл, базу або зовнішнє сховище.
 async function writeManifest(records) {
   const manifestPath = path.join(IMAGE_DIR, "generated-free-mvp-images.json");
   const manifest = {
@@ -83,6 +87,7 @@ async function writeManifest(records) {
   return manifestPath;
 }
 
+// Виконує локальну логіку main для модуля службового скрипта.
 async function main() {
   await fs.mkdir(IMAGE_DIR, { recursive: true });
 

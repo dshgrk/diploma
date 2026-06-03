@@ -1,3 +1,4 @@
+// Файл містить дизайн-макет aurora-catalog для демонстрації інтерфейсу Aurora Atelier.
 // aurora-catalog.jsx — Catalog + Product Detail pages
 
 function CatalogPage({ lang, setPage, addToCart }) {
@@ -91,6 +92,7 @@ function CatalogPage({ lang, setPage, addToCart }) {
   );
 }
 
+// Компонент рендерить блок product page у дизайн-макеті.
 function ProductPage({ lang, setPage, addToCart }) {
   const t = window.useT(lang);
   const p = window.__selectedProduct;
@@ -104,6 +106,7 @@ function ProductPage({ lang, setPage, addToCart }) {
                 p.type === 'bracelet' ? ['16 cm', '17 cm', '18 cm', '19 cm'] :
                 p.type === 'necklace' ? ['40 cm', '42 cm', '45 cm'] : null;
 
+  // Допоміжна функція виконує дію handle add у дизайн-макеті.
   function handleAdd() {
     addToCart({ ...p, qty, size });
     setAdded(true);

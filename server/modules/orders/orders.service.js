@@ -1,3 +1,4 @@
+// Файл містить бізнес-логіку серверного модуля orders та готує дані для API.
 const { db } = require("../../db/knex");
 const { BUSINESS_RULES } = require("../../constants/business-rules");
 const { CART_ITEM_TYPES } = require("../../constants/cart-item-types");
@@ -6,6 +7,7 @@ const { parseJsonField } = require("../../utils/json");
 const { pickLocalizedFields, resolveLocale } = require("../../utils/locale");
 const { resolveProductImage } = require("../../utils/product-image");
 
+// Перевіряє is order overdue і повертає результат або кидає помилку валідації.
 function isOrderOverdue(order) {
   if (order.status !== "in_progress" || !order.in_progress_at) {
     return false;
@@ -16,6 +18,7 @@ function isOrderOverdue(order) {
   return Date.now() > deadline;
 }
 
+// Повертає список даних list orders for user у форматі, готовому для API або UI.
 async function listOrdersForUser(userId) {
   const orders = await db("orders").where({ user_id: userId }).orderBy("created_at", "desc");
   return orders.map((order) => ({
@@ -30,6 +33,7 @@ async function listOrdersForUser(userId) {
   }));
 }
 
+// Отримує get order details for user з поточного набору даних або конфігурації.
 async function getOrderDetailsForUser(userId, orderId, req) {
   const locale = resolveLocale(req);
   const order = await db("orders").where({ id: orderId, user_id: userId }).first();

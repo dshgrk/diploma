@@ -1,3 +1,4 @@
+// Файл містить бізнес-логіку серверного модуля admin-orders та готує дані для API.
 const { db } = require("../../db/knex");
 const {
   ORDER_STATUSES,
@@ -11,12 +12,14 @@ const { parseJsonField } = require("../../utils/json");
 const { sendOrderStatusNotification } = require("../notifications/notifications.service");
 const { isOrderOverdue } = require("../orders/orders.service");
 
+// Нормалізує normalize boolean filter, щоб API та UI працювали з однаковим форматом даних.
 function normalizeBooleanFilter(value) {
   if (value === true || value === "true" || value === "1" || value === 1) return true;
   if (value === false || value === "false" || value === "0" || value === 0) return false;
   return null;
 }
 
+// Нормалізує normalize admin order filters, щоб API та UI працювали з однаковим форматом даних.
 function normalizeAdminOrderFilters(query = {}) {
   return {
     status: isKnownOrderStatus(query.status) ? query.status : "",
@@ -30,6 +33,7 @@ function normalizeAdminOrderFilters(query = {}) {
   };
 }
 
+// Виконує локальну логіку map admin order для модуля серверного модуля admin-orders.
 function mapAdminOrder(order) {
   return {
     id: order.id,
@@ -51,6 +55,7 @@ function mapAdminOrder(order) {
   };
 }
 
+// Формує структуру build admin orders summary для UI, API-відповіді або подальших розрахунків.
 function buildAdminOrdersSummary(orders) {
   const revenueTotal = orders.reduce((sum, order) => sum + Number(order.total_amount || 0), 0);
   const discountTotal = orders.reduce((sum, order) => sum + Number(order.discount_amount || 0), 0);
@@ -74,6 +79,7 @@ function buildAdminOrdersSummary(orders) {
   };
 }
 
+// Повертає список даних list admin orders у форматі, готовому для API або UI.
 async function listAdminOrders(query = {}) {
   const filters = normalizeAdminOrderFilters(query);
   const searchPattern = filters.search ? `%${filters.search.toLowerCase()}%` : "";
@@ -150,6 +156,7 @@ async function listAdminOrders(query = {}) {
   };
 }
 
+// Отримує get admin order details з поточного набору даних або конфігурації.
 async function getAdminOrderDetails(orderId) {
   const order = await db("orders").where({ id: orderId }).first();
   if (!order) {
@@ -237,6 +244,7 @@ async function getAdminOrderDetails(orderId) {
   };
 }
 
+// Оновлює існуючі дані update admin order status без зміни решти стану.
 async function updateAdminOrderStatus(adminUserId, orderId, nextStatus, comment) {
   const order = await db("orders").where({ id: orderId }).first();
   if (!order) {

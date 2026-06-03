@@ -1,7 +1,10 @@
+// Файл містить логіку адмін-конструктора.
+// Виконує локальну логіку clone slot draft для модуля адмін-конструктора.
 export function cloneSlotDraft(draft) {
   return draft ? JSON.parse(JSON.stringify(draft)) : null;
 }
 
+// Виконує локальну логіку slot draft comparable keys для модуля адмін-конструктора.
 export function slotDraftComparableKeys() {
   return [
     "code",
@@ -18,11 +21,13 @@ export function slotDraftComparableKeys() {
   ];
 }
 
+// Виконує локальну логіку slot draft matches для модуля адмін-конструктора.
 export function slotDraftMatches(left, right) {
   if (!left || !right) return false;
   return slotDraftComparableKeys().every((key) => String(left[key] ?? "") === String(right[key] ?? ""));
 }
 
+// Перевіряє is slot draft dirty against persisted і повертає результат або кидає помилку валідації.
 export function isSlotDraftDirtyAgainstPersisted(draft, persistedSlot) {
   if (!draft) return false;
   if (!draft.id) return true;
@@ -30,6 +35,7 @@ export function isSlotDraftDirtyAgainstPersisted(draft, persistedSlot) {
   return slotDraftComparableKeys().some((key) => String(draft[key] ?? "") !== String(persistedSlot[key] ?? ""));
 }
 
+// Визначає потрібне значення resolve slot draft by id за поточним контекстом або вхідними параметрами.
 export function resolveSlotDraftById(slotId, currentDraft, slots) {
   if (String(currentDraft?.id) === String(slotId)) {
     return currentDraft;

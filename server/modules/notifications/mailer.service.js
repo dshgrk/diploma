@@ -1,9 +1,11 @@
+// Файл містить бізнес-логіку серверного модуля notifications та готує дані для API.
 const nodemailer = require("nodemailer");
 const { env } = require("../../config/env");
 const { logger } = require("../../utils/logger");
 
 let transporterPromise = null;
 
+// Отримує get transporter з поточного набору даних або конфігурації.
 async function getTransporter() {
   if (!env.smtpConfigured) return null;
   if (!transporterPromise) {
@@ -24,6 +26,7 @@ async function getTransporter() {
   return transporterPromise;
 }
 
+// Виконує локальну логіку send email для модуля серверного модуля notifications.
 async function sendEmail({ to, subject, html, text }) {
   if (env.nodeEnv === "test") {
     logger.info("Test mode email delivery skipped", { to, subject });

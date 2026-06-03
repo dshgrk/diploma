@@ -1,9 +1,11 @@
+// Файл містить бізнес-логіку серверного модуля notifications та готує дані для API.
 const crypto = require("crypto");
 const { db } = require("../../db/knex");
 const { env } = require("../../config/env");
 const { logger } = require("../../utils/logger");
 const { sendEmail } = require("./mailer.service");
 
+// Формує структуру build verification email для UI, API-відповіді або подальших розрахунків.
 function buildVerificationEmail(code) {
   return {
     subject: "Aurora Atelier — код підтвердження акаунта",
@@ -21,6 +23,7 @@ function buildVerificationEmail(code) {
   };
 }
 
+// Формує структуру build order status email для UI, API-відповіді або подальших розрахунків.
 function buildOrderStatusEmail({ order, status }) {
   const statusLabels = {
     created_pending_payment: "Резерв створено",
@@ -60,6 +63,7 @@ function buildOrderStatusEmail({ order, status }) {
   };
 }
 
+// Виконує локальну логіку send verification code email для модуля серверного модуля notifications.
 async function sendVerificationCodeEmail({ email, code }) {
   const message = buildVerificationEmail(code);
   return sendEmail({
@@ -68,6 +72,7 @@ async function sendVerificationCodeEmail({ email, code }) {
   });
 }
 
+// Виконує локальну логіку send order status notification для модуля серверного модуля notifications.
 async function sendOrderStatusNotification({ order, status }) {
   const [logId] = await db("notification_logs").insert({
     order_id: order.id,
@@ -117,10 +122,12 @@ async function sendOrderStatusNotification({ order, status }) {
   }
 }
 
+// Виконує локальну логіку generate verification code для модуля серверного модуля notifications.
 function generateVerificationCode() {
   return `${Math.floor(100000 + Math.random() * 900000)}`;
 }
 
+// Виконує локальну логіку hash verification code для модуля серверного модуля notifications.
 function hashVerificationCode(code) {
   return crypto.createHash("sha256").update(String(code)).digest("hex");
 }

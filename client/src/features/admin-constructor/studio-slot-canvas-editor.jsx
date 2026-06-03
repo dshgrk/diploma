@@ -1,6 +1,8 @@
+// Файл містить логіку адмін-конструктора.
 import React, { useEffect } from "react";
 import { previewStoneStyle } from "../../jewelry-preview";
 
+// Компонент рендерить блок studio slot canvas editor і отримує потрібні дані через props або локальний state.
 export function StudioSlotCanvasEditor({
   baseAssetUrl,
   slots,
@@ -39,6 +41,7 @@ export function StudioSlotCanvasEditor({
     }
   }, []);
 
+  // Виконує локальну логіку apply drag update для модуля адмін-конструктора.
   function applyDragUpdate(activeDragState, pointerPoint) {
     const rect = boardRectRef.current;
     if (!rect || !activeDragState || !pointerPoint) return;
@@ -68,6 +71,7 @@ export function StudioSlotCanvasEditor({
     }
   }
 
+  // Виконує локальну логіку schedule drag update для модуля адмін-конструктора.
   function scheduleDragUpdate(event) {
     latestPointerEventRef.current = { clientX: event.clientX, clientY: event.clientY };
     if (pendingFrameRef.current) return;
@@ -77,6 +81,7 @@ export function StudioSlotCanvasEditor({
     });
   }
 
+  // Виконує локальну логіку begin drag для модуля адмін-конструктора.
   function beginDrag(event, slot, mode, extraState = {}) {
     event.preventDefault();
     event.stopPropagation();
@@ -96,12 +101,14 @@ export function StudioSlotCanvasEditor({
     applyDragUpdate(dragStateRef.current, latestPointerEventRef.current);
   }
 
+  // Обробляє дію користувача або системну подію для handle pointer move.
   function handlePointerMove(event) {
     if (!dragStateRef.current || dragStateRef.current.pointerId !== event.pointerId) return;
     event.preventDefault();
     scheduleDragUpdate(event);
   }
 
+  // Обробляє дію користувача або системну подію для handle pointer up.
   function handlePointerUp(event) {
     const finalDragState = dragStateRef.current;
     if (!finalDragState || finalDragState.pointerId !== event.pointerId) return;

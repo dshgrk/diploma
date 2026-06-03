@@ -1,3 +1,4 @@
+// Файл містить бізнес-логіку серверного модуля cart та готує дані для API.
 const { db } = require("../../db/knex");
 const { CART_ITEM_TYPES } = require("../../constants/cart-item-types");
 const { createHttpError } = require("../../utils/http-error");
@@ -12,10 +13,12 @@ const { pickLocalizedFields, resolveLocale } = require("../../utils/locale");
 
 const MAX_CART_ITEM_QUANTITY = 100;
 
+// Формує структуру build active cart key для UI, API-відповіді або подальших розрахунків.
 function buildActiveCartKey(userId) {
   return `active:${userId}`;
 }
 
+// Перевіряє is unique constraint error і повертає результат або кидає помилку валідації.
 function isUniqueConstraintError(error) {
   return (
     error?.code === "SQLITE_CONSTRAINT" ||
@@ -25,6 +28,7 @@ function isUniqueConstraintError(error) {
   );
 }
 
+// Перевіряє validate cart quantity і повертає результат або кидає помилку валідації.
 function validateCartQuantity(quantity) {
   if (!Number.isInteger(quantity)) {
     throw createHttpError(422, "VALIDATION_ERROR", "Quantity must be a whole number");
@@ -39,12 +43,14 @@ function validateCartQuantity(quantity) {
   }
 }
 
+// Формує структуру build ready product configuration для UI, API-відповіді або подальших розрахунків.
 function buildReadyProductConfiguration(product, configuration = {}) {
   const normalizedSize = normalizeReadyProductConfiguration(product, configuration || {});
   const normalizedChain = resolveReadyProductChainConfiguration(product, configuration || {});
   return normalizedChain ? { ...normalizedSize, chain: normalizedChain } : normalizedSize;
 }
 
+// Отримує get or create active cart з поточного набору даних або конфігурації.
 async function getOrCreateActiveCart(userId, options = {}) {
   const trx = options.trx || db;
   let cart = await trx("carts").where({ user_id: userId, status: "active" }).orderBy("id", "desc").first();
@@ -70,6 +76,7 @@ async function getOrCreateActiveCart(userId, options = {}) {
   return cart;
 }
 
+// Виконує локальну логіку serialize cart для модуля серверного модуля cart.
 async function serializeCart(cartId, options = {}) {
   const trx = options.trx || db;
   const locale = options.locale || "uk";
@@ -159,6 +166,7 @@ async function serializeCart(cartId, options = {}) {
   };
 }
 
+// Отримує get cart for user з поточного набору даних або конфігурації.
 async function getCartForUser(userId, options = {}) {
   const cart = await getOrCreateActiveCart(userId);
   const serialized = await serializeCart(cart.id, { userId, locale: options.locale || "uk" });
@@ -169,6 +177,7 @@ async function getCartForUser(userId, options = {}) {
   };
 }
 
+// Виконує локальну логіку add cart item для модуля серверного модуля cart.
 async function addCartItem(userId, payload, req) {
   const cart = await getOrCreateActiveCart(userId);
   const locale = resolveLocale(req);
@@ -256,6 +265,7 @@ async function addCartItem(userId, payload, req) {
   return getCartForUser(userId, { locale });
 }
 
+// Оновлює існуючі дані update cart item без зміни решти стану.
 async function updateCartItem(userId, itemId, payload, req) {
   const cart = await getOrCreateActiveCart(userId);
   const locale = resolveLocale(req);
@@ -318,12 +328,14 @@ async function updateCartItem(userId, itemId, payload, req) {
   return getCartForUser(userId, { locale });
 }
 
+// Видаляє або деактивує запис delete cart item згідно з правилами модуля.
 async function deleteCartItem(userId, itemId, options = {}) {
   const cart = await getOrCreateActiveCart(userId);
   await db("cart_items").where({ id: itemId, cart_id: cart.id }).del();
   return getCartForUser(userId, options);
 }
 
+// Виконує локальну логіку apply cart promo code для модуля серверного модуля cart.
 async function applyCartPromoCode(userId, code, options = {}) {
   const cart = await getOrCreateActiveCart(userId);
   await attachPromoCodeToCart({
@@ -335,6 +347,7 @@ async function applyCartPromoCode(userId, code, options = {}) {
   return getCartForUser(userId, options);
 }
 
+// Видаляє або деактивує запис remove cart promo code згідно з правилами модуля.
 async function removeCartPromoCode(userId, options = {}) {
   const cart = await getOrCreateActiveCart(userId);
   await detachPromoCodeFromCart({ cartId: cart.id });

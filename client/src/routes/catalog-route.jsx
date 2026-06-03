@@ -1,3 +1,4 @@
+// Файл описує React-сторінку catalog-route та її локальну UI-логіку.
 import React, { useEffect, useMemo, useState } from "react";
 import { Check, X } from "lucide-react";
 import { catalogApi } from "../api";
@@ -27,6 +28,7 @@ const CATALOG_MULTI_FILTER_KEYS = [
 
 const CATALOG_TYPE_FILTERS = new Set(["Ring", "Earrings", "Bracelet", "Pendant"]);
 
+// Створює новий запис або чернетку для create empty catalog filter state.
 function createEmptyCatalogFilterState() {
   return {
     metal: [],
@@ -43,12 +45,14 @@ function createEmptyCatalogFilterState() {
   };
 }
 
+// Виконує локальну логіку parse catalog numeric token для модуля сторінки catalog-route.
 function parseCatalogNumericToken(value) {
   const normalized = String(value || "").trim().toLowerCase().replace(",", ".");
   const numeric = Number.parseFloat(normalized);
   return Number.isFinite(numeric) ? numeric : Number.POSITIVE_INFINITY;
 }
 
+// Виконує локальну логіку sort catalog facet values для модуля сторінки catalog-route.
 function sortCatalogFacetValues(values = [], key, locale) {
   const normalizedLocale = locale === "uk" ? "uk-UA" : "en-US";
   const numericKeys = new Set(["ringSize", "braceletLength", "stoneSize"]);
@@ -63,11 +67,13 @@ function sortCatalogFacetValues(values = [], key, locale) {
   });
 }
 
+// Отримує get catalog type from search з поточного набору даних або конфігурації.
 function getCatalogTypeFromSearch() {
   const queryType = new URLSearchParams(window.location.search).get("type");
   return CATALOG_TYPE_FILTERS.has(queryType) ? queryType : "all";
 }
 
+// Отримує get catalog ui copy з поточного набору даних або конфігурації.
 function getCatalogUiCopy(locale = "uk") {
   return locale === "uk"
     ? {
@@ -124,6 +130,7 @@ function getCatalogUiCopy(locale = "uk") {
       };
 }
 
+// Компонент рендерить блок catalog facet group і отримує потрібні дані через props або локальний state.
 function CatalogFacetGroup({ title, options, selectedValues, onToggle, locale }) {
   if (!options.length) return null;
 
@@ -150,6 +157,7 @@ function CatalogFacetGroup({ title, options, selectedValues, onToggle, locale })
   );
 }
 
+// Компонент рендерить блок catalog page і отримує потрібні дані через props або локальний state.
 function CatalogPage({ locale }) {
   const [products, setProducts] = useState([]);
   const [pageInfo, setPageInfo] = useState(null);
@@ -232,6 +240,7 @@ function CatalogPage({ locale }) {
   }, [isMobileFiltersOpen]);
 
   useEffect(() => {
+    // Синхронізує sync from url між локальним станом, URL, подіями або сховищем.
     const syncFromUrl = () => setActiveType(getCatalogTypeFromSearch());
     window.addEventListener("popstate", syncFromUrl);
     return () => window.removeEventListener("popstate", syncFromUrl);
@@ -302,6 +311,7 @@ function CatalogPage({ locale }) {
     return CATALOG_MULTI_FILTER_KEYS.some((key) => (catalogFilters[key] || []).length > 0);
   }, [activeType, catalogFilters]);
 
+  // Обробляє дію користувача або системну подію для handle type change.
   function handleTypeChange(typeId) {
     setActiveType(typeId);
     setCatalogFilters((current) => ({
@@ -312,6 +322,7 @@ function CatalogPage({ locale }) {
     }));
   }
 
+  // Виконує локальну логіку toggle filter value для модуля сторінки catalog-route.
   function toggleFilterValue(key, value) {
     setCatalogFilters((current) => {
       const selectedValues = current[key] || [];
@@ -322,12 +333,14 @@ function CatalogPage({ locale }) {
     });
   }
 
+  // Виконує локальну логіку reset catalog filters для модуля сторінки catalog-route.
   function resetCatalogFilters() {
     setActiveType("all");
     setCatalogFilters(createEmptyCatalogFilterState());
     setIsMobileFiltersOpen(false);
   }
 
+  // Завантажує дані load next catalog page з API або локального джерела.
   async function loadNextCatalogPage() {
     if (!pageInfo?.hasNextPage || isLoadingMore || isLoadingProducts) return;
     setIsLoadingMore(true);
@@ -353,6 +366,7 @@ function CatalogPage({ locale }) {
     return () => observer.disconnect();
   }, [catalogQuerySignature, pageInfo?.hasNextPage, pageInfo?.page, isLoadingMore, isLoadingProducts]);
 
+  // Готує JSX або HTML-представлення для render filters content.
   function renderFiltersContent(isDrawer = false) {
     return (
       <div className={`catalog-filters-surface${isDrawer ? " is-drawer" : ""}`}>

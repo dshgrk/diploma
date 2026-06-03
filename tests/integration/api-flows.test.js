@@ -1,3 +1,4 @@
+// Файл містить автоматичні перевірки ключових сценаріїв системи.
 import { createRequire } from "module";
 import { afterEach, beforeAll, beforeEach, describe, expect, test } from "vitest";
 import request from "supertest";
@@ -10,6 +11,7 @@ const { resetRateLimitBuckets } = require("../../server/middlewares/rate-limit")
 const MIGRATIONS_DIRECTORY = "./db/migrations";
 const SEEDS_DIRECTORY = "./db/seeds";
 
+// Виконує локальну логіку reset database для модуля автоматичних тестів.
 async function resetDatabase() {
   if (db.client.config.client === "sqlite3") {
     await db.raw("PRAGMA foreign_keys = OFF");

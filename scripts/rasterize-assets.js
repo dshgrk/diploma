@@ -1,3 +1,4 @@
+// Файл містить службовий Node.js-скрипт для підтримки проєкту.
 const fs = require("fs/promises");
 const path = require("path");
 const sharp = require("sharp");
@@ -8,6 +9,7 @@ const TARGET_DIRECTORIES = [
   path.join(ROOT, "public", "assets", "preview")
 ];
 
+// Повертає список даних list svg files у форматі, готовому для API або UI.
 async function listSvgFiles(directory) {
   const entries = await fs.readdir(directory, { withFileTypes: true });
   const files = [];
@@ -27,6 +29,7 @@ async function listSvgFiles(directory) {
   return files;
 }
 
+// Виконує локальну логіку rasterize для модуля службового скрипта.
 async function rasterize(svgPath) {
   const pngPath = svgPath.replace(/\.svg$/i, ".png");
   const input = await fs.readFile(svgPath);
@@ -35,6 +38,7 @@ async function rasterize(svgPath) {
   return pngPath;
 }
 
+// Виконує локальну логіку main для модуля службового скрипта.
 async function main() {
   const svgFiles = [];
 

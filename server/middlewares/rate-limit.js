@@ -1,7 +1,9 @@
+// Файл містить Express middleware для спільної обробки HTTP-запитів.
 const { createHttpError } = require("../utils/http-error");
 
 const buckets = new Map();
 
+// Створює новий запис або чернетку для create rate limiter.
 function createRateLimiter({ key = "default", max = 10, windowMs = 60_000, message = "Too many requests" }) {
   return function rateLimit(req, res, next) {
     if (process.env.NODE_ENV === "development") {
@@ -31,6 +33,7 @@ function createRateLimiter({ key = "default", max = 10, windowMs = 60_000, messa
   };
 }
 
+// Виконує локальну логіку reset rate limit buckets для модуля Express middleware.
 function resetRateLimitBuckets() {
   buckets.clear();
 }

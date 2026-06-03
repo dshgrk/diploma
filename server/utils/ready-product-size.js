@@ -1,3 +1,4 @@
+// Файл містить невеликі серверні helper'и, які перевикористовуються в різних модулях.
 const READY_PRODUCT_SIZE_DEFINITIONS = {
   ring: {
     label_uk: "Розмір каблучки",
@@ -28,6 +29,7 @@ const READY_PRODUCT_SIZE_DEFINITIONS = {
   }
 };
 
+// Нормалізує normalize ready product type, щоб API та UI працювали з однаковим форматом даних.
 function normalizeReadyProductType(productType) {
   const normalized = String(productType || "").trim().toLowerCase();
   if (normalized === "ring") return "ring";
@@ -36,15 +38,18 @@ function normalizeReadyProductType(productType) {
   return null;
 }
 
+// Отримує get ready product size definition з поточного набору даних або конфігурації.
 function getReadyProductSizeDefinition(productType) {
   const normalizedType = normalizeReadyProductType(productType);
   return normalizedType ? READY_PRODUCT_SIZE_DEFINITIONS[normalizedType] || null : null;
 }
 
+// Отримує get ready product size options з поточного набору даних або конфігурації.
 function getReadyProductSizeOptions(productType) {
   return getReadyProductSizeDefinition(productType)?.options || [];
 }
 
+// Виконує локальну логіку find ready product size option для модуля серверних утиліт.
 function findReadyProductSizeOption(productType, rawSize) {
   const normalizedRaw = String(rawSize || "").trim().toLowerCase();
   if (!normalizedRaw) return null;
@@ -67,6 +72,7 @@ function findReadyProductSizeOption(productType, rawSize) {
   return null;
 }
 
+// Отримує get default ready product size code з поточного набору даних або конфігурації.
 function getDefaultReadyProductSizeCode(product = {}) {
   const productType = product.filter_type || product.product_type || product.type;
   const definition = getReadyProductSizeDefinition(productType);
@@ -83,6 +89,7 @@ function getDefaultReadyProductSizeCode(product = {}) {
   return matched?.code || definition.options[0].code;
 }
 
+// Нормалізує normalize ready product configuration, щоб API та UI працювали з однаковим форматом даних.
 function normalizeReadyProductConfiguration(product = {}, configuration = {}) {
   const productType = product.filter_type || product.product_type || product.type;
   const definition = getReadyProductSizeDefinition(productType);
@@ -94,6 +101,7 @@ function normalizeReadyProductConfiguration(product = {}, configuration = {}) {
   };
 }
 
+// Зчитує дані для ready product configurations equal з URL, localStorage, файлу або вхідного payload.
 function readyProductConfigurationsEqual(left = {}, right = {}) {
   return (
     String(left?.size || "").trim() === String(right?.size || "").trim() &&

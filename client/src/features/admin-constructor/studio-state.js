@@ -1,9 +1,12 @@
+// Файл містить логіку адмін-конструктора.
+// Обмежує координату canvas у межах 0-100 відсотків.
 export function clampPercent(value) {
   const numeric = Number.parseFloat(String(value || "").replace("%", ""));
   if (!Number.isFinite(numeric)) return "50%";
   return `${Math.min(100, Math.max(0, Number(numeric.toFixed(2))))}%`;
 }
 
+// Зчитує дані для read file as data url з URL, localStorage, файлу або вхідного payload.
 export function readFileAsDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -13,6 +16,7 @@ export function readFileAsDataUrl(file) {
   });
 }
 
+// Отримує get constructor slot keys з поточного набору даних або конфігурації.
 export function getConstructorSlotKeys(typeCode) {
   if (typeCode === "bracelet") return ["slot-1", "slot-2", "slot-3", "slot-4", "slot-5", "slot-6"];
   if (typeCode === "ring") return ["left", "center", "right"];
@@ -20,6 +24,7 @@ export function getConstructorSlotKeys(typeCode) {
   return ["pendant"];
 }
 
+// Отримує get layout editor model з поточного набору даних або конфігурації.
 export function getLayoutEditorModel(layouts, typeCode, pendantShape, defaultBases, defaultPositions) {
   const safeLayouts = layouts || { bases: defaultBases, positions: defaultPositions };
   if (typeCode === "pendant") {
@@ -40,6 +45,7 @@ export function getLayoutEditorModel(layouts, typeCode, pendantShape, defaultBas
   };
 }
 
+// Оновлює існуючі дані update layout base asset без зміни решти стану.
 export function updateLayoutBaseAsset(draft, typeCode, pendantShape, nextAssetPath) {
   const next = JSON.parse(JSON.stringify(draft));
   if (typeCode === "pendant") {
@@ -50,6 +56,7 @@ export function updateLayoutBaseAsset(draft, typeCode, pendantShape, nextAssetPa
   return next;
 }
 
+// Створює новий запис або чернетку для create studio slot draft.
 export function createStudioSlotDraft(variantId, order = 1) {
   return {
     variant_id: Number(variantId),
@@ -68,6 +75,7 @@ export function createStudioSlotDraft(variantId, order = 1) {
   };
 }
 
+// Створює новий запис або чернетку для create studio material draft.
 export function createStudioMaterialDraft(order = 1) {
   return {
     code: `material-${order}`,
@@ -80,6 +88,7 @@ export function createStudioMaterialDraft(order = 1) {
   };
 }
 
+// Створює новий запис або чернетку для create studio type draft.
 export function createStudioTypeDraft(order = 1) {
   return {
     code: "",
@@ -100,6 +109,7 @@ export function createStudioTypeDraft(order = 1) {
   };
 }
 
+// Створює новий запис або чернетку для create studio variant draft.
 export function createStudioVariantDraft(typeId, order = 1) {
   return {
     type_id: Number(typeId) || 0,
@@ -115,6 +125,7 @@ export function createStudioVariantDraft(typeId, order = 1) {
   };
 }
 
+// Створює новий запис або чернетку для create studio size draft.
 export function createStudioSizeDraft(order = 1) {
   return {
     code: `size-${order}`,
@@ -127,14 +138,17 @@ export function createStudioSizeDraft(order = 1) {
   };
 }
 
+// Перетворює збережену Y-координату слота у значення для UI-поля.
 export function slotStoredYToDisplayY(value) {
   return 100 - Number(value || 0);
 }
 
+// Перетворює Y-координату з UI-поля у формат, який зберігається в конфігу.
 export function slotDisplayYToStoredY(value) {
   return 100 - Number(value || 0);
 }
 
+// Зчитує дані для read admin constructor location state з URL, localStorage, файлу або вхідного payload.
 export function readAdminConstructorLocationState() {
   const search = new URLSearchParams(window.location.search);
   return {
@@ -149,12 +163,14 @@ export function readAdminConstructorLocationState() {
   };
 }
 
+// Перевіряє is same admin constructor state і повертає результат або кидає помилку валідації.
 export function isSameAdminConstructorState(left, right) {
   return ["section", "jewelryStep", "editorSubview", "stoneStep", "selectedTypeId", "selectedVariantId", "selectedSlotId", "selectedStoneId"].every(
     (key) => String(left?.[key] ?? "") === String(right?.[key] ?? "")
   );
 }
 
+// Нормалізує normalize admin constructor state, щоб API та UI працювали з однаковим форматом даних.
 export function normalizeAdminConstructorState(rawState, studio) {
   const safeState = {
     section: ["home", "jewelry", "stones", "assets", "pricing"].includes(rawState?.section) ? rawState.section : "home",
@@ -365,6 +381,7 @@ export function normalizeAdminConstructorState(rawState, studio) {
   };
 }
 
+// Формує структуру build admin constructor search для UI, API-відповіді або подальших розрахунків.
 export function buildAdminConstructorSearch(state) {
   if (state.section === "home") return "";
   const params = new URLSearchParams();
