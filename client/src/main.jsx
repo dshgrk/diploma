@@ -1,5 +1,6 @@
 import React, { Suspense } from "react";
 import { createRoot } from "react-dom/client";
+import { BRAND_LOGO_MARK } from "./content";
 
 const AboutRoute = React.lazy(() => import("./routes/about-route.jsx"));
 const AccountRoute = React.lazy(() => import("./routes/account-route.jsx"));
@@ -79,6 +80,7 @@ function NotFoundRoute() {
     <main className="page-main">
       <section className="section">
         <div className="container empty-state-react">
+          <img className="empty-state-brand-mark" src={BRAND_LOGO_MARK} alt="Aurora Atelier" />
           <h1>Aurora Atelier</h1>
           <p>Сторінку не знайдено.</p>
           <a className="button" href="/">На головну</a>

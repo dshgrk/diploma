@@ -1,4 +1,5 @@
 import React from "react";
+import { BRAND_LOGO_MARK } from "../../content";
 import { ADMIN_UI } from "../../i18n/admin-copy";
 
 export function AdminShell({ children, title, subtitle }) {
@@ -7,7 +8,10 @@ export function AdminShell({ children, title, subtitle }) {
       <header className="admin-react-header">
         <div className="admin-react-inner admin-react-header-row">
           <div>
-            <a className="admin-brand" href="/admin/orders">Aurora Atelier</a>
+            <a className="admin-brand" href="/admin/orders" aria-label="Aurora Atelier admin">
+              <img className="admin-brand-mark" src={BRAND_LOGO_MARK} alt="" aria-hidden="true" />
+              <span className="admin-brand-text">Aurora Atelier</span>
+            </a>
             <h1>{title}</h1>
             {subtitle ? <p>{subtitle}</p> : null}
           </div>

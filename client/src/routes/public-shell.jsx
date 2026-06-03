@@ -1,7 +1,7 @@
 ﻿import React, { useEffect, useState } from "react";
 import { Menu, ShoppingBag, User, X } from "lucide-react";
 import { authApi, cartApi } from "../api";
-import { referenceCopy } from "../content";
+import { BRAND_LOGO, referenceCopy } from "../content";
 import "../styles/public-footer.css";
 
 const LOCAL_STORAGE_KEY = "aurora-locale";
@@ -169,7 +169,9 @@ export function Header({ locale, onToggleLocale }) {
   return (
     <header className={`site-nav${scrolled ? " scrolled" : ""}`}>
       <div className="nav-inner">
-        <a className="nav-brand" href="/">Aurora Atelier</a>
+        <a className="nav-brand" href="/" aria-label="Aurora Atelier home">
+          <img className="nav-brand-logo" src={BRAND_LOGO} alt="Aurora Atelier" />
+        </a>
         <nav className="nav-links-desktop" aria-label="Primary navigation">
           {links.map(([label, href]) => (
             <a className="nav-link" key={href} href={href}>{label}</a>
@@ -226,7 +228,7 @@ export function Footer({ locale }) {
     <footer className="site-footer">
       <div className="section-inner site-footer-inner">
         <div className="site-footer-brand">
-          <div className="site-footer-mark">Aurora Atelier</div>
+          <img className="site-footer-mark site-footer-logo" src={BRAND_LOGO} alt="Aurora Atelier" />
           <p className="site-footer-tagline">{copy.footerText}</p>
         </div>
         <div className="site-footer-columns">

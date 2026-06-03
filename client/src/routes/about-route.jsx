@@ -1,7 +1,7 @@
 ﻿import React, { useEffect, useMemo, useState } from "react";
 import { ChevronRight, Menu, ShoppingBag, User, X } from "lucide-react";
 import { authApi, cartApi } from "../api";
-import { ABOUT_PAGE_CONTENT, REFERENCE_IMAGES, referenceCopy } from "../content";
+import { ABOUT_PAGE_CONTENT, BRAND_LOGO, REFERENCE_IMAGES, referenceCopy } from "../content";
 import { Footer as PublicFooter } from "./public-shell.jsx";
 import "../styles.css";
 
@@ -138,7 +138,9 @@ function Header({ locale, onToggleLocale }) {
   return (
     <header className={`site-nav${scrolled ? " scrolled" : ""}`}>
       <div className="nav-inner">
-        <a className="nav-brand" href="/">Aurora Atelier</a>
+        <a className="nav-brand" href="/" aria-label="Aurora Atelier home">
+          <img className="nav-brand-logo" src={BRAND_LOGO} alt="Aurora Atelier" />
+        </a>
         <nav className="nav-links-desktop" aria-label="Primary navigation">
           {links.map(([label, href]) => (
             <a className="nav-link" key={href} href={href}>{label}</a>

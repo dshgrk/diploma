@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { authApi } from "../api";
-import { FALLBACK_PRODUCT_IMAGE } from "../content";
+import { BRAND_LOGO_MARK, FALLBACK_PRODUCT_IMAGE } from "../content";
 import { ADMIN_UI } from "../i18n/admin-copy";
 import "../styles.css";
 
@@ -27,7 +27,10 @@ export default function AdminLoginRoute() {
   return (
     <main className="admin-login-react">
       <section className="admin-login-panel">
-        <a className="admin-brand" href="/">Aurora Atelier</a>
+        <a className="admin-brand" href="/" aria-label="Aurora Atelier home">
+          <img className="admin-brand-mark" src={BRAND_LOGO_MARK} alt="" aria-hidden="true" />
+          <span className="admin-brand-text">Aurora Atelier</span>
+        </a>
         <h1>{ADMIN_UI.login.title}</h1>
         <p>{ADMIN_UI.login.subtitle}</p>
         <form className="admin-form-grid" onSubmit={handleSubmit}>

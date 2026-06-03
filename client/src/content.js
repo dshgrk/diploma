@@ -1,3 +1,6 @@
+export const BRAND_LOGO = "/assets/images/aurora-atelier-logo-horizontal-1024x244.png";
+export const BRAND_LOGO_MARK = "/assets/images/aurora-atelier-logo-mark-512x512.png";
+
 export const FALLBACK_PRODUCT_IMAGE = "/assets/images/aurora-jewelry-hero.png";
 
 export const CATALOG_FILTERS = [
