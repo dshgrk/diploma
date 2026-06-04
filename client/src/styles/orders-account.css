@@ -116,11 +116,16 @@
 
 .account-order-items,
 .account-history-grid,
+.account-active-orders-grid,
 .orders-list-grid,
 .timeline-react,
 .order-detail-items-stack {
   display: grid;
   gap: 1rem;
+}
+
+.account-active-orders-grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
 .account-order-item {

@@ -758,6 +758,10 @@ const FILTER_LABELS = {
 
 const FILTER_VALUE_TRANSLATIONS = {
   uk: {
+    Ring: "Каблучка",
+    Bracelet: "Браслет",
+    Earrings: "Сережки",
+    Pendant: "Підвіска",
     Silver: "Срібло",
     Gold: "Золото",
     "Rose Gold": "Рожеве золото",

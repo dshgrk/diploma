@@ -84,23 +84,25 @@ async function getLatestHistoryByOrderIds(orderIds) {
   return byOrderId;
 }
 
-// Отримує get current order for user з поточного набору даних або конфігурації.
-async function getCurrentOrderForUser(userId, req) {
+// Повертає список усіх незавершених замовлень користувача від нових до старих.
+async function listActiveOrdersForUser(userId, req) {
   const locale = resolveLocale(req);
-  const order = await db("orders")
+  const orders = await db("orders")
     .where({ user_id: userId })
     .whereNot({ status: "completed" })
-    .orderBy("created_at", "desc")
-    .first();
+    .orderBy([{ column: "created_at", order: "desc" }, { column: "id", order: "desc" }]);
 
-  if (!order) return null;
+  if (!orders.length) return [];
 
+  const orderIds = orders.map((order) => order.id);
   const [itemsByOrderId, latestHistoryByOrderId] = await Promise.all([
-    getOrderItemsByOrderIds([order.id]),
-    getLatestHistoryByOrderIds([order.id])
+    getOrderItemsByOrderIds(orderIds),
+    getLatestHistoryByOrderIds(orderIds)
   ]);
 
-  return orderSummary(order, itemsByOrderId.get(order.id) || [], latestHistoryByOrderId.get(order.id)?.created_at || null, locale);
+  return orders.map((order) =>
+    orderSummary(order, itemsByOrderId.get(order.id) || [], latestHistoryByOrderId.get(order.id)?.created_at || null, locale)
+  );
 }
 
 // Повертає список даних list completed orders for user у форматі, готовому для API або UI.
@@ -125,20 +127,21 @@ async function listCompletedOrdersForUser(userId, req) {
 
 // Отримує get account dashboard з поточного набору даних або конфігурації.
 async function getAccountDashboard(user, req) {
-  const [currentOrder, completedOrders] = await Promise.all([
-    getCurrentOrderForUser(user.id, req),
+  const [activeOrders, completedOrders] = await Promise.all([
+    listActiveOrdersForUser(user.id, req),
     listCompletedOrdersForUser(user.id, req)
   ]);
 
   return {
     user: serializeUser(user),
-    current_order: currentOrder,
+    current_order: activeOrders[0] || null,
+    active_orders: activeOrders,
     completed_orders: completedOrders
   };
 }
 
 module.exports = {
   getAccountDashboard,
-  getCurrentOrderForUser,
+  listActiveOrdersForUser,
   listCompletedOrdersForUser
 };

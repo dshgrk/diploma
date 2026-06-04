@@ -30,19 +30,9 @@ import { StudioConstructorSlots } from "./studio-constructor-slots.jsx";
 import { TypeIcon } from "./type-icon.jsx";
 import { LOCALE_FORMATS } from "../../routes/public-shell.jsx";
 
-// Формує дефолтний вибір каменів для слотів поточного варіанта.
-function buildDefaultStoneSelections(slots = [], stones = []) {
-  const selectableStones = stones.filter((stone) => stone?.code && stone.code !== "none" && stone.asset_url);
-  if (!slots.length || !selectableStones.length) return {};
-
-  const defaultStone = selectableStones.find((stone) => stone.is_default) || selectableStones[0];
-  return Object.fromEntries(slots.map((slot) => [slot.code, defaultStone.code]));
-}
-
 // Рендерить повний робочий інтерфейс конструктора і керує API-викликами.
 export function ConstructorStudioPage({ locale }) {
   const initialSearchRef = React.useRef(readConstructorSearchState());
-  const defaultedStoneVariantRef = React.useRef("");
   const [config, setConfig] = useState(null);
   const [jewelryTypeId, setJewelryTypeId] = useState("");
   const [variantId, setVariantId] = useState("");
@@ -160,32 +150,6 @@ export function ConstructorStudioPage({ locale }) {
     });
     if (!variantId && currentVariant) setVariantId(String(currentVariant.id));
   }, [currentType, currentVariant, variantId]);
-
-  useEffect(() => {
-    if (!currentVariant?.id || !currentSlots.length || !availableStones.length) return;
-
-    const variantKey = String(currentVariant.id);
-    if (defaultedStoneVariantRef.current === variantKey) return;
-
-    setConfiguration((current) => {
-      const currentSelections = current.stone_slots || {};
-      const hasKnownSlotSelection = currentSlots.some((slot) => Object.prototype.hasOwnProperty.call(currentSelections, slot.code));
-      if (hasKnownSlotSelection) {
-        defaultedStoneVariantRef.current = variantKey;
-        return current;
-      }
-
-      const defaultSelections = buildDefaultStoneSelections(currentSlots, availableStones);
-      if (!Object.keys(defaultSelections).length) return current;
-
-      defaultedStoneVariantRef.current = variantKey;
-      return {
-        ...current,
-        variant_id: Number(currentVariant.id),
-        stone_slots: defaultSelections
-      };
-    });
-  }, [availableStones, currentSlots, currentVariant?.id]);
 
   useEffect(() => {
     syncConstructorSearchState(currentType, currentVariant);

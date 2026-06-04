@@ -653,7 +653,7 @@ describe("cart and checkout integrity", () => {
     expect(response.body.success).toBe(false);
   });
 
-  test("account endpoint returns profile, current order and completed history", async () => {
+  test("account endpoint returns profile, all active orders and completed history", async () => {
     const app = createApp();
     const agent = request.agent(app);
 
@@ -664,6 +664,13 @@ describe("cart and checkout integrity", () => {
     });
     await updateAdminOrderStatus(1, checkoutResult.order_id, ORDER_STATUSES.IN_PROGRESS);
     await updateAdminOrderStatus(1, checkoutResult.order_id, ORDER_STATUSES.COMPLETED);
+    await addCartItem(2, {
+      item_type: "ready_product",
+      product_id: 1,
+      quantity: 1,
+      configuration: { size: "17" }
+    });
+    const secondCheckoutResult = await createCheckoutOrder(2, CHECKOUT_PAYLOAD);
 
     const loginResponse = await agent.post("/api/auth/login").send({
       email: "client@aurora.local",
@@ -678,9 +685,14 @@ describe("cart and checkout integrity", () => {
     expect(response.body.success).toBe(true);
     expect(response.body.data.user.email).toBe("client@aurora.local");
     expect(response.body.data.user.phone).toBeTruthy();
+    expect(Array.isArray(response.body.data.active_orders)).toBe(true);
+    expect(response.body.data.active_orders.length).toBeGreaterThanOrEqual(2);
     expect(response.body.data.current_order).toBeTruthy();
-    expect(response.body.data.current_order.status).not.toBe(ORDER_STATUSES.COMPLETED);
-    expect(response.body.data.current_order.items.length).toBeGreaterThan(0);
+    expect(response.body.data.current_order.id).toBe(response.body.data.active_orders[0].id);
+    expect(response.body.data.active_orders[0].id).toBe(secondCheckoutResult.order_id);
+    expect(response.body.data.active_orders[0].status).toBe(ORDER_STATUSES.CREATED_PENDING_PAYMENT);
+    expect(response.body.data.active_orders[0].items.length).toBeGreaterThan(0);
+    expect(new Date(response.body.data.active_orders[0].created_at).getTime()).toBeGreaterThanOrEqual(new Date(response.body.data.active_orders[1].created_at).getTime());
     expect(Array.isArray(response.body.data.completed_orders)).toBe(true);
     expect(response.body.data.completed_orders.length).toBeGreaterThan(0);
     expect(response.body.data.completed_orders[0].status).toBe(ORDER_STATUSES.COMPLETED);

@@ -33,6 +33,7 @@ export default function PaymentRoute() {
   const [order, setOrder] = useState(null);
   const [loadError, setLoadError] = useState("");
   const [toast, setToast] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentConfirmed, setPaymentConfirmed] = useState(false);
   const [cardForm, setCardForm] = useState({
@@ -81,21 +82,48 @@ export default function PaymentRoute() {
     cardForm.cardHolder.trim() &&
     cardForm.cardNumber.replace(/\s/g, "").length >= 16 &&
     cardForm.expiryDate.length === 5 &&
-    cardForm.cvc.length >= 3;
+    cardForm.cvc.length === 3;
+
+  function validatePaymentForm(nextForm = cardForm) {
+    const errors = {};
+    if (nextForm.cvc.length !== 3) {
+      errors.cvc = t(locale, "cvcInvalid");
+    }
+    return errors;
+  }
 
   // Оновлює існуючі дані update field без зміни решти стану.
   function updateField(event) {
     const { name, value } = event.target;
-    setCardForm((current) => ({
-      ...current,
-      [name]:
-        name === "cardNumber"
-          ? formatCardNumber(value)
-          : name === "expiryDate"
-            ? formatExpiry(value)
-            : name === "cvc"
-              ? value.replace(/\D/g, "").slice(0, 4)
-              : value
+    setCardForm((current) => {
+      const nextForm = {
+        ...current,
+        [name]:
+          name === "cardNumber"
+            ? formatCardNumber(value)
+            : name === "expiryDate"
+              ? formatExpiry(value)
+              : name === "cvc"
+                ? value.replace(/\D/g, "").slice(0, 3)
+                : value
+      };
+
+      if (name === "cvc") {
+        setFieldErrors((currentErrors) => ({
+          ...currentErrors,
+          cvc: nextForm.cvc.length === 0 || nextForm.cvc.length === 3 ? "" : t(locale, "cvcInvalid")
+        }));
+      }
+
+      return nextForm;
+    });
+  }
+
+  function handleFieldBlur(event) {
+    if (event.target.name !== "cvc") return;
+    setFieldErrors((currentErrors) => ({
+      ...currentErrors,
+      ...validatePaymentForm()
     }));
   }
 
@@ -103,6 +131,11 @@ export default function PaymentRoute() {
   async function handleConfirmPayment(event) {
     event.preventDefault();
     if (!order?.active_payment_token || order.status !== "created_pending_payment") {
+      return;
+    }
+    const validationErrors = validatePaymentForm();
+    if (Object.keys(validationErrors).length > 0) {
+      setFieldErrors(validationErrors);
       return;
     }
     setIsSubmitting(true);
@@ -187,7 +220,7 @@ export default function PaymentRoute() {
                       </a>
                     </div>
                   ) : (
-                    <form className="checkout-react-form payment-react-form" onSubmit={handleConfirmPayment}>
+                    <form className="checkout-react-form payment-react-form" onSubmit={handleConfirmPayment} noValidate>
                       <div className="payment-card-visual checkout-full">
                         <div className="payment-card-topline">
                           <span>{order.order_number}</span>
@@ -239,10 +272,15 @@ export default function PaymentRoute() {
                             name="cvc"
                             autoComplete="cc-csc"
                             inputMode="numeric"
+                            maxLength={3}
+                            pattern="[0-9]{3}"
+                            aria-invalid={Boolean(fieldErrors.cvc)}
                             placeholder="123"
                             value={cardForm.cvc}
                             onChange={updateField}
+                            onBlur={handleFieldBlur}
                           />
+                          {fieldErrors.cvc ? <small className="form-field-error">{fieldErrors.cvc}</small> : null}
                         </label>
                       </div>
                       <button className="button checkout-submit" type="submit" disabled={isSubmitting || !canSubmitPayment}>
