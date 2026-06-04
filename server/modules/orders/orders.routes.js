@@ -1,3 +1,4 @@
+// Файл підключає HTTP-endpoint'и для серверного модуля orders до Express-router.
 const express = require("express");
 const { requireAuth } = require("../../middlewares/auth");
 const { asyncHandler } = require("../../middlewares/async-handler");

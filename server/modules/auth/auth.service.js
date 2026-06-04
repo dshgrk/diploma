@@ -1,3 +1,4 @@
+// Файл містить бізнес-логіку серверного модуля auth та готує дані для API.
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const { OAuth2Client } = require("google-auth-library");
@@ -22,6 +23,7 @@ const {
 
 const googleClient = env.googleClientId ? new OAuth2Client(env.googleClientId) : null;
 
+// Отримує get cookie options з поточного набору даних або конфігурації.
 function getCookieOptions() {
   return {
     httpOnly: true,
@@ -31,6 +33,7 @@ function getCookieOptions() {
   };
 }
 
+// Отримує get clear cookie options з поточного набору даних або конфігурації.
 function getClearCookieOptions() {
   return {
     httpOnly: true,
@@ -39,6 +42,7 @@ function getClearCookieOptions() {
   };
 }
 
+// Виконує локальну логіку serialize user для модуля серверного модуля auth.
 function serializeUser(user) {
   return {
     id: user.id,
@@ -53,6 +57,7 @@ function serializeUser(user) {
   };
 }
 
+// Створює новий запис або чернетку для create session for user.
 async function createSessionForUser(userId, req, res) {
   const rawToken = generateSessionToken();
   const tokenHash = hashSessionToken(rawToken);
@@ -71,6 +76,7 @@ async function createSessionForUser(userId, req, res) {
   res.cookie(env.sessionCookieName, rawToken, getCookieOptions());
 }
 
+// Виконує локальну логіку destroy session для модуля серверного модуля auth.
 async function destroySession(req, res) {
   const token = req.cookies?.[env.sessionCookieName];
   if (token) {
@@ -80,6 +86,7 @@ async function destroySession(req, res) {
   res.clearCookie(env.sessionCookieName, getClearCookieOptions());
 }
 
+// Перевіряє validate local login payload і повертає результат або кидає помилку валідації.
 function validateLocalLoginPayload(payload) {
   const errors = {};
   if (!payload.email?.trim()) errors.email = "Email is required";
@@ -90,6 +97,7 @@ function validateLocalLoginPayload(payload) {
   }
 }
 
+// Перевіряє validate register payload і повертає результат або кидає помилку валідації.
 function validateRegisterPayload(payload) {
   const errors = {};
   if (!(payload.full_name || payload.name)?.trim()) errors.full_name = "Full name is required";
@@ -107,6 +115,7 @@ function validateRegisterPayload(payload) {
   }
 }
 
+// Створює новий запис або чернетку для create verification challenge.
 async function createVerificationChallenge(user) {
   const code = generateVerificationCode();
   const codeHash = hashVerificationCode(code);
@@ -136,6 +145,7 @@ async function createVerificationChallenge(user) {
   };
 }
 
+// Виконує локальну логіку register client для модуля серверного модуля auth.
 async function registerClient(payload) {
   validateRegisterPayload(payload);
   const email = normalizeEmail(payload.email);
@@ -169,6 +179,7 @@ async function registerClient(payload) {
   };
 }
 
+// Виконує локальну логіку verify email code для модуля серверного модуля auth.
 async function verifyEmailCode(payload, req, res) {
   const email = normalizeEmail(payload.email);
   const code = normalizeVerificationCode(payload.code);
@@ -225,6 +236,7 @@ async function verifyEmailCode(payload, req, res) {
   return serializeUser(verifiedUser);
 }
 
+// Виконує локальну логіку resend verification code для модуля серверного модуля auth.
 async function resendVerificationCode(payload) {
   const email = normalizeEmail(payload.email);
   if (!email) {
@@ -252,6 +264,7 @@ async function resendVerificationCode(payload) {
   };
 }
 
+// Виконує локальну логіку login user для модуля серверного модуля auth.
 async function loginUser(payload, req, res, role = null) {
   validateLocalLoginPayload(payload);
   const email = normalizeEmail(payload.email);
@@ -287,6 +300,7 @@ async function loginUser(payload, req, res, role = null) {
   return serializeUser(user);
 }
 
+// Виконує локальну логіку login with google для модуля серверного модуля auth.
 async function loginWithGoogle(payload, req, res) {
   if (!env.googleAuthEnabled || !googleClient) {
     throw createHttpError(503, "GOOGLE_AUTH_DISABLED", "Google sign-in is not configured");
@@ -349,6 +363,7 @@ async function loginWithGoogle(payload, req, res) {
   return serializeUser(user);
 }
 
+// Отримує get google auth config з поточного набору даних або конфігурації.
 function getGoogleAuthConfig() {
   return {
     enabled: env.googleAuthEnabled,

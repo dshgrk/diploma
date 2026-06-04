@@ -1,3 +1,4 @@
+// Файл описує React-сторінку admin-products-route та її локальну UI-логіку.
 import React, { useEffect, useState } from "react";
 import { adminCatalogApi } from "../api";
 import { AdminShell } from "../features/admin/admin-shell";
@@ -65,6 +66,7 @@ export default function AdminProductsRoute() {
     if (selectedProduct) setForm(productToForm(selectedProduct));
   }, [selectedProductId, products, jewelryTypes]);
 
+  // Оновлює існуючі дані update field без зміни решти стану.
   function updateField(key, value) {
     setForm((current) => {
       if (key === "asset_id") {
@@ -75,6 +77,7 @@ export default function AdminProductsRoute() {
     });
   }
 
+  // Обробляє дію користувача або системну подію для handle image upload.
   async function handleImageUpload(event) {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -93,6 +96,7 @@ export default function AdminProductsRoute() {
     }
   }
 
+  // Виконує локальну логіку refresh products для модуля сторінки admin-products-route.
   async function refreshProducts(nextSelectedId) {
     const items = await adminCatalogApi.listProducts();
     setProducts(items || []);
@@ -101,6 +105,7 @@ export default function AdminProductsRoute() {
     }
   }
 
+  // Обробляє дію користувача або системну подію для handle save product.
   async function handleSaveProduct() {
     setIsSaving(true);
     setError("");
@@ -125,6 +130,7 @@ export default function AdminProductsRoute() {
     }
   }
 
+  // Обробляє дію користувача або системну подію для handle deactivate.
   async function handleDeactivate() {
     if (selectedProductId === "new") return;
     setIsSaving(true);

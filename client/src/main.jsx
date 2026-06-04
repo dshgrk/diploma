@@ -1,3 +1,4 @@
+// Файл запускає React-додаток, підключає lazy-маршрути та вибирає сторінку за поточним URL.
 import React, { Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { BRAND_LOGO_MARK } from "./content";
@@ -23,50 +24,37 @@ const PrivacyPolicyRoute = React.lazy(() => import("./routes/privacy-policy-rout
 const ProductRoute = React.lazy(() => import("./routes/product-route.jsx"));
 const ReturnsRoute = React.lazy(() => import("./routes/returns-route.jsx"));
 
+const ROUTE_DEFINITIONS = [
+  { matches: (pathname) => pathname === "/", component: HomeRoute },
+  { matches: (pathname) => pathname === "/about", component: AboutRoute },
+  { matches: (pathname) => pathname === "/account", component: AccountRoute },
+  { matches: (pathname) => pathname === "/auth", component: AuthRoute },
+  { matches: (pathname) => pathname === "/cart", component: CartRoute },
+  { matches: (pathname) => pathname === "/catalog", component: CatalogRoute },
+  { matches: (pathname) => pathname === "/checkout", component: CheckoutRoute },
+  { matches: (pathname) => pathname === "/constructor", component: ConstructorRoute },
+  { matches: (pathname) => pathname === "/oferta", component: OfertaRoute },
+  { matches: (pathname) => pathname === "/orders", component: OrdersRoute },
+  { matches: (pathname) => /^\/orders\/\d+$/.test(pathname), component: OrderDetailRoute },
+  { matches: (pathname) => /^\/payment\/\d+$/.test(pathname), component: PaymentRoute },
+  { matches: (pathname) => pathname === "/privacy-policy", component: PrivacyPolicyRoute },
+  { matches: (pathname) => pathname.startsWith("/products/"), component: ProductRoute },
+  { matches: (pathname) => pathname === "/returns", component: ReturnsRoute },
+  { matches: (pathname) => pathname === "/admin/login", component: AdminLoginRoute },
+  { matches: (pathname) => pathname === "/admin/orders", component: AdminOrdersRoute },
+  { matches: (pathname) => /^\/admin\/orders\/\d+$/.test(pathname), component: AdminOrderDetailRoute },
+  { matches: (pathname) => pathname === "/admin/products", component: AdminProductsRoute },
+  { matches: (pathname) => pathname === "/admin/constructor", component: AdminConstructorRoute }
+];
+
+// Визначає React-компонент сторінки для поточного pathname.
+function resolveRouteComponent(pathname) {
+  return ROUTE_DEFINITIONS.find((route) => route.matches(pathname))?.component || NotFoundRoute;
+}
+
+// Монтує обраний route-компонент і показує fallback під час lazy-завантаження.
 function AppBootstrap() {
-  const pathname = window.location.pathname;
-  const RouteComponent =
-    pathname === "/about"
-      ? AboutRoute
-      : pathname === "/admin/login"
-        ? AdminLoginRoute
-        : pathname === "/admin/orders"
-          ? AdminOrdersRoute
-          : /^\/admin\/orders\/\d+$/.test(pathname)
-            ? AdminOrderDetailRoute
-            : pathname === "/admin/products"
-              ? AdminProductsRoute
-              : pathname === "/admin/constructor"
-                ? AdminConstructorRoute
-                : pathname === "/"
-                  ? HomeRoute
-                  : pathname === "/account"
-                    ? AccountRoute
-                    : pathname === "/oferta"
-                      ? OfertaRoute
-                      : pathname === "/auth"
-                        ? AuthRoute
-                        : pathname === "/cart"
-                          ? CartRoute
-                          : pathname === "/checkout"
-                            ? CheckoutRoute
-                            : pathname === "/catalog"
-                              ? CatalogRoute
-                              : pathname === "/constructor"
-                                ? ConstructorRoute
-                                : pathname === "/privacy-policy"
-                                  ? PrivacyPolicyRoute
-                                  : pathname === "/orders"
-                                    ? OrdersRoute
-                                    : /^\/payment\/\d+$/.test(pathname)
-                                      ? PaymentRoute
-                                    : /^\/orders\/\d+$/.test(pathname)
-                                      ? OrderDetailRoute
-                                      : pathname === "/returns"
-                                        ? ReturnsRoute
-                                        : pathname.startsWith("/products/")
-                                          ? ProductRoute
-                                          : NotFoundRoute;
+  const RouteComponent = resolveRouteComponent(window.location.pathname);
 
   return (
     <Suspense fallback={<div className="route-loading" aria-label="Loading page" />}>
@@ -75,6 +63,7 @@ function AppBootstrap() {
   );
 }
 
+// Рендерить просту сторінку для невідомих публічних URL.
 function NotFoundRoute() {
   return (
     <main className="page-main">

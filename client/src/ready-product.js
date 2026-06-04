@@ -1,3 +1,4 @@
+// Файл містить логіку ready-product.
 const READY_PRODUCT_SIZE_DEFINITIONS = {
   Ring: {
     label: { uk: "Розмір каблучки", en: "Ring size" },
@@ -32,23 +33,27 @@ const READY_PRODUCT_SIZE_DEFINITIONS = {
   }
 };
 
+// Нормалізує normalize ready product locale, щоб API та UI працювали з однаковим форматом даних.
 function normalizeReadyProductLocale(locale = "uk") {
   if (locale === "uk-UA") return "uk";
   if (locale === "en-US") return "en";
   return locale === "en" ? "en" : "uk";
 }
 
+// Визначає потрібне значення resolve ready product type за поточним контекстом або вхідними параметрами.
 function resolveReadyProductType(productOrType) {
   if (!productOrType) return null;
   if (typeof productOrType === "string") return READY_PRODUCT_SIZE_DEFINITIONS[productOrType] ? productOrType : null;
   return productOrType?.filters?.type || productOrType?.product_type || productOrType?.type || null;
 }
 
+// Отримує get ready product size definition з поточного набору даних або конфігурації.
 export function getReadyProductSizeDefinition(productOrType) {
   const type = resolveReadyProductType(productOrType);
   return type ? READY_PRODUCT_SIZE_DEFINITIONS[type] || null : null;
 }
 
+// Виконує локальну логіку find ready product size option для модуля ready-product.
 export function findReadyProductSizeOption(productOrType, rawSize) {
   const normalizedRaw = String(rawSize || "").trim().toLowerCase();
   if (!normalizedRaw) return null;
@@ -70,6 +75,7 @@ export function findReadyProductSizeOption(productOrType, rawSize) {
   return null;
 }
 
+// Отримує get ready product size options з поточного набору даних або конфігурації.
 export function getReadyProductSizeOptions(productOrType, locale = "uk") {
   const normalizedLocale = normalizeReadyProductLocale(locale);
   const definition = getReadyProductSizeDefinition(productOrType);
@@ -80,6 +86,7 @@ export function getReadyProductSizeOptions(productOrType, locale = "uk") {
   }));
 }
 
+// Отримує get ready product default size з поточного набору даних або конфігурації.
 export function getReadyProductDefaultSize(product, locale = "uk") {
   const definition = getReadyProductSizeDefinition(product);
   if (!definition) return "";
@@ -88,12 +95,14 @@ export function getReadyProductDefaultSize(product, locale = "uk") {
   return selected?.code || fallbackCode || "";
 }
 
+// Отримує get ready product size title з поточного набору даних або конфігурації.
 export function getReadyProductSizeTitle(productOrType, locale = "uk") {
   const normalizedLocale = normalizeReadyProductLocale(locale);
   const definition = getReadyProductSizeDefinition(productOrType);
   return definition?.label?.[normalizedLocale] || definition?.label?.en || (normalizedLocale === "uk" ? "Розмір" : "Size");
 }
 
+// Отримує get ready product size label з поточного набору даних або конфігурації.
 export function getReadyProductSizeLabel(productOrType, sizeCode, locale = "uk") {
   const normalizedLocale = normalizeReadyProductLocale(locale);
   const matched = findReadyProductSizeOption(productOrType, sizeCode);
@@ -101,6 +110,7 @@ export function getReadyProductSizeLabel(productOrType, sizeCode, locale = "uk")
   return String(sizeCode || "").trim();
 }
 
+// Отримує get ready product normalized size з поточного набору даних або конфігурації.
 export function getReadyProductNormalizedSize(productOrType, sizeCode, locale = "uk") {
   const matched = findReadyProductSizeOption(productOrType, sizeCode);
   if (matched) return matched.code;
@@ -109,6 +119,7 @@ export function getReadyProductNormalizedSize(productOrType, sizeCode, locale = 
   return options[0]?.code || "";
 }
 
+// Зчитує дані для ready product configurations equal з URL, localStorage, файлу або вхідного payload.
 export function readyProductConfigurationsEqual(left = {}, right = {}) {
   return (
     String(left?.size || "").trim() === String(right?.size || "").trim() &&

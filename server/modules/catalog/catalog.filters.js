@@ -1,3 +1,4 @@
+// Файл містить логіку серверного модуля catalog.
 const CATALOG_FILTER_KEYS = [
   "type",
   "metal",
@@ -37,6 +38,7 @@ const FILTER_QUERY_ALIASES = {
 const ALLOWED_TYPES = new Set(["Ring", "Bracelet", "Pendant", "Earrings"]);
 const ALLOWED_SORTS = new Set(["default", "price_asc", "price_desc", "newest"]);
 
+// Виконує локальну логіку collect query values для модуля серверного модуля catalog.
 function collectQueryValues(query, aliases = []) {
   return aliases
     .flatMap((alias) => {
@@ -49,10 +51,12 @@ function collectQueryValues(query, aliases = []) {
     .filter(Boolean);
 }
 
+// Виконує локальну логіку unique values для модуля серверного модуля catalog.
 function uniqueValues(values = []) {
   return [...new Set(values)];
 }
 
+// Нормалізує normalize catalog filters, щоб API та UI працювали з однаковим форматом даних.
 function normalizeCatalogFilters(query = {}) {
   return CATALOG_FILTER_KEYS.reduce((filters, key) => {
     const values = uniqueValues(collectQueryValues(query, FILTER_QUERY_ALIASES[key]));
@@ -69,12 +73,14 @@ function normalizeCatalogFilters(query = {}) {
   }, {});
 }
 
+// Нормалізує normalize catalog price, щоб API та UI працювали з однаковим форматом даних.
 function normalizeCatalogPrice(value) {
   const numeric = Number(value);
   if (!Number.isFinite(numeric) || numeric < 0) return null;
   return numeric;
 }
 
+// Нормалізує normalize catalog sort, щоб API та UI працювали з однаковим форматом даних.
 function normalizeCatalogSort(value) {
   const normalized = String(value || "").trim().toLowerCase();
   if (!normalized) return "default";
@@ -84,6 +90,7 @@ function normalizeCatalogSort(value) {
   return ALLOWED_SORTS.has(normalized) ? normalized : "default";
 }
 
+// Нормалізує normalize catalog query, щоб API та UI працювали з однаковим форматом даних.
 function normalizeCatalogQuery(query = {}) {
   return {
     filters: normalizeCatalogFilters(query),
@@ -93,6 +100,7 @@ function normalizeCatalogQuery(query = {}) {
   };
 }
 
+// Виконує локальну логіку serialize product filters для модуля серверного модуля catalog.
 function serializeProductFilters(record) {
   return {
     type: record.filter_type,

@@ -1,3 +1,5 @@
+// Файл містить логіку головної сторінки.
+// Виконує локальну логіку localized constructor value для модуля головної сторінки.
 export function localizedConstructorValue(entry, locale, keys = ["label", "name"]) {
   if (!entry) return "";
 
@@ -10,11 +12,13 @@ export function localizedConstructorValue(entry, locale, keys = ["label", "name"
   return "";
 }
 
+// Виконує локальну логіку select constructor showcase type для модуля головної сторінки.
 function selectConstructorShowcaseType(types = []) {
   const preferredCodes = ["pendant", "ring", "bracelet", "earrings"];
   return preferredCodes.map((code) => types.find((item) => item.code === code)).find(Boolean) || types[0] || null;
 }
 
+// Виконує локальну логіку select constructor showcase variant для модуля головної сторінки.
 function selectConstructorShowcaseVariant(typeCode, variants = []) {
   const orderedVariants = [...variants].sort((left, right) => Number(left.sort_order || 0) - Number(right.sort_order || 0));
   const preferredCodesByType = {
@@ -28,15 +32,18 @@ function selectConstructorShowcaseVariant(typeCode, variants = []) {
   return preferredCodes.map((code) => orderedVariants.find((item) => item.code === code)).find(Boolean) || orderedVariants[0] || null;
 }
 
+// Виконує локальну логіку select constructor showcase material для модуля головної сторінки.
 function selectConstructorShowcaseMaterial(materials = []) {
   return [...materials].sort((left, right) => Number(right.price_delta || 0) - Number(left.price_delta || 0))[0] || materials[0] || null;
 }
 
+// Виконує локальну логіку select constructor showcase stone для модуля головної сторінки.
 function selectConstructorShowcaseStone(stones = []) {
   const preferredCodes = ["diamond", "opal", "pearl", "garnet", "rose_quartz", "onyx", "heart_charm", "none"];
   return preferredCodes.map((code) => stones.find((item) => item.code === code)).find(Boolean) || stones[0] || null;
 }
 
+// Формує структуру build constructor showcase для UI, API-відповіді або подальших розрахунків.
 export function buildConstructorShowcase(config, locale) {
   const types = config?.types || [];
   const variants = config?.variants || [];

@@ -1,15 +1,19 @@
+// Файл містить бізнес-логіку серверного модуля constructor та готує дані для API.
 const { getPublicConstructorConfig } = require("./constructor-json.service");
 const { createHttpError } = require("../../utils/http-error");
 
+// Отримує get constructor config з поточного набору даних або конфігурації.
 async function getConstructorConfig(req) {
   return getPublicConstructorConfig(req);
 }
 
+// Повертає список даних list constructor types у форматі, готовому для API або UI.
 async function listConstructorTypes(req) {
   const config = await getPublicConstructorConfig(req);
   return { types: config.types };
 }
 
+// Повертає список даних list constructor variants у форматі, готовому для API або UI.
 async function listConstructorVariants(req) {
   const config = await getPublicConstructorConfig(req);
   const typeId = req.query.type_id == null ? null : Number(req.query.type_id);
@@ -24,6 +28,7 @@ async function listConstructorVariants(req) {
   return { variants };
 }
 
+// Отримує get constructor variant options з поточного набору даних або конфігурації.
 async function getConstructorVariantOptions(req) {
   const config = await getPublicConstructorConfig(req);
   const variant = config.variants.find((item) => Number(item.id) === Number(req.params.variantId));

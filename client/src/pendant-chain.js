@@ -1,3 +1,4 @@
+// Файл містить логіку pendant-chain.
 export const READY_CHAIN_PRICES_UAH = {
   Silver: {
     none: 0,
@@ -60,6 +61,7 @@ const CHAIN_METAL_LABELS = {
   }
 };
 
+// Нормалізує normalize pendant type, щоб API та UI працювали з однаковим форматом даних.
 export function normalizePendantType(productOrType) {
   const rawValue =
     typeof productOrType === "string"
@@ -68,6 +70,7 @@ export function normalizePendantType(productOrType) {
   return String(rawValue || "").trim().toLowerCase() === "pendant";
 }
 
+// Нормалізує normalize pendant chain option, щоб API та UI працювали з однаковим форматом даних.
 export function normalizePendantChainOption(rawValue) {
   const normalized = String(rawValue || "none").trim().toLowerCase();
   if (!normalized || normalized === "none") return "none";
@@ -77,10 +80,12 @@ export function normalizePendantChainOption(rawValue) {
   return null;
 }
 
+// Виконує локальну логіку extract pendant chain option для модуля pendant-chain.
 export function extractPendantChainOption(configuration = {}) {
   return configuration?.chainOption ?? configuration?.chain_option ?? configuration?.chain?.option ?? "none";
 }
 
+// Отримує get pendant chain options з поточного набору даних або конфігурації.
 export function getPendantChainOptions(locale = "uk") {
   const isUk = locale === "uk" || locale === "uk-UA";
   return [
@@ -91,16 +96,19 @@ export function getPendantChainOptions(locale = "uk") {
   ];
 }
 
+// Отримує get pendant chain option label з поточного набору даних або конфігурації.
 export function getPendantChainOptionLabel(option, locale = "uk") {
   const normalized = normalizePendantChainOption(option) || "none";
   return getPendantChainOptions(locale).find((item) => item.code === normalized)?.label || normalized;
 }
 
+// Нормалізує normalize catalog chain metal, щоб API та UI працювали з однаковим форматом даних.
 export function normalizeCatalogChainMetal(rawMetal) {
   const normalized = String(rawMetal || "").trim();
   return Object.prototype.hasOwnProperty.call(READY_CHAIN_PRICES_UAH, normalized) ? normalized : null;
 }
 
+// Нормалізує normalize constructor chain metal, щоб API та UI працювали з однаковим форматом даних.
 export function normalizeConstructorChainMetal(materialCode) {
   const normalized = String(materialCode || "").trim().toLowerCase();
   if (!normalized) return null;
@@ -110,6 +118,7 @@ export function normalizeConstructorChainMetal(materialCode) {
   return null;
 }
 
+// Формує структуру build pendant chain selection для UI, API-відповіді або подальших розрахунків.
 export function buildPendantChainSelection(chainOption, chainMetal, priceMap = READY_CHAIN_PRICES_UAH) {
   const normalizedOption = normalizePendantChainOption(chainOption) || "none";
   if (normalizedOption === "none") {
@@ -129,16 +138,19 @@ export function buildPendantChainSelection(chainOption, chainMetal, priceMap = R
   };
 }
 
+// Визначає потрібне значення resolve ready product pendant chain за поточним контекстом або вхідними параметрами.
 export function resolveReadyProductPendantChain(product, chainOption) {
   if (!normalizePendantType(product)) return null;
   return buildPendantChainSelection(chainOption, normalizeCatalogChainMetal(product?.filters?.metal || product?.filter_metal), READY_CHAIN_PRICES_UAH);
 }
 
+// Визначає потрібне значення resolve custom design pendant chain за поточним контекстом або вхідними параметрами.
 export function resolveCustomDesignPendantChain(typeOrCode, configuration = {}) {
   if (!normalizePendantType(typeOrCode)) return null;
   return buildPendantChainSelection(extractPendantChainOption(configuration), normalizeConstructorChainMetal(configuration?.material), CONSTRUCTOR_CHAIN_PRICES_UAH);
 }
 
+// Отримує get pendant chain summary з поточного набору даних або конфігурації.
 export function getPendantChainSummary(chain, locale = "uk") {
   const isUk = locale === "uk" || locale === "uk-UA";
   const option = normalizePendantChainOption(chain?.option) || "none";
@@ -156,18 +168,21 @@ export function getPendantChainSummary(chain, locale = "uk") {
   };
 }
 
+// Отримує get pendant chain metal label з поточного набору даних або конфігурації.
 export function getPendantChainMetalLabel(metal, locale = "uk") {
   const isUk = locale === "uk" || locale === "uk-UA";
   const labels = isUk ? CHAIN_METAL_LABELS.uk : CHAIN_METAL_LABELS.en;
   return labels[metal] || metal || "";
 }
 
+// Отримує get pendant chain color note з поточного набору даних або конфігурації.
 export function getPendantChainColorNote(metal, locale = "uk") {
   const isUk = locale === "uk" || locale === "uk-UA";
   const localizedMetal = getPendantChainMetalLabel(metal, locale);
   return isUk ? `Колір ланцюжка: ${localizedMetal}` : `Chain color: ${localizedMetal}`;
 }
 
+// Отримує get pendant chain upsell note з поточного набору даних або конфігурації.
 export function getPendantChainUpsellNote(locale = "uk") {
   const isUk = locale === "uk" || locale === "uk-UA";
   return isUk

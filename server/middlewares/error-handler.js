@@ -1,5 +1,7 @@
+// Файл містить Express middleware для спільної обробки HTTP-запитів.
 const { logger } = require("../utils/logger");
 
+// Виконує локальну логіку error handler для модуля Express middleware.
 function errorHandler(error, req, res, next) {
   const status = error.status || 500;
   const code = error.code || "INTERNAL_SERVER_ERROR";

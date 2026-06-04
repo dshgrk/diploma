@@ -1,3 +1,4 @@
+// Файл містить логіку сторінки index.
 const { authRouter } = require("../modules/auth/auth.routes");
 const { adminAuthRouter } = require("../modules/auth/admin-auth.routes");
 const { catalogRouter } = require("../modules/catalog/catalog.routes");
@@ -12,6 +13,7 @@ const { adminCatalogRouter } = require("../modules/admin-catalog/admin-catalog.r
 const { adminConstructorRouter } = require("../modules/admin-constructor/admin-constructor.routes");
 const { adminAssetsRouter } = require("../modules/admin-assets/admin-assets.routes");
 
+// Виконує локальну логіку register api routes для модуля сторінки index.
 function registerApiRoutes(app) {
   app.use("/api/auth", authRouter);
   app.use("/api/admin", adminAuthRouter);

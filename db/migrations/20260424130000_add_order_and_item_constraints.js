@@ -1,7 +1,10 @@
+// Файл описує зміну схеми SQLite через Knex migration.
+// Перевіряє is sqlite і повертає результат або кидає помилку валідації.
 function isSqlite(knex) {
   return knex.client.config.client === "sqlite3";
 }
 
+// Виконує локальну логіку recreate sqlite table для модуля міграції бази даних.
 async function recreateSqliteTable(knex, { tableName, createSql, copySql }) {
   const tempTableName = `${tableName}__new`;
   const finalCreateSql = createSql.replaceAll("__TABLE_NAME__", tempTableName);
@@ -16,6 +19,7 @@ async function recreateSqliteTable(knex, { tableName, createSql, copySql }) {
   await knex.raw("PRAGMA foreign_keys = ON");
 }
 
+// Виконує локальну логіку up для модуля міграції бази даних.
 exports.up = async function up(knex) {
   if (isSqlite(knex)) {
     await recreateSqliteTable(knex, {
@@ -210,6 +214,7 @@ exports.up = async function up(knex) {
   `);
 };
 
+// Виконує локальну логіку down для модуля міграції бази даних.
 exports.down = async function down(knex) {
   if (isSqlite(knex)) {
     await recreateSqliteTable(knex, {

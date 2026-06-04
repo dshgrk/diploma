@@ -1,5 +1,7 @@
+// Файл містить логіку knexfile.
 require("dotenv").config();
 
+// Виконує локальну логіку sqlite config для модуля knexfile.
 function sqliteConfig(filename) {
   return {
     client: "sqlite3",

@@ -1,3 +1,4 @@
+// Файл містить бізнес-логіку серверного модуля admin-catalog та готує дані для API.
 const { db } = require("../../db/knex");
 const { createHttpError } = require("../../utils/http-error");
 const fs = require("fs/promises");
@@ -7,6 +8,7 @@ const { CATALOG_FILTERS, serializeProductFilters } = require("../catalog/catalog
 const { readConstructorLayouts, writeConstructorLayouts } = require("../constructor/layouts.store");
 const { listProductMeta, upsertProductMeta, listAssets } = require("../constructor/constructor-json.service");
 
+// Перетворює значення на число з fallback для адмін-каталогу.
 function toNumber(value, field) {
   const number = Number(value);
   if (!Number.isFinite(number)) {
@@ -15,6 +17,7 @@ function toNumber(value, field) {
   return number;
 }
 
+// Перевіряє require text і повертає результат або кидає помилку валідації.
 function requireText(payload, field, label = field) {
   const value = String(payload[field] || "").trim();
   if (!value) {
@@ -23,10 +26,12 @@ function requireText(payload, field, label = field) {
   return value;
 }
 
+// Нормалізує normalize boolean, щоб API та UI працювали з однаковим форматом даних.
 function normalizeBoolean(value) {
   return value === true || value === "true" || value === 1 || value === "1";
 }
 
+// Нормалізує normalize filter value, щоб API та UI працювали з однаковим форматом даних.
 function normalizeFilterValue(payload, key) {
   const value = String(payload[key] || "").trim();
   if (!value) return null;
@@ -38,6 +43,7 @@ function normalizeFilterValue(payload, key) {
   return value;
 }
 
+// Нормалізує normalize product filters, щоб API та UI працювали з однаковим форматом даних.
 function normalizeProductFilters(payload) {
   const type = normalizeFilterValue(payload, "type");
   return {
@@ -53,6 +59,7 @@ function normalizeProductFilters(payload) {
   };
 }
 
+// Формує URL-friendly slug з назви товару.
 function slugify(value) {
   const translit = {
     а: "a", б: "b", в: "v", г: "h", ґ: "g", д: "d", е: "e", є: "ye", ж: "zh", з: "z", и: "y", і: "i", ї: "yi", й: "y",
@@ -72,6 +79,7 @@ function slugify(value) {
     .slice(0, 120);
 }
 
+// Підбирає унікальний slug, додаючи числовий суфікс при конфлікті.
 async function ensureUniqueSlug(baseSlug, productId = null) {
   const normalizedBase = baseSlug || `product-${Date.now()}`;
   let slug = normalizedBase;
@@ -85,6 +93,7 @@ async function ensureUniqueSlug(baseSlug, productId = null) {
   }
 }
 
+// Повертає список даних list jewelry types у форматі, готовому для API або UI.
 async function listJewelryTypes() {
   return db("jewelry_types")
     .select("id", "code", "name_uk", "name_en", "base_price", "preview_base_asset", "is_active")
@@ -92,6 +101,7 @@ async function listJewelryTypes() {
     .then((records) => records.map((item) => ({ ...item, base_price: Number(item.base_price), is_active: Boolean(item.is_active) })));
 }
 
+// Повертає список даних list products у форматі, готовому для API або UI.
 async function listProducts() {
   const [productMeta, assets] = await Promise.all([listProductMeta(), listAssets()]);
   const metaByProductId = Object.fromEntries(productMeta.map((item) => [item.product_id, item]));
@@ -138,6 +148,7 @@ async function listProducts() {
   }));
 }
 
+// Отримує get product з поточного набору даних або конфігурації.
 async function getProduct(id) {
   const [productMeta, assets] = await Promise.all([listProductMeta(), listAssets()]);
   const meta = productMeta.find((item) => Number(item.product_id) === Number(id)) || null;
@@ -159,6 +170,7 @@ async function getProduct(id) {
   };
 }
 
+// Перевіряє validate product payload і повертає результат або кидає помилку валідації.
 function validateProductPayload(payload) {
   const price = toNumber(payload.price, "price");
   if (price < 0) {
@@ -183,11 +195,13 @@ function validateProductPayload(payload) {
   };
 }
 
+// Перевіряє assert jewelry type exists і повертає результат або кидає помилку валідації.
 async function assertJewelryTypeExists(id) {
   const type = await db("jewelry_types").where({ id }).first();
   if (!type) throw createHttpError(422, "VALIDATION_ERROR", "Jewelry type does not exist", { jewelry_type_id: "Jewelry type does not exist" });
 }
 
+// Замінює головне зображення товару й підтримує тільки один primary image.
 async function replacePrimaryImage(productId, payload) {
   await db("product_images").where({ product_id: productId, is_primary: true }).del();
   if (!payload.image_asset_path) return;
@@ -204,6 +218,7 @@ async function replacePrimaryImage(productId, payload) {
   });
 }
 
+// Створює новий запис або чернетку для create product.
 async function createProduct(payload) {
   const data = validateProductPayload(payload);
   await assertJewelryTypeExists(data.jewelry_type_id);
@@ -228,6 +243,7 @@ async function createProduct(payload) {
   return getProduct(id);
 }
 
+// Оновлює існуючі дані update product без зміни решти стану.
 async function updateProduct(id, payload) {
   const product = await db("products").where({ id }).first();
   if (!product) throw createHttpError(404, "PRODUCT_NOT_FOUND", "Product not found");
@@ -255,11 +271,13 @@ async function updateProduct(id, payload) {
   return getProduct(id);
 }
 
+// Видаляє або деактивує запис deactivate product згідно з правилами модуля.
 async function deactivateProduct(id) {
   await db("products").where({ id }).update({ is_active: false, updated_at: db.fn.now() });
   return getProduct(id);
 }
 
+// Зберігає зображення товару, читає його розміри та створює запис у БД.
 async function uploadProductImage(payload) {
   const fileName = String(payload.file_name || "product.png").trim();
   const dataUrl = String(payload.data_url || "");
@@ -293,6 +311,7 @@ async function uploadProductImage(payload) {
   };
 }
 
+// Повертає список даних list materials у форматі, готовому для API або UI.
 async function listMaterials() {
   return db("materials")
     .select("*")
@@ -300,6 +319,7 @@ async function listMaterials() {
     .then((records) => records.map((item) => ({ ...item, price_delta: Number(item.price_delta), is_active: Boolean(item.is_active) })));
 }
 
+// Перевіряє validate material payload і повертає результат або кидає помилку валідації.
 function validateMaterialPayload(payload) {
   return {
     code: requireText(payload, "code", "Code"),
@@ -310,18 +330,21 @@ function validateMaterialPayload(payload) {
   };
 }
 
+// Отримує get material з поточного набору даних або конфігурації.
 async function getMaterial(id) {
   const material = await db("materials").where({ id }).first();
   if (!material) throw createHttpError(404, "MATERIAL_NOT_FOUND", "Material not found");
   return { ...material, price_delta: Number(material.price_delta), is_active: Boolean(material.is_active) };
 }
 
+// Створює новий запис або чернетку для create material.
 async function createMaterial(payload) {
   const data = validateMaterialPayload(payload);
   const [id] = await db("materials").insert(data);
   return getMaterial(id);
 }
 
+// Оновлює існуючі дані update material без зміни решти стану.
 async function updateMaterial(id, payload) {
   await getMaterial(id);
   const data = validateMaterialPayload(payload);
@@ -329,11 +352,13 @@ async function updateMaterial(id, payload) {
   return getMaterial(id);
 }
 
+// Видаляє або деактивує запис deactivate material згідно з правилами модуля.
 async function deactivateMaterial(id) {
   await db("materials").where({ id }).update({ is_active: false, updated_at: db.fn.now() });
   return getMaterial(id);
 }
 
+// Повертає список даних list constructor admin config у форматі, готовому для API або UI.
 async function listConstructorAdminConfig() {
   const [jewelryTypes, options, values, materials, layouts] = await Promise.all([
     listJewelryTypes(),
@@ -352,10 +377,12 @@ async function listConstructorAdminConfig() {
   };
 }
 
+// Оновлює існуючі дані update constructor layouts без зміни решти стану.
 async function updateConstructorLayouts(payload) {
   return writeConstructorLayouts(payload);
 }
 
+// Перевіряє validate option value payload і повертає результат або кидає помилку валідації.
 function validateOptionValuePayload(payload) {
   return {
     design_option_id: toNumber(payload.design_option_id, "design_option_id"),
@@ -371,17 +398,20 @@ function validateOptionValuePayload(payload) {
   };
 }
 
+// Перевіряє assert option exists і повертає результат або кидає помилку валідації.
 async function assertOptionExists(id) {
   const option = await db("design_options").where({ id }).first();
   if (!option) throw createHttpError(422, "VALIDATION_ERROR", "Design option does not exist", { design_option_id: "Design option does not exist" });
 }
 
+// Отримує get option value з поточного набору даних або конфігурації.
 async function getOptionValue(id) {
   const value = await db("design_option_values").where({ id }).first();
   if (!value) throw createHttpError(404, "OPTION_VALUE_NOT_FOUND", "Constructor value not found");
   return { ...value, price_delta: Number(value.price_delta), is_active: Boolean(value.is_active) };
 }
 
+// Створює новий запис або чернетку для create option value.
 async function createOptionValue(payload) {
   const data = validateOptionValuePayload(payload);
   await assertOptionExists(data.design_option_id);
@@ -389,6 +419,7 @@ async function createOptionValue(payload) {
   return getOptionValue(id);
 }
 
+// Оновлює існуючі дані update option value без зміни решти стану.
 async function updateOptionValue(id, payload) {
   await getOptionValue(id);
   const data = validateOptionValuePayload(payload);
@@ -397,6 +428,7 @@ async function updateOptionValue(id, payload) {
   return getOptionValue(id);
 }
 
+// Видаляє або деактивує запис deactivate option value згідно з правилами модуля.
 async function deactivateOptionValue(id) {
   await db("design_option_values").where({ id }).update({ is_active: false, updated_at: db.fn.now() });
   return getOptionValue(id);

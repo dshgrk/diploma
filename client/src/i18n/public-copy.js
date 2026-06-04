@@ -1,3 +1,4 @@
+// Файл містить логіку словників локалізації.
 export const CART_COPY = {
   uk: {
     addCustomDesign: "Додати персональний дизайн",
@@ -236,6 +237,7 @@ export const PAYMENT_COPY = {
   }
 };
 
+// Виконує локальну логіку public text для модуля словників локалізації.
 export function publicText(dict, locale, key) {
   return dict[locale]?.[key] || dict.en?.[key] || key;
 }

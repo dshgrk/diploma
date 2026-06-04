@@ -1,3 +1,4 @@
+// Файл містить логіку app.
 const express = require("express");
 const path = require("path");
 const cookieParser = require("cookie-parser");
@@ -10,6 +11,7 @@ const { attachSessionUser } = require("./middlewares/session-auth");
 const { attachRequestContext } = require("./middlewares/request-context");
 const { applySecurityHeaders } = require("./middlewares/security");
 
+// Створює новий запис або чернетку для create app.
 function createApp() {
   const app = express();
   app.disable("x-powered-by");

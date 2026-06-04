@@ -1,7 +1,9 @@
+// Файл містить логіку замовлень.
 import React from "react";
 import { FALLBACK_PRODUCT_IMAGE, REFERENCE_IMAGES } from "../../content";
 import { buildStoneCodeMap, JewelryPreview } from "../../jewelry-preview";
 
+// Визначає потрібне значення resolve order preview data за поточним контекстом або вхідними параметрами.
 export function resolveOrderPreviewData(item, constructorConfig) {
   const config = item?.configuration || {};
   const variants = constructorConfig?.variants || [];
@@ -32,6 +34,7 @@ export function resolveOrderPreviewData(item, constructorConfig) {
   return { variant, slots, selections };
 }
 
+// Компонент рендерить блок cart item preview і отримує потрібні дані через props або локальний state.
 export function CartItemPreview({ item, constructorConfig }) {
   if (item.item_type !== "custom_design") {
     const slug = String(item?.product_slug || "").trim();

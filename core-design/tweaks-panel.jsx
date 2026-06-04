@@ -1,3 +1,4 @@
+// Файл містить дизайн-макет tweaks-panel для демонстрації інтерфейсу Aurora Atelier.
 
 // tweaks-panel.jsx
 // Reusable Tweaks shell + form-control helpers.
@@ -256,6 +257,7 @@ function TweakSection({ label, children }) {
   );
 }
 
+// Компонент рендерить блок tweak row у дизайн-макеті.
 function TweakRow({ label, value, children, inline = false }) {
   return (
     <div className={inline ? 'twk-row twk-row-h' : 'twk-row'}>
@@ -279,6 +281,7 @@ function TweakSlider({ label, value, min = 0, max = 100, step = 1, unit = '', on
   );
 }
 
+// Компонент рендерить блок tweak toggle у дизайн-макеті.
 function TweakToggle({ label, value, onChange }) {
   return (
     <div className="twk-row twk-row-h">
@@ -290,6 +293,7 @@ function TweakToggle({ label, value, onChange }) {
   );
 }
 
+// Компонент рендерить блок tweak radio у дизайн-макеті.
 function TweakRadio({ label, value, options, onChange }) {
   const trackRef = React.useRef(null);
   const [dragging, setDragging] = React.useState(false);
@@ -344,6 +348,7 @@ function TweakRadio({ label, value, options, onChange }) {
   );
 }
 
+// Компонент рендерить блок tweak select у дизайн-макеті.
 function TweakSelect({ label, value, options, onChange }) {
   return (
     <TweakRow label={label}>
@@ -358,6 +363,7 @@ function TweakSelect({ label, value, options, onChange }) {
   );
 }
 
+// Компонент рендерить блок tweak text у дизайн-макеті.
 function TweakText({ label, value, placeholder, onChange }) {
   return (
     <TweakRow label={label}>
@@ -367,6 +373,7 @@ function TweakText({ label, value, placeholder, onChange }) {
   );
 }
 
+// Компонент рендерить блок tweak number у дизайн-макеті.
 function TweakNumber({ label, value, min, max, step = 1, unit = '', onChange }) {
   const clamp = (n) => {
     if (min != null && n < min) return min;
@@ -401,6 +408,7 @@ function TweakNumber({ label, value, min, max, step = 1, unit = '', onChange }) 
   );
 }
 
+// Компонент рендерить блок tweak color у дизайн-макеті.
 function TweakColor({ label, value, onChange }) {
   return (
     <div className="twk-row twk-row-h">
@@ -411,6 +419,7 @@ function TweakColor({ label, value, onChange }) {
   );
 }
 
+// Компонент рендерить блок tweak button у дизайн-макеті.
 function TweakButton({ label, onClick, secondary = false }) {
   return (
     <button type="button" className={secondary ? 'twk-btn secondary' : 'twk-btn'}

@@ -1,3 +1,5 @@
+// Файл містить логіку utils.
+// Форматує format currency у вигляд, зручний для відображення користувачу.
 export function formatCurrency(amount, currency = "UAH", locale = "uk-UA") {
   return new Intl.NumberFormat(locale, {
     style: "currency",

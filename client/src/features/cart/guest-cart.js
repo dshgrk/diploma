@@ -1,9 +1,11 @@
+// Файл містить логіку кошика.
 import { getReadyProductNormalizedSize, readyProductConfigurationsEqual } from "../../ready-product";
 
 export const GUEST_CART_STORAGE_KEY = "aurora-guest-cart";
 export const MAX_CART_ITEM_QUANTITY = 100;
 const LOCALE_STORAGE_KEY = "aurora-locale";
 
+// Отримує get current public locale з поточного набору даних або конфігурації.
 function getCurrentPublicLocale() {
   try {
     return window.localStorage.getItem(LOCALE_STORAGE_KEY) === "en" ? "en" : "uk";
@@ -12,6 +14,7 @@ function getCurrentPublicLocale() {
   }
 }
 
+// Формує структуру build guest cart для UI, API-відповіді або подальших розрахунків.
 export function buildGuestCart(items = []) {
   const locale = getCurrentPublicLocale();
   const safeItems = (items || []).map((item, index) => {
@@ -61,6 +64,7 @@ export function buildGuestCart(items = []) {
   };
 }
 
+// Зчитує дані для read guest cart з URL, localStorage, файлу або вхідного payload.
 export function readGuestCart() {
   try {
     const raw = window.localStorage.getItem(GUEST_CART_STORAGE_KEY);
@@ -72,21 +76,25 @@ export function readGuestCart() {
   }
 }
 
+// Записує підготовлені дані write guest cart у файл, базу або зовнішнє сховище.
 export function writeGuestCart(cart) {
   try {
     window.localStorage.setItem(GUEST_CART_STORAGE_KEY, JSON.stringify({ items: cart?.items || [] }));
   } catch {}
 }
 
+// Виконує локальну логіку clear guest cart для модуля кошика.
 export function clearGuestCart() {
   try {
     window.localStorage.removeItem(GUEST_CART_STORAGE_KEY);
   } catch {}
 }
 
+// Виконує локальну логіку add guest cart item для модуля кошика.
 export function addGuestCartItem(item) {
   const cart = readGuestCart();
   const nextItems = [...cart.items];
+  // Виконує локальну логіку next id для модуля кошика.
   const nextId = () => `guest-${window.crypto?.randomUUID?.() || Date.now()}`;
 
   if (item.item_type === "ready_product") {
@@ -130,6 +138,7 @@ export function addGuestCartItem(item) {
   return nextCart;
 }
 
+// Оновлює існуючі дані update guest cart item без зміни решти стану.
 export function updateGuestCartItem(itemId, quantity) {
   const cart = readGuestCart();
   const nextItems = cart.items.map((item) =>
@@ -142,6 +151,7 @@ export function updateGuestCartItem(itemId, quantity) {
   return nextCart;
 }
 
+// Виконує локальну логіку patch guest cart item для модуля кошика.
 export function patchGuestCartItem(itemId, patch = {}) {
   const cart = readGuestCart();
   const nextItems = cart.items.map((item) => {
@@ -160,6 +170,7 @@ export function patchGuestCartItem(itemId, patch = {}) {
   return nextCart;
 }
 
+// Видаляє або деактивує запис remove guest cart item згідно з правилами модуля.
 export function removeGuestCartItem(itemId) {
   const cart = readGuestCart();
   const nextCart = buildGuestCart(cart.items.filter((item) => String(item.id) !== String(itemId)));

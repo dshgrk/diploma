@@ -1,0 +1,2178 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Aurora Atelier - дипломная викторина</title>
+  <style>
+    :root {
+      --ink: #171514;
+      --muted: #6f675e;
+      --paper: #f7f0e6;
+      --paper-strong: #fffaf2;
+      --line: rgba(59, 44, 27, 0.16);
+      --gold: #b9893b;
+      --gold-dark: #7b551f;
+      --rose: #b77968;
+      --green: #36584b;
+      --blue: #344e63;
+      --danger: #9c3f35;
+      --success: #3d6b4f;
+      --shadow: 0 18px 48px rgba(41, 32, 22, 0.12);
+      --radius: 8px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(54, 88, 75, 0.08) 0 1px, transparent 1px 100%),
+        linear-gradient(0deg, rgba(54, 88, 75, 0.06) 0 1px, transparent 1px 100%),
+        linear-gradient(135deg, #fffaf2 0%, #f5ead9 48%, #e9eef0 100%);
+      background-size: 42px 42px, 42px 42px, 100% 100%;
+      letter-spacing: 0;
+      overflow-x: hidden;
+    }
+
+    button,
+    select {
+      font: inherit;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      width: min(1320px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 26px 0 34px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 22px;
+      padding: 14px 16px;
+      background: rgba(255, 250, 242, 0.82);
+      border: 1px solid rgba(185, 137, 59, 0.24);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 30px rgba(41, 32, 22, 0.08);
+      backdrop-filter: blur(18px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 48px;
+      height: 48px;
+      flex: 0 0 auto;
+    }
+
+    .brand-title {
+      display: grid;
+      gap: 2px;
+    }
+
+    .brand-title strong {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(24px, 3vw, 36px);
+      font-weight: 500;
+      line-height: 1;
+    }
+
+    .brand-title span {
+      color: var(--muted);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .score-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(92px, 1fr));
+      gap: 8px;
+      min-width: min(520px, 100%);
+    }
+
+    .metric {
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.54);
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 3px;
+      font-size: 19px;
+      line-height: 1.1;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 300px minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: rgba(255, 250, 242, 0.88);
+      border: 1px solid rgba(59, 44, 27, 0.14);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .side {
+      position: sticky;
+      top: 18px;
+      padding: 16px;
+    }
+
+    .side-title,
+    .question-kicker,
+    .small-label {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .side-title {
+      margin: 0 0 12px;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+      margin-bottom: 14px;
+    }
+
+    .field select {
+      width: 100%;
+      min-height: 42px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    .mode-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin: 16px 0;
+    }
+
+    .tool-btn {
+      min-height: 42px;
+      padding: 8px 11px;
+      border: 1px solid rgba(185, 137, 59, 0.28);
+      border-radius: var(--radius);
+      color: var(--gold-dark);
+      background: rgba(255, 255, 255, 0.58);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .tool-btn:hover,
+    .tool-btn.active {
+      color: #fff;
+      background: var(--green);
+      border-color: transparent;
+    }
+
+    .category-map {
+      display: grid;
+      gap: 7px;
+      margin-top: 13px;
+    }
+
+    .map-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.46);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .map-row strong {
+      color: var(--ink);
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .quiz {
+      min-height: 680px;
+      overflow: hidden;
+    }
+
+    .quiz-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      padding: 20px 22px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(90deg, rgba(54, 88, 75, 0.1), rgba(185, 137, 59, 0.08));
+    }
+
+    .progress {
+      display: grid;
+      gap: 10px;
+    }
+
+    .progress-line {
+      height: 8px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(59, 44, 27, 0.1);
+    }
+
+    .progress-line span {
+      display: block;
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--green), var(--gold));
+      transition: width 0.25s ease;
+    }
+
+    .visual {
+      width: 114px;
+      height: 82px;
+      color: var(--gold-dark);
+    }
+
+    .question-card {
+      padding: 24px 22px 22px;
+    }
+
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 5px 9px;
+      border: 1px solid rgba(185, 137, 59, 0.24);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.58);
+      color: var(--gold-dark);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(30px, 4vw, 52px);
+      line-height: 1.05;
+      font-weight: 500;
+      overflow-wrap: anywhere;
+    }
+
+    .options {
+      display: grid;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .option {
+      display: grid;
+      grid-template-columns: 40px minmax(0, 1fr);
+      gap: 12px;
+      align-items: center;
+      width: 100%;
+      padding: 12px;
+      border: 1px solid rgba(59, 44, 27, 0.16);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.64);
+      color: var(--ink);
+      text-align: left;
+      line-height: 1.35;
+    }
+
+    .option span:last-child {
+      overflow-wrap: anywhere;
+    }
+
+    .option:hover {
+      border-color: rgba(185, 137, 59, 0.58);
+      box-shadow: 0 10px 22px rgba(41, 32, 22, 0.08);
+      transform: translateY(-1px);
+    }
+
+    .option-index {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(54, 88, 75, 0.1);
+      color: var(--green);
+      font-weight: 800;
+    }
+
+    .option.correct {
+      border-color: rgba(61, 107, 79, 0.7);
+      background: rgba(61, 107, 79, 0.12);
+    }
+
+    .option.wrong {
+      border-color: rgba(156, 63, 53, 0.66);
+      background: rgba(156, 63, 53, 0.12);
+    }
+
+    .explain {
+      display: none;
+      margin-top: 18px;
+      padding: 15px 16px;
+      border-left: 4px solid var(--green);
+      border-radius: var(--radius);
+      background: rgba(54, 88, 75, 0.09);
+      color: #26352e;
+      line-height: 1.5;
+    }
+
+    .explain.visible {
+      display: block;
+    }
+
+    .footer-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 20px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    .primary,
+    .secondary {
+      min-height: 44px;
+      padding: 10px 16px;
+      border-radius: var(--radius);
+      font-weight: 800;
+    }
+
+    .primary {
+      border: 0;
+      color: #fff;
+      background: var(--ink);
+    }
+
+    .primary:hover {
+      background: var(--green);
+    }
+
+    .secondary {
+      border: 1px solid var(--line);
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.58);
+    }
+
+    .secondary:hover {
+      border-color: rgba(185, 137, 59, 0.56);
+      color: var(--gold-dark);
+    }
+
+    .result {
+      display: none;
+      padding: 24px 22px;
+      border-top: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.42);
+    }
+
+    .result.visible {
+      display: block;
+    }
+
+    .result h2 {
+      margin: 0 0 10px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 34px;
+      font-weight: 500;
+    }
+
+    .review-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .review-item {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 250, 242, 0.74);
+      overflow-wrap: anywhere;
+    }
+
+    .review-item strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .empty {
+      padding: 28px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    @media (max-width: 980px) {
+      .topbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .score-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        min-width: 0;
+      }
+
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .side {
+        position: static;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .app {
+        width: min(100% - 18px, 1320px);
+        padding-top: 10px;
+        padding-bottom: 22px;
+      }
+
+      .topbar {
+        gap: 12px;
+        margin-bottom: 14px;
+        padding: 12px;
+      }
+
+      .brand-mark {
+        width: 42px;
+        height: 42px;
+      }
+
+      .brand-title strong {
+        font-size: 27px;
+      }
+
+      .brand-title span {
+        font-size: 11px;
+        letter-spacing: 0.09em;
+      }
+
+      .score-strip {
+        gap: 7px;
+      }
+
+      .metric {
+        padding: 9px 10px;
+      }
+
+      .metric span {
+        font-size: 10px;
+        letter-spacing: 0.08em;
+      }
+
+      .metric strong {
+        font-size: 18px;
+      }
+
+      .layout {
+        gap: 14px;
+      }
+
+      .quiz {
+        order: 1;
+        min-height: auto;
+      }
+
+      .side {
+        order: 2;
+        padding: 14px;
+      }
+
+      .quiz-head {
+        grid-template-columns: 1fr;
+        padding: 15px 14px;
+      }
+
+      .visual {
+        display: none;
+      }
+
+      .question-card {
+        padding: 18px 14px;
+      }
+
+      h1 {
+        font-size: clamp(24px, 7vw, 32px);
+        line-height: 1.08;
+      }
+
+      .badges {
+        margin-bottom: 12px;
+      }
+
+      .options {
+        gap: 9px;
+        margin-top: 18px;
+      }
+
+      .option {
+        grid-template-columns: 34px minmax(0, 1fr);
+        min-height: 52px;
+        padding: 11px 10px;
+        gap: 10px;
+      }
+
+      .option-index {
+        width: 30px;
+        height: 30px;
+      }
+
+      .explain {
+        margin-top: 14px;
+        padding: 13px 14px;
+      }
+
+      .footer-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .primary,
+      .secondary,
+      .tool-btn,
+      .field select {
+        min-height: 48px;
+      }
+
+      .category-map {
+        max-height: 260px;
+        overflow: auto;
+        padding-right: 2px;
+      }
+
+      .result {
+        padding: 20px 14px;
+      }
+
+      .result h2 {
+        font-size: 28px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .app {
+        width: min(100% - 12px, 1320px);
+      }
+
+      .brand {
+        gap: 9px;
+      }
+
+      .brand-mark {
+        width: 38px;
+        height: 38px;
+      }
+
+      .brand-title strong {
+        font-size: 24px;
+      }
+
+      .brand-title span {
+        font-size: 10px;
+      }
+
+      .question-card {
+        padding: 16px 12px;
+      }
+
+      .quiz-head {
+        padding: 14px 12px;
+      }
+
+      .option {
+        grid-template-columns: 30px minmax(0, 1fr);
+        font-size: 14px;
+      }
+
+      .footer-actions {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <svg class="brand-mark" viewBox="0 0 80 80" aria-hidden="true">
+          <circle cx="40" cy="40" r="35" fill="#fff8ee" stroke="#b9893b" stroke-width="2" />
+          <path d="M25 57 L39 18 L55 57" fill="none" stroke="#7b551f" stroke-width="3" stroke-linecap="round" />
+          <path d="M31 45 H49" fill="none" stroke="#b9893b" stroke-width="2.5" stroke-linecap="round" />
+          <path d="M56 18 L58 24 L64 26 L58 28 L56 34 L54 28 L48 26 L54 24 Z" fill="#b9893b" opacity="0.75" />
+        </svg>
+        <div class="brand-title">
+          <strong>Aurora Atelier</strong>
+          <span>Дипломная викторина</span>
+        </div>
+      </div>
+      <div class="score-strip" aria-live="polite">
+        <div class="metric"><span>Счёт</span><strong id="scoreText">0/0</strong></div>
+        <div class="metric"><span>Точность</span><strong id="accuracyText">0%</strong></div>
+        <div class="metric"><span>Серия</span><strong id="streakText">0</strong></div>
+        <div class="metric"><span>Лучший</span><strong id="bestText">0%</strong></div>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="panel side">
+        <p class="side-title">Фильтр вопросов</p>
+        <label class="field">
+          <span class="small-label">Раздел</span>
+          <select id="categorySelect"></select>
+        </label>
+        <label class="field">
+          <span class="small-label">Сложность</span>
+          <select id="difficultySelect">
+            <option value="all">Все уровни</option>
+            <option value="base">База</option>
+            <option value="hard">Сложные</option>
+            <option value="exam">Комиссия</option>
+          </select>
+        </label>
+        <div class="mode-grid">
+          <button class="tool-btn active" id="allModeBtn" type="button">Все</button>
+          <button class="tool-btn" id="missedModeBtn" type="button">Ошибки</button>
+          <button class="tool-btn" id="shuffleBtn" type="button">Перемешать</button>
+          <button class="tool-btn" id="resetBtn" type="button">Сбросить</button>
+        </div>
+        <p class="side-title">Карта банка</p>
+        <div class="category-map" id="categoryMap"></div>
+      </aside>
+
+      <main class="panel quiz">
+        <section class="quiz-head">
+          <div class="progress">
+            <div class="question-kicker" id="progressText">Вопрос 1</div>
+            <div class="progress-line" aria-hidden="true"><span id="progressFill"></span></div>
+          </div>
+          <svg class="visual" viewBox="0 0 180 128" aria-hidden="true">
+            <path d="M18 83 C44 28, 132 28, 162 83" fill="none" stroke="#36584b" stroke-width="8" stroke-linecap="round" opacity="0.35" />
+            <path d="M48 82 C58 46, 82 30, 91 22 C102 32, 126 47, 135 82" fill="none" stroke="#b9893b" stroke-width="8" stroke-linecap="round" />
+            <ellipse cx="91" cy="45" rx="18" ry="24" fill="#fffaf2" stroke="#344e63" stroke-width="5" />
+            <circle cx="58" cy="84" r="9" fill="#fffaf2" stroke="#b9893b" stroke-width="5" />
+            <circle cx="126" cy="84" r="9" fill="#fffaf2" stroke="#b9893b" stroke-width="5" />
+          </svg>
+        </section>
+
+        <section class="question-card" id="questionCard">
+          <div class="badges" id="badges"></div>
+          <h1 id="questionText">...</h1>
+          <div class="options" id="options"></div>
+          <div class="explain" id="explain"></div>
+          <div class="footer-actions">
+            <button class="secondary" id="prevBtn" type="button">Назад</button>
+            <button class="primary" id="nextBtn" type="button">Дальше</button>
+          </div>
+        </section>
+
+        <section class="result" id="resultPanel">
+          <h2 id="resultTitle">Результат</h2>
+          <p id="resultText"></p>
+          <div class="review-list" id="reviewList"></div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const QUESTION_BANK = [
+      {
+        id: "goal-01",
+        category: "Идея проекта",
+        difficulty: "base",
+        q: "Что Aurora Atelier показывает как главную ценность дипломного проекта?",
+        options: [
+          "Одностраничный лендинг без backend",
+          "Полный e-commerce workflow с каталогом, конструктором, корзиной, оплатой и админкой",
+          "Только редактор изображений украшений",
+          "CRM без публичного сайта"
+        ],
+        a: 1,
+        why: "В проекте важно показать не витрину отдельно, а связанный путь клиента и администратора."
+      },
+      {
+        id: "goal-02",
+        category: "Идея проекта",
+        difficulty: "base",
+        q: "Какая фраза лучше всего описывает MVP проекта?",
+        options: [
+          "Сайт-визитка бренда",
+          "Магазин авторских украшений с индивидуальной сборкой и обработкой заказов",
+          "Статичный каталог PDF-изображений",
+          "Внутренняя бухгалтерская система"
+        ],
+        a: 1,
+        why: "MVP соединяет каталог, custom design, checkout, mock payment и admin order workflow."
+      },
+      {
+        id: "goal-03",
+        category: "Идея проекта",
+        difficulty: "exam",
+        q: "Почему на защите нельзя говорить, что это только frontend-проект?",
+        options: [
+          "Потому что в проекте есть серверная валидация цены, сессии, база, checkout, orders и admin API",
+          "Потому что используется CSS",
+          "Потому что есть картинки украшений",
+          "Потому что сайт открывается в браузере"
+        ],
+        a: 0,
+        why: "Backend в проекте отвечает за бизнес-правила, данные, заказы, авторизацию и админские сценарии."
+      },
+      {
+        id: "goal-04",
+        category: "Идея проекта",
+        difficulty: "base",
+        q: "Какие две основные роли есть в системе?",
+        options: [
+          "Client и Admin",
+          "Designer и Accountant",
+          "Courier и Supplier",
+          "Moderator и Guest"
+        ],
+        a: 0,
+        why: "Покупатель проходит публичный сценарий, администратор обрабатывает заказы и управляет каталогом/конструктором."
+      },
+      {
+        id: "goal-05",
+        category: "Идея проекта",
+        difficulty: "hard",
+        q: "Что является практической пользой проекта для бренда украшений?",
+        options: [
+          "Пользователь заранее видит конфигурацию, цену и состав заказа, а мастер получает управляемый order workflow",
+          "Сайт автоматически печатает накладные",
+          "Сайт заменяет юридическую регистрацию бизнеса",
+          "Проект нужен только для генерации картинок"
+        ],
+        a: 0,
+        why: "Главный сценарий - прозрачная кастомизация для клиента и понятная обработка для администратора."
+      },
+      {
+        id: "stack-01",
+        category: "Стек и запуск",
+        difficulty: "base",
+        q: "Какой основной способ запуска проекта принят для дипломной демонстрации?",
+        options: [
+          "Открыть все JSX-файлы напрямую в браузере",
+          "docker compose up --build -d app",
+          "Запустить только Vite без backend",
+          "Скопировать public/react-app на флешку без сервера"
+        ],
+        a: 1,
+        why: "Docker-first запуск показывает воспроизводимость приложения, миграций и базы."
+      },
+      {
+        id: "stack-02",
+        category: "Стек и запуск",
+        difficulty: "base",
+        q: "Где в Docker runtime находится актуальная SQLite-база?",
+        options: [
+          "/app/data/aurora.sqlite3",
+          "/tmp/aurora.json",
+          "client/src/data.sqlite3",
+          "public/react-app/db.sqlite"
+        ],
+        a: 0,
+        why: "Проект закрепил DB_FILENAME=/app/data/aurora.sqlite3 внутри Docker volume."
+      },
+      {
+        id: "stack-03",
+        category: "Стек и запуск",
+        difficulty: "base",
+        q: "Какая команда запускает полный набор тестов?",
+        options: [
+          "npm test",
+          "npm audit",
+          "npm run preview",
+          "docker compose logs"
+        ],
+        a: 0,
+        why: "Тесты идут через Vitest, команда проекта - npm test."
+      },
+      {
+        id: "stack-04",
+        category: "Стек и запуск",
+        difficulty: "base",
+        q: "Какая команда собирает клиентскую часть в public/react-app?",
+        options: [
+          "npm run build:client",
+          "npm run db:migrate",
+          "npm run db:seed",
+          "npm run dev"
+        ],
+        a: 0,
+        why: "Vite build складывает production frontend в public/react-app."
+      },
+      {
+        id: "stack-05",
+        category: "Стек и запуск",
+        difficulty: "hard",
+        q: "Зачем добавлена переменная DB_DEBUG?",
+        options: [
+          "Чтобы явно включать или выключать SQL-логи, не привязываясь к NODE_ENV",
+          "Чтобы менять язык интерфейса",
+          "Чтобы отключать CSS",
+          "Чтобы выбирать payment provider"
+        ],
+        a: 0,
+        why: "DB_DEBUG=false нужен для чистых Docker-логов, а true можно включить при отладке SQL."
+      },
+      {
+        id: "stack-06",
+        category: "Стек и запуск",
+        difficulty: "exam",
+        q: "Почему SQLite допустим для дипломного MVP?",
+        options: [
+          "Он прост, воспроизводим в Docker volume, а доступ к базе изолирован через Knex и сервисы",
+          "Он быстрее любого backend-кода во всех условиях",
+          "Он не хранит данные",
+          "Он нужен только для frontend"
+        ],
+        a: 0,
+        why: "Ответ для комиссии: SQLite достаточен для MVP, а архитектура не мешает будущей миграции на PostgreSQL."
+      },
+      {
+        id: "arch-01",
+        category: "Архитектура",
+        difficulty: "base",
+        q: "Какой архитектурный стиль у проекта?",
+        options: [
+          "Модульный монолит",
+          "Микросервисы из десяти контейнеров",
+          "Только статический сайт",
+          "Desktop-приложение без API"
+        ],
+        a: 0,
+        why: "Сервис один, но код разделён по доменам: auth, catalog, constructor, cart, checkout, orders, admin."
+      },
+      {
+        id: "arch-02",
+        category: "Архитектура",
+        difficulty: "base",
+        q: "Что должны держать backend-файлы *.routes.js?",
+        options: [
+          "Только HTTP-контракт и вызов сервисов",
+          "Все бизнес-расчёты и SQL-логику",
+          "CSS страницы",
+          "React state"
+        ],
+        a: 0,
+        why: "Routes должны быть тонким слоем Express endpoint-ов."
+      },
+      {
+        id: "arch-03",
+        category: "Архитектура",
+        difficulty: "base",
+        q: "Где должна жить backend-бизнес-логика модулей?",
+        options: [
+          "В server/modules/*/*.service.js",
+          "В public/react-app/index.html",
+          "В CSS-файлах",
+          "В README"
+        ],
+        a: 0,
+        why: "Сервисы отвечают за правила, валидацию, расчёты, работу с данными."
+      },
+      {
+        id: "arch-04",
+        category: "Архитектура",
+        difficulty: "hard",
+        q: "Почему route-файлы на клиенте не должны превращаться в огромные монолиты?",
+        options: [
+          "Route должен держать загрузку данных, state и orchestration, а UI/helpers уходят в features",
+          "Потому что JSX нельзя импортировать",
+          "Потому что React не поддерживает функции",
+          "Потому что CSS не подключится"
+        ],
+        a: 0,
+        why: "Это зафиксированное правило читаемости диплома: routes собирают flow, features содержат части интерфейса."
+      },
+      {
+        id: "arch-05",
+        category: "Архитектура",
+        difficulty: "hard",
+        q: "Что делает server/routes/pages.js?",
+        options: [
+          "Отдаёт React index.html для прямого открытия публичных SPA-страниц",
+          "Считает цену конструктора",
+          "Генерирует email",
+          "Хранит seed-товары"
+        ],
+        a: 0,
+        why: "SPA routes должны открываться напрямую, а не только через переходы внутри React."
+      },
+      {
+        id: "arch-06",
+        category: "Архитектура",
+        difficulty: "exam",
+        q: "Почему /api/* неизвестный маршрут не должен отдавать HTML?",
+        options: [
+          "API-клиент ждёт JSON-ошибку, поэтому /api/* должен возвращать JSON 404",
+          "Потому что HTML запрещён в Express",
+          "Потому что React не умеет читать JSON",
+          "Потому что Docker не поддерживает HTML"
+        ],
+        a: 0,
+        why: "Это проверяется smoke-командой curl.exe -s -i http://localhost:3000/api/definitely-missing."
+      },
+      {
+        id: "front-01",
+        category: "Frontend",
+        difficulty: "base",
+        q: "Какой файл является входом React-приложения и таблицей client routes?",
+        options: [
+          "client/src/main.jsx",
+          "server/index.js",
+          "db/seeds/01_demo_data.js",
+          "docs/architecture/backend-api.md"
+        ],
+        a: 0,
+        why: "main.jsx содержит lazy route imports и ROUTE_DEFINITIONS."
+      },
+      {
+        id: "front-02",
+        category: "Frontend",
+        difficulty: "base",
+        q: "Какой route отвечает за публичный конструктор?",
+        options: [
+          "client/src/routes/constructor-route.jsx",
+          "client/src/routes/admin-constructor-route.jsx",
+          "server/modules/pricing/pricing.service.js",
+          "client/src/routes/payment-route.jsx"
+        ],
+        a: 0,
+        why: "Публичный constructor-route - shell маршрута, а рабочая логика вынесена в features/constructor."
+      },
+      {
+        id: "front-03",
+        category: "Frontend",
+        difficulty: "hard",
+        q: "Где сейчас живёт основная логика публичного конструктора?",
+        options: [
+          "client/src/features/constructor/constructor-studio-page.jsx",
+          "client/src/app/legacy-app.jsx",
+          "docs/khai-defense-route.md",
+          "server/routes/pages.js"
+        ],
+        a: 0,
+        why: "После refactor route стал оболочкой, а ConstructorStudioPage координирует публичный constructor UI."
+      },
+      {
+        id: "front-04",
+        category: "Frontend",
+        difficulty: "base",
+        q: "Какой файл централизует клиентские вызовы fetch к backend API?",
+        options: [
+          "client/src/api.js",
+          "client/src/utils.js",
+          "server/app.js",
+          "knexfile.cjs"
+        ],
+        a: 0,
+        why: "client/src/api.js содержит http wrapper и доменные API-объекты."
+      },
+      {
+        id: "front-05",
+        category: "Frontend",
+        difficulty: "hard",
+        q: "Что обязательно делает http wrapper в client/src/api.js для сессий?",
+        options: [
+          "Отправляет credentials: include",
+          "Отключает cookie",
+          "Удаляет x-locale",
+          "Меняет метод всех запросов на GET"
+        ],
+        a: 0,
+        why: "Server sessions работают через cookie, поэтому fetch должен отправлять credentials."
+      },
+      {
+        id: "front-06",
+        category: "Frontend",
+        difficulty: "hard",
+        q: "Зачем нужен client/src/routes/public-shell.jsx?",
+        options: [
+          "Держит общий публичный header, footer, layout и переключение locale",
+          "Считает overdue",
+          "Пишет миграции",
+          "Создаёт Docker volume"
+        ],
+        a: 0,
+        why: "Новые public route chunks переиспользуют общий shell."
+      },
+      {
+        id: "front-07",
+        category: "Frontend",
+        difficulty: "exam",
+        q: "Почему ROUTE_DEFINITIONS лучше длинной цепочки if/else?",
+        options: [
+          "Маршрутизация становится декларативной, легче добавить страницу и проверить прямые URL",
+          "Так CSS автоматически минифицируется",
+          "Так база данных быстрее мигрирует",
+          "Так отключается авторизация"
+        ],
+        a: 0,
+        why: "Это один из аргументов читаемости и поддержки проекта."
+      },
+      {
+        id: "front-08",
+        category: "Frontend",
+        difficulty: "hard",
+        q: "Какие стили считаются domain CSS для каталога?",
+        options: [
+          "client/src/styles/catalog-page.css",
+          "client/src/styles/admin-constructor.css",
+          "client/src/styles/constructor-page.css",
+          "server/middlewares/security.js"
+        ],
+        a: 0,
+        why: "Каталог вынесен из общего styles.css в отдельный domain stylesheet."
+      },
+      {
+        id: "constructor-01",
+        category: "Конструктор",
+        difficulty: "base",
+        q: "Какие endpoint-ы публичный конструктор использует при ленивой загрузке?",
+        options: [
+          "/api/constructor/types, /api/constructor/variants, /api/constructor/variants/:id/options",
+          "/api/admin/orders и /api/payments/mock/confirm",
+          "/api/catalog/products/facets и /api/account/me",
+          "/api/health и /api/definitely-missing"
+        ],
+        a: 0,
+        why: "Публичный constructor больше не тянет полный config при первом открытии."
+      },
+      {
+        id: "constructor-02",
+        category: "Конструктор",
+        difficulty: "hard",
+        q: "Для чего оставлен GET /api/constructor/config?",
+        options: [
+          "Для совместимости и CMS/admin-обзора",
+          "Для оплаты заказа",
+          "Для регистрации клиента",
+          "Для сборки CSS"
+        ],
+        a: 0,
+        why: "Новый public flow lazy, но старый полный config не удалён."
+      },
+      {
+        id: "constructor-03",
+        category: "Конструктор",
+        difficulty: "base",
+        q: "Какой компонент рендерит layered preview украшения?",
+        options: [
+          "JewelryPreview",
+          "AdminShell",
+          "CatalogFilterGroup",
+          "CheckoutSummary"
+        ],
+        a: 0,
+        why: "JewelryPreview живёт в client/src/jewelry-preview.jsx и используется в нескольких доменах."
+      },
+      {
+        id: "constructor-04",
+        category: "Конструктор",
+        difficulty: "hard",
+        q: "Почему .studio-preview-* правила должны оставаться в общем client/src/styles.css?",
+        options: [
+          "JewelryPreview используется в public constructor, home/order/cart previews и admin constructor",
+          "Так требует SQLite",
+          "Потому что CSS нельзя импортировать из route",
+          "Потому что эти классы нужны только admin"
+        ],
+        a: 0,
+        why: "Если оставить их только в admin-constructor.css, публичный preview снова ломается."
+      },
+      {
+        id: "constructor-05",
+        category: "Конструктор",
+        difficulty: "hard",
+        q: "Какой CSS отвечает за квадратную правую сцену preview публичного конструктора?",
+        options: [
+          ".preview-canvas { aspect-ratio: 1 / 1; } в client/src/styles/constructor-page.css",
+          ".admin-login-panel в styles.css",
+          ".catalog-layout в catalog-page.css",
+          ".timeline-react в orders-account.css"
+        ],
+        a: 0,
+        why: "Правка preview 1:1 живёт в constructor-page.css, а shared geometry - в styles.css."
+      },
+      {
+        id: "constructor-06",
+        category: "Конструктор",
+        difficulty: "exam",
+        q: "Что исправляет buildDefaultStoneSelections в ConstructorStudioPage?",
+        options: [
+          "Заполняет stone_slots default-камнем, чтобы preview сразу показывал камни",
+          "Удаляет все камни из базы",
+          "Создаёт новый Docker volume",
+          "Переводит заказ в completed"
+        ],
+        a: 0,
+        why: "Без этого ring-duet открывался с пустыми кастами, хотя default-камень был в matrix."
+      },
+      {
+        id: "constructor-07",
+        category: "Конструктор",
+        difficulty: "hard",
+        q: "Что произойдёт, если пользователь вручную очистит выбор камня в слоте?",
+        options: [
+          "Для этого же варианта default не навяжется повторно автоматически",
+          "Слот обязательно заполнится diamond",
+          "Произойдёт logout",
+          "Вариант сменится на pendant-heart"
+        ],
+        a: 0,
+        why: "defaultedStoneVariantRef нужен, чтобы не ломать ручной выбор пользователя."
+      },
+      {
+        id: "constructor-08",
+        category: "Конструктор",
+        difficulty: "hard",
+        q: "Какая формула цены конструктора правильная?",
+        options: [
+          "type.base_price + variant.price_delta + material + size + stones + engraving + chain",
+          "Только цена материала",
+          "Только сумма камней",
+          "Фиксированные 500 грн для всех конфигураций"
+        ],
+        a: 0,
+        why: "Серверный pricing service собирает цену из всех влияющих частей конфигурации."
+      },
+      {
+        id: "constructor-09",
+        category: "Конструктор",
+        difficulty: "base",
+        q: "Какой deep-link использовался в smoke для проверки кольца с двумя камнями?",
+        options: [
+          "/constructor?type=ring&variant=ring-duet",
+          "/admin/orders?status=ring",
+          "/catalog?variant=ring-duet",
+          "/payment/ring-duet"
+        ],
+        a: 0,
+        why: "Этот URL проверял 1:1 preview и два visible stones."
+      },
+      {
+        id: "constructor-10",
+        category: "Конструктор",
+        difficulty: "exam",
+        q: "Почему preview 1:1 важен для комиссии?",
+        options: [
+          "Он показывает изделие целиком без гигантского масштаба и обрезания",
+          "Он скрывает ошибки расчёта цены",
+          "Он заменяет backend",
+          "Он нужен только для mobile menu"
+        ],
+        a: 0,
+        why: "Это визуальный признак качества конструктора: украшение видно полностью, камни отображаются в слотах."
+      },
+      {
+        id: "backend-01",
+        category: "Backend API",
+        difficulty: "base",
+        q: "Какой файл собирает Express app, middleware, static, API и SPA routes?",
+        options: [
+          "server/app.js",
+          "client/src/main.jsx",
+          "db/catalog-products.js",
+          "public/react-app/index.html"
+        ],
+        a: 0,
+        why: "server/app.js создаёт Express app и подключает основные слои."
+      },
+      {
+        id: "backend-02",
+        category: "Backend API",
+        difficulty: "base",
+        q: "Где подключаются все /api/* router-ы?",
+        options: [
+          "server/routes/index.js",
+          "server/routes/pages.js",
+          "client/src/routes/public-shell.jsx",
+          "docs/diploma-study-guide.md"
+        ],
+        a: 0,
+        why: "registerApiRoutes(app) подключает доменные backend router-ы."
+      },
+      {
+        id: "backend-03",
+        category: "Backend API",
+        difficulty: "hard",
+        q: "Во что был превращён server/modules/constructor/constructor-json.service.js после рефакторинга?",
+        options: [
+          "В тонкий фасад поверх normalizers, pricing, assets и admin CRUD service",
+          "В огромный файл с DEFAULT_DATA",
+          "В React-компонент",
+          "В миграцию SQLite"
+        ],
+        a: 0,
+        why: "Реальная логика вынесена в constructor-normalizers, constructor-pricing, constructor-assets, constructor-admin-crud."
+      },
+      {
+        id: "backend-04",
+        category: "Backend API",
+        difficulty: "hard",
+        q: "Где теперь живёт большой DEFAULT_DATA конструктора?",
+        options: [
+          "server/modules/constructor/constructor-default-data.js",
+          "client/src/content.js",
+          "server/routes/pages.js",
+          "docs/khai-defense-route.md"
+        ],
+        a: 0,
+        why: "Большие default/config данные вынесены отдельно от CRUD/store logic."
+      },
+      {
+        id: "backend-05",
+        category: "Backend API",
+        difficulty: "base",
+        q: "Какой endpoint подтверждает mock-оплату?",
+        options: [
+          "POST /api/payments/mock/confirm",
+          "GET /api/catalog/products",
+          "PATCH /api/admin/catalog/materials/:id",
+          "POST /api/auth/logout"
+        ],
+        a: 0,
+        why: "Mock payment переводит заказ в confirmed и пишет аудит."
+      },
+      {
+        id: "backend-06",
+        category: "Backend API",
+        difficulty: "exam",
+        q: "Почему mock payment не считается слабым местом MVP?",
+        options: [
+          "Он показывает контракт оплаты и полный order workflow без юридической интеграции реальных платежей",
+          "Потому что платежи вообще не нужны",
+          "Потому что mock payment хранится в CSS",
+          "Потому что комиссия не спрашивает об оплате"
+        ],
+        a: 0,
+        why: "Для диплома важно объяснить осознанную границу MVP и готовность заменить adapter реальным провайдером."
+      },
+      {
+        id: "orders-01",
+        category: "Заказы",
+        difficulty: "base",
+        q: "Какая цепочка статусов заказа правильная?",
+        options: [
+          "created_pending_payment -> confirmed -> in_progress -> completed",
+          "draft -> sent -> archived -> deleted",
+          "new -> paid -> cancelled -> hidden",
+          "cart -> catalog -> constructor -> admin"
+        ],
+        a: 0,
+        why: "Статусная модель линейная, пропуск этапов запрещён."
+      },
+      {
+        id: "orders-02",
+        category: "Заказы",
+        difficulty: "hard",
+        q: "Почему заказ нельзя сразу перевести из confirmed в completed?",
+        options: [
+          "Статусы меняются только последовательно, через in_progress",
+          "Потому что completed отсутствует в базе",
+          "Потому что email не работает",
+          "Потому что completed доступен только клиенту"
+        ],
+        a: 0,
+        why: "Тесты проверяют, что админ не может пропустить этап производства."
+      },
+      {
+        id: "orders-03",
+        category: "Заказы",
+        difficulty: "hard",
+        q: "Как вычисляется overdue?",
+        options: [
+          "Заказ в in_progress больше 14 календарных дней",
+          "Любой заказ старше одного дня",
+          "Любой заказ без email",
+          "Любой заказ с custom design"
+        ],
+        a: 0,
+        why: "overdue - вычисляемый индикатор, а не отдельный статус."
+      },
+      {
+        id: "orders-04",
+        category: "Заказы",
+        difficulty: "exam",
+        q: "Почему overdue не хранится как отдельный статус в базе?",
+        options: [
+          "Это производное состояние, его безопаснее вычислять из status и in_progress_at",
+          "Потому что SQLite не хранит boolean",
+          "Потому что админка не показывает заказы",
+          "Потому что поле overdue нужно только CSS"
+        ],
+        a: 0,
+        why: "Так статусная модель остаётся простой, а индикатор всегда актуален."
+      },
+      {
+        id: "orders-05",
+        category: "Заказы",
+        difficulty: "base",
+        q: "Какой модуль отвечает за админский список заказов и смену статусов?",
+        options: [
+          "admin-orders",
+          "catalog",
+          "i18n",
+          "public-shell"
+        ],
+        a: 0,
+        why: "server/modules/admin-orders и admin routes закрывают сценарий мастера."
+      },
+      {
+        id: "orders-06",
+        category: "Заказы",
+        difficulty: "hard",
+        q: "Что происходит после успешной mock-оплаты?",
+        options: [
+          "Создаётся/обновляется payment audit, заказ становится confirmed, пишется история статуса",
+          "Корзина становится каталогом",
+          "Пользователь автоматически становится admin",
+          "Все товары деактивируются"
+        ],
+        a: 0,
+        why: "Payment flow связывает checkout, payments, orders и notifications."
+      },
+      {
+        id: "admin-01",
+        category: "Админка",
+        difficulty: "base",
+        q: "Какие основные admin routes есть во frontend?",
+        options: [
+          "/admin/login, /admin/orders, /admin/orders/:id, /admin/products, /admin/constructor",
+          "/admin/catalog-only и /admin/pdf",
+          "/admin/payment-provider и /admin/mobile",
+          "/admin/user-facing-home"
+        ],
+        a: 0,
+        why: "Именно эти routes перечислены в main.jsx и учебном гайде."
+      },
+      {
+        id: "admin-02",
+        category: "Админка",
+        difficulty: "hard",
+        q: "Какие backend-модули обслуживают расширенную админку каталога и конструктора?",
+        options: [
+          "admin-catalog, admin-constructor, admin-assets",
+          "home, footer, legal",
+          "vite, react, css",
+          "browser, docs, screenshots"
+        ],
+        a: 0,
+        why: "Эти модули добавлены в архитектурные документы как текущая часть MVP."
+      },
+      {
+        id: "admin-03",
+        category: "Админка",
+        difficulty: "hard",
+        q: "Что делает /api/admin/catalog/products?",
+        options: [
+          "Даёт admin CRUD товаров каталога",
+          "Подтверждает оплату",
+          "Меняет язык public shell",
+          "Возвращает health status"
+        ],
+        a: 0,
+        why: "Admin catalog API содержит GET/POST/PATCH/DELETE products."
+      },
+      {
+        id: "admin-04",
+        category: "Админка",
+        difficulty: "hard",
+        q: "Какую роль теперь выполняет client/src/features/admin-constructor/library-sections.jsx?",
+        options: [
+          "Compatibility re-export для секций, разнесённых по stone/jewelry/pricing/workspace/assets файлам",
+          "Единственный огромный JSX-файл всех секций",
+          "Backend router",
+          "SQLite migration"
+        ],
+        a: 0,
+        why: "Разбиение секций сохранило совместимый import surface для route."
+      },
+      {
+        id: "admin-05",
+        category: "Админка",
+        difficulty: "exam",
+        q: "Почему в admin constructor нельзя прятать autosave/local-first логику в dumb components?",
+        options: [
+          "Route остаётся владельцем callbacks, autosave queue и navigation side effects",
+          "Потому что components не могут принимать props",
+          "Потому что React запрещает editor UI",
+          "Потому что это влияет на Docker image"
+        ],
+        a: 0,
+        why: "Это важный инвариант refactor-pass: presentational sections не должны владеть side effects."
+      },
+      {
+        id: "admin-06",
+        category: "Админка",
+        difficulty: "base",
+        q: "Какая локаль считается основной для active admin UI?",
+        options: [
+          "Украинская",
+          "Французская",
+          "Только английская",
+          "Латинский транслит"
+        ],
+        a: 0,
+        why: "Админские active routes переведены на украинский UI по умолчанию."
+      },
+      {
+        id: "security-01",
+        category: "Безопасность",
+        difficulty: "base",
+        q: "Как хранятся пароли пользователей?",
+        options: [
+          "В виде bcrypt hash",
+          "Открытым текстом в localStorage",
+          "В CSS-переменной",
+          "В URL query"
+        ],
+        a: 0,
+        why: "auth.service использует bcryptjs, в базе хранится password_hash."
+      },
+      {
+        id: "security-02",
+        category: "Безопасность",
+        difficulty: "base",
+        q: "Какой механизм используется для сессий?",
+        options: [
+          "Server sessions и httpOnly cookie",
+          "Только localStorage token",
+          "Только query token",
+          "Без авторизации"
+        ],
+        a: 0,
+        why: "Сессии хранятся на сервере, cookie не доступна JS-коду."
+      },
+      {
+        id: "security-03",
+        category: "Безопасность",
+        difficulty: "hard",
+        q: "Что защищает admin endpoint-ы?",
+        options: [
+          "requireAdmin / role guard",
+          "Только цвет кнопки",
+          "Только имя URL",
+          "CSS display none"
+        ],
+        a: 0,
+        why: "Роль admin проверяется на сервере, а не только в интерфейсе."
+      },
+      {
+        id: "security-04",
+        category: "Безопасность",
+        difficulty: "exam",
+        q: "Почему клиент не может читать чужие заказы?",
+        options: [
+          "Сервер проверяет владельца заказа по текущей сессии",
+          "Потому что React скрывает кнопку",
+          "Потому что заказы не хранятся в базе",
+          "Потому что URL всегда случайный"
+        ],
+        a: 0,
+        why: "Ownership-check должен быть на backend, UI не является защитой."
+      },
+      {
+        id: "checkout-01",
+        category: "Checkout",
+        difficulty: "base",
+        q: "Что переносит корзину в заказ?",
+        options: [
+          "POST /api/checkout",
+          "GET /api/constructor/types",
+          "PATCH /api/admin/constructor/slots/:id",
+          "GET /api/health"
+        ],
+        a: 0,
+        why: "Checkout создаёт orders и order_items из активной корзины."
+      },
+      {
+        id: "checkout-02",
+        category: "Checkout",
+        difficulty: "hard",
+        q: "Какая юридическая галочка сейчас обязательна в public checkout?",
+        options: [
+          "accepted_offer",
+          "accepted_return_policy как отдельная вторая обязательная галочка",
+          "accepted_admin_role",
+          "accepted_sql_debug"
+        ],
+        a: 0,
+        why: "accepted_return_policy остался legacy-compatible на сервере, но UI не требует вторую отдельную галочку."
+      },
+      {
+        id: "checkout-03",
+        category: "Checkout",
+        difficulty: "hard",
+        q: "Что возвращает GET /api/orders/:id для pending payment владельцу заказа?",
+        options: [
+          "active_payment_token только пока заказ в created_pending_payment",
+          "Admin password",
+          "Полный SQLite-файл",
+          "Все чужие заказы"
+        ],
+        a: 0,
+        why: "Payment page может восстановиться после reload, но token исчезает после успешной оплаты."
+      },
+      {
+        id: "checkout-04",
+        category: "Checkout",
+        difficulty: "exam",
+        q: "Почему минимальный чек нельзя проверять только на клиенте?",
+        options: [
+          "Клиентский код можно обойти, поэтому business rule проверяется сервером",
+          "Потому что React не умеет сравнивать числа",
+          "Потому что CSS скрывает суммы",
+          "Потому что checkout всегда пустой"
+        ],
+        a: 0,
+        why: "Сервер является источником истины для цены и минимальной суммы заказа."
+      },
+      {
+        id: "db-01",
+        category: "База данных",
+        difficulty: "base",
+        q: "Через что backend работает с SQLite?",
+        options: [
+          "Knex",
+          "Redux",
+          "CSS Grid",
+          "Vite"
+        ],
+        a: 0,
+        why: "Knex используется для миграций и запросов к базе."
+      },
+      {
+        id: "db-02",
+        category: "База данных",
+        difficulty: "base",
+        q: "Где лежат миграции базы?",
+        options: [
+          "db/migrations/",
+          "client/src/styles/",
+          "docs/screenshots/",
+          "public/react-app/assets/"
+        ],
+        a: 0,
+        why: "Миграции Knex описывают структуру базы."
+      },
+      {
+        id: "db-03",
+        category: "База данных",
+        difficulty: "base",
+        q: "Где лежат seed-данные?",
+        options: [
+          "db/seeds/",
+          "client/src/routes/",
+          "server/middlewares/",
+          "docs/architecture/"
+        ],
+        a: 0,
+        why: "db/seeds/01_demo_data.js создаёт демо-пользователей, товары, заказы и данные конструктора."
+      },
+      {
+        id: "db-04",
+        category: "База данных",
+        difficulty: "hard",
+        q: "Почему soft-delete через is_active важен для товаров и справочников?",
+        options: [
+          "Исторические заказы не должны ломаться после деактивации сущности",
+          "Потому что delete запрещён в SQL",
+          "Потому что React требует boolean",
+          "Потому что Docker не хранит удалённые строки"
+        ],
+        a: 0,
+        why: "Старые order_items должны сохранять смысл даже после изменения каталога."
+      },
+      {
+        id: "db-05",
+        category: "База данных",
+        difficulty: "exam",
+        q: "Какие данные фиксируются в order_items как snapshot?",
+        options: [
+          "Название, конфигурация, цена единицы, количество и line total на момент заказа",
+          "Только текущий CSS-класс",
+          "Только URL главной",
+          "Только пароль клиента"
+        ],
+        a: 0,
+        why: "Order item snapshot защищает историю заказа от будущих изменений каталога."
+      },
+      {
+        id: "i18n-01",
+        category: "Локализация",
+        difficulty: "base",
+        q: "Какие публичные локали поддерживает сайт?",
+        options: [
+          "uk и en",
+          "ru и de",
+          "fr и es",
+          "только латиница"
+        ],
+        a: 0,
+        why: "Публичный UI и словарные данные рассчитаны на украинскую и английскую локали."
+      },
+      {
+        id: "i18n-02",
+        category: "Локализация",
+        difficulty: "hard",
+        q: "Как frontend передаёт выбранную локаль в API layer?",
+        options: [
+          "Через x-locale и lang",
+          "Через CSS class only",
+          "Через docker-compose profile",
+          "Через имя файла миграции"
+        ],
+        a: 0,
+        why: "client/src/api.js добавляет локаль в header/query для согласованного ответа."
+      },
+      {
+        id: "i18n-03",
+        category: "Локализация",
+        difficulty: "exam",
+        q: "Почему явная локаль из ?lang= или x-locale должна иметь приоритет над user.preferred_locale?",
+        options: [
+          "Иначе EN-версия у авторизованного пользователя может откатиться на украинский",
+          "Иначе база удалится",
+          "Иначе checkout не создаст order_number",
+          "Иначе Docker не стартует"
+        ],
+        a: 0,
+        why: "Это зафиксированный locale-flow инвариант для каталога, корзины и заказов."
+      },
+      {
+        id: "tests-01",
+        category: "Тесты и smoke",
+        difficulty: "base",
+        q: "Какие библиотеки используются для тестов проекта?",
+        options: [
+          "Vitest и Supertest",
+          "Jest только для CSS",
+          "Cypress без backend",
+          "Mocha только в браузере"
+        ],
+        a: 0,
+        why: "Unit и integration тесты запускаются через Vitest, API flows используют Supertest."
+      },
+      {
+        id: "tests-02",
+        category: "Тесты и smoke",
+        difficulty: "base",
+        q: "Сколько тестов проходило в финальном smoke после фиксов?",
+        options: [
+          "58 тестов в 8 файлах",
+          "5 тестов в 1 файле",
+          "300 тестов в 40 файлах",
+          "Тестов не было"
+        ],
+        a: 0,
+        why: "Финальный прогон: Test Files 8 passed, Tests 58 passed."
+      },
+      {
+        id: "tests-03",
+        category: "Тесты и smoke",
+        difficulty: "hard",
+        q: "Какие страницы входили в browser smoke после фикса preview?",
+        options: [
+          "/, /catalog, /constructor?type=ring&variant=ring-duet, /cart, /checkout, /admin/constructor, /not-found-diploma-smoke",
+          "Только /api/health",
+          "Только /admin/login",
+          "Только /privacy-policy"
+        ],
+        a: 0,
+        why: "Smoke проверял ключевые public routes, admin constructor и not-found fallback."
+      },
+      {
+        id: "tests-04",
+        category: "Тесты и smoke",
+        difficulty: "hard",
+        q: "Что конкретно проверял smoke в constructor preview?",
+        options: [
+          "Квадрат 364x364, ratio 1, stoneCount=2, visibleStoneCount=2",
+          "Только цвет header",
+          "Только наличие footer",
+          "Только размер Docker image"
+        ],
+        a: 0,
+        why: "Это доказало, что preview больше не гигантский и камни видны."
+      },
+      {
+        id: "tests-05",
+        category: "Тесты и smoke",
+        difficulty: "exam",
+        q: "Почему важно проверять отсутствие маркера U+FFFD?",
+        options: [
+          "Он показывает битую кодировку или испорченную кириллицу в UI/данных",
+          "Это знак успешной оплаты",
+          "Это id администратора",
+          "Это валюта проекта"
+        ],
+        a: 0,
+        why: "Битая кириллица уже была реальной проблемой admin constructor, поэтому smoke её проверяет."
+      },
+      {
+        id: "docs-01",
+        category: "Документация",
+        difficulty: "base",
+        q: "Какой документ является главным учебным гайдом для новичка?",
+        options: [
+          "docs/diploma-study-guide.md",
+          "client/src/api.js",
+          "server/app.js",
+          "db/dev-memory.sqlite3"
+        ],
+        a: 0,
+        why: "Этот документ объясняет проект с нуля для подготовки к защите."
+      },
+      {
+        id: "docs-02",
+        category: "Документация",
+        difficulty: "base",
+        q: "Где лежит маршрут защиты для ХАИ?",
+        options: [
+          "docs/khai-defense-route.md",
+          "docs/architecture/database.md",
+          "client/src/styles.css",
+          "server/modules/auth/auth.service.js"
+        ],
+        a: 0,
+        why: "Маршрут защиты содержит тайминг, demo-path и вероятные вопросы комиссии."
+      },
+      {
+        id: "docs-03",
+        category: "Документация",
+        difficulty: "hard",
+        q: "Что было очищено в architecture docs перед сдачей?",
+        options: [
+          "Устаревшие формулировки про MySQL, Phase 2 API и отсутствие admin CRUD",
+          "Все упоминания Docker",
+          "Все API-эндпоинты",
+          "Все схемы модулей"
+        ],
+        a: 0,
+        why: "Документация должна совпадать с текущим Docker + SQLite runtime и реальным admin API."
+      },
+      {
+        id: "docs-04",
+        category: "Документация",
+        difficulty: "exam",
+        q: "Зачем в docs/khai-defense-route.md есть короткие готовые ответы?",
+        options: [
+          "Чтобы быстро отвечать комиссии про SQLite, mock payment, pricing, безопасность и архитектуру",
+          "Чтобы заменить исходный код",
+          "Чтобы скрыть Docker-команды",
+          "Чтобы удалить тесты"
+        ],
+        a: 0,
+        why: "Это шпаргалка по защите, а не техническая реализация."
+      },
+      {
+        id: "khai-01",
+        category: "Защита ХАИ",
+        difficulty: "base",
+        q: "Какой демонстрационный URL лучше открыть первым, если времени мало?",
+        options: [
+          "/constructor?type=ring&variant=ring-duet",
+          "/api/definitely-missing",
+          "/node_modules",
+          "/db/migrations"
+        ],
+        a: 0,
+        why: "Он сразу показывает главную ценность проекта: кастомизация, 1:1 preview, камни и цена."
+      },
+      {
+        id: "khai-02",
+        category: "Защита ХАИ",
+        difficulty: "hard",
+        q: "Что нужно обязательно сказать про цену в докладе?",
+        options: [
+          "Сервер является источником истины для цены, frontend только показывает UX-preview",
+          "Цена полностью считается CSS-анимацией",
+          "Цена хранится только в query-string",
+          "Цена не проверяется перед checkout"
+        ],
+        a: 0,
+        why: "Это один из самых вероятных вопросов комиссии по бизнес-логике."
+      },
+      {
+        id: "khai-03",
+        category: "Защита ХАИ",
+        difficulty: "exam",
+        q: "Что лучше ответить на вопрос: \"Почему это не монолитный хаос?\"",
+        options: [
+          "Это модульный монолит: один сервис, но доменные modules, routes/services и frontend features разделены по ответственности",
+          "Потому что файлов очень много",
+          "Потому что CSS красивый",
+          "Потому что есть favicon"
+        ],
+        a: 0,
+        why: "Нужно объяснять не количество файлов, а границы ответственности."
+      },
+      {
+        id: "khai-04",
+        category: "Защита ХАИ",
+        difficulty: "exam",
+        q: "Какой честный ответ про будущие улучшения проекта?",
+        options: [
+          "Реальный payment provider, CDN/object storage, аналитика, импорт товаров, строгая обработка изображений и e2e-тесты",
+          "Больше ничего улучшать нельзя",
+          "Удалить backend",
+          "Заменить весь проект одним HTML"
+        ],
+        a: 0,
+        why: "Такой ответ показывает понимание границ MVP и дальнейшего развития."
+      },
+      {
+        id: "files-01",
+        category: "Файлы проекта",
+        difficulty: "hard",
+        q: "Где находится shared formatter статусов для public orders/account/detail routes?",
+        options: [
+          "client/src/features/orders/order-status.js",
+          "server/constants/roles.js",
+          "client/src/styles/catalog-page.css",
+          "docs/architecture/tasks.md"
+        ],
+        a: 0,
+        why: "Этот helper нельзя дублировать по трём route-файлам."
+      },
+      {
+        id: "files-02",
+        category: "Файлы проекта",
+        difficulty: "hard",
+        q: "Где находятся guest cart helpers, которые переиспользует public constructor?",
+        options: [
+          "client/src/features/cart/guest-cart.js и cart-events.js",
+          "server/modules/payments/payments.routes.js",
+          "db/migrations/",
+          "docs/khai-defense-route.md"
+        ],
+        a: 0,
+        why: "Публичный конструктор не должен возвращать локальные дубли guest cart logic."
+      },
+      {
+        id: "files-03",
+        category: "Файлы проекта",
+        difficulty: "hard",
+        q: "Какие файлы разбили admin constructor sections по доменам?",
+        options: [
+          "asset-sections, jewelry-sections, pricing-sections, stone-sections, workspace-sections",
+          "only styles.css",
+          "only server/app.js",
+          "only README.md"
+        ],
+        a: 0,
+        why: "library-sections.jsx теперь compatibility re-export этих section-файлов."
+      },
+      {
+        id: "files-04",
+        category: "Файлы проекта",
+        difficulty: "exam",
+        q: "Где нужно править constructor-only CSS, если это не shared preview rule?",
+        options: [
+          "client/src/styles/constructor-page.css",
+          "client/src/styles.css без разбора",
+          "server/modules/constructor/constructor.routes.js",
+          "db/seeds/01_demo_data.js"
+        ],
+        a: 0,
+        why: "Стили конкретной страницы должны жить в domain CSS, общий styles.css - для tokens/base/shared primitives."
+      }
+    ];
+
+    const state = {
+      order: [],
+      index: 0,
+      score: 0,
+      answered: 0,
+      streak: 0,
+      selectedById: {},
+      missed: new Set(JSON.parse(localStorage.getItem("auroraQuizMissed") || "[]")),
+      mode: "all"
+    };
+
+    const elements = {
+      categorySelect: document.getElementById("categorySelect"),
+      difficultySelect: document.getElementById("difficultySelect"),
+      categoryMap: document.getElementById("categoryMap"),
+      scoreText: document.getElementById("scoreText"),
+      accuracyText: document.getElementById("accuracyText"),
+      streakText: document.getElementById("streakText"),
+      bestText: document.getElementById("bestText"),
+      progressText: document.getElementById("progressText"),
+      progressFill: document.getElementById("progressFill"),
+      badges: document.getElementById("badges"),
+      questionText: document.getElementById("questionText"),
+      options: document.getElementById("options"),
+      explain: document.getElementById("explain"),
+      prevBtn: document.getElementById("prevBtn"),
+      nextBtn: document.getElementById("nextBtn"),
+      resetBtn: document.getElementById("resetBtn"),
+      shuffleBtn: document.getElementById("shuffleBtn"),
+      allModeBtn: document.getElementById("allModeBtn"),
+      missedModeBtn: document.getElementById("missedModeBtn"),
+      resultPanel: document.getElementById("resultPanel"),
+      resultTitle: document.getElementById("resultTitle"),
+      resultText: document.getElementById("resultText"),
+      reviewList: document.getElementById("reviewList")
+    };
+
+    function shuffle(items) {
+      return [...items].sort(() => Math.random() - 0.5);
+    }
+
+    function currentFilters() {
+      return {
+        category: elements.categorySelect.value,
+        difficulty: elements.difficultySelect.value
+      };
+    }
+
+    function filteredQuestions() {
+      const filters = currentFilters();
+      return QUESTION_BANK.filter((item) => {
+        if (state.mode === "missed" && !state.missed.has(item.id)) return false;
+        if (filters.category !== "all" && item.category !== filters.category) return false;
+        if (filters.difficulty !== "all" && item.difficulty !== filters.difficulty) return false;
+        return true;
+      });
+    }
+
+    function updateBestScore() {
+      const accuracy = state.answered ? Math.round((state.score / state.answered) * 100) : 0;
+      const best = Number(localStorage.getItem("auroraQuizBest") || "0");
+      if (accuracy > best && state.answered >= 10) {
+        localStorage.setItem("auroraQuizBest", String(accuracy));
+      }
+    }
+
+    function syncStats() {
+      const total = state.order.length;
+      const accuracy = state.answered ? Math.round((state.score / state.answered) * 100) : 0;
+      elements.scoreText.textContent = `${state.score}/${state.answered}`;
+      elements.accuracyText.textContent = `${accuracy}%`;
+      elements.streakText.textContent = String(state.streak);
+      elements.bestText.textContent = `${localStorage.getItem("auroraQuizBest") || "0"}%`;
+      elements.progressText.textContent = total ? `Вопрос ${state.index + 1} из ${total}` : "Нет вопросов";
+      elements.progressFill.style.width = total ? `${((state.index + 1) / total) * 100}%` : "0%";
+      elements.prevBtn.disabled = state.index === 0;
+      elements.nextBtn.textContent = state.index >= total - 1 ? "Финиш" : "Дальше";
+    }
+
+    function persistMisses() {
+      localStorage.setItem("auroraQuizMissed", JSON.stringify([...state.missed]));
+    }
+
+    function renderCategoryMap() {
+      const grouped = QUESTION_BANK.reduce((acc, item) => {
+        acc[item.category] = (acc[item.category] || 0) + 1;
+        return acc;
+      }, {});
+      elements.categoryMap.innerHTML = Object.entries(grouped)
+        .map(([name, count]) => `<div class="map-row"><strong>${name}</strong><span>${count}</span></div>`)
+        .join("");
+    }
+
+    function renderFilters() {
+      const categories = [...new Set(QUESTION_BANK.map((item) => item.category))].sort((a, b) => a.localeCompare(b, "ru"));
+      elements.categorySelect.innerHTML = `<option value="all">Все разделы</option>${categories.map((category) => `<option value="${category}">${category}</option>`).join("")}`;
+    }
+
+    function currentQuestion() {
+      return state.order[state.index] || null;
+    }
+
+    function renderEmpty() {
+      elements.badges.innerHTML = "";
+      elements.questionText.textContent = "Вопросы не найдены";
+      elements.options.innerHTML = `<div class="empty">В этом фильтре пока нет вопросов или список ошибок пуст.</div>`;
+      elements.explain.classList.remove("visible");
+      elements.resultPanel.classList.remove("visible");
+      syncStats();
+    }
+
+    function renderQuestion() {
+      const question = currentQuestion();
+      if (!question) {
+        renderEmpty();
+        return;
+      }
+
+      const selected = state.selectedById[question.id];
+      const isAnswered = selected != null;
+      elements.resultPanel.classList.remove("visible");
+      elements.badges.innerHTML = `
+        <span class="badge">${question.category}</span>
+        <span class="badge">${question.difficulty === "base" ? "База" : question.difficulty === "hard" ? "Сложный" : "Комиссия"}</span>
+      `;
+      elements.questionText.textContent = question.q;
+      elements.options.innerHTML = question.options.map((option, index) => {
+        let statusClass = "";
+        if (isAnswered && index === question.a) statusClass = " correct";
+        if (isAnswered && index === selected && selected !== question.a) statusClass = " wrong";
+        return `
+          <button class="option${statusClass}" type="button" data-option="${index}">
+            <span class="option-index">${index + 1}</span>
+            <span>${option}</span>
+          </button>
+        `;
+      }).join("");
+      elements.explain.textContent = isAnswered ? question.why : "";
+      elements.explain.classList.toggle("visible", isAnswered);
+      syncStats();
+    }
+
+    function answerQuestion(optionIndex) {
+      const question = currentQuestion();
+      if (!question || state.selectedById[question.id] != null) return;
+
+      state.selectedById[question.id] = optionIndex;
+      state.answered += 1;
+
+      if (optionIndex === question.a) {
+        state.score += 1;
+        state.streak += 1;
+        state.missed.delete(question.id);
+      } else {
+        state.streak = 0;
+        state.missed.add(question.id);
+      }
+
+      persistMisses();
+      updateBestScore();
+      renderQuestion();
+    }
+
+    function showResult() {
+      const accuracy = state.answered ? Math.round((state.score / state.answered) * 100) : 0;
+      elements.resultPanel.classList.add("visible");
+      elements.resultTitle.textContent = accuracy >= 85 ? "Можно идти к комиссии" : accuracy >= 65 ? "Уже неплохо, но есть дырки" : "Нужно ещё прогнать материал";
+      elements.resultText.textContent = `Итог: ${state.score} правильных из ${state.answered}. Точность ${accuracy}%. Ошибок в банке повторения: ${state.missed.size}.`;
+      const missedQuestions = QUESTION_BANK.filter((item) => state.missed.has(item.id)).slice(0, 8);
+      elements.reviewList.innerHTML = missedQuestions.length
+        ? missedQuestions.map((item) => `<div class="review-item"><strong>${item.q}</strong><span>${item.why}</span></div>`).join("")
+        : `<div class="review-item"><strong>Ошибок нет</strong><span>Чистый проход. Теперь попробуй фильтр "Комиссия".</span></div>`;
+      syncStats();
+    }
+
+    function nextQuestion() {
+      if (state.index >= state.order.length - 1) {
+        showResult();
+        return;
+      }
+      state.index += 1;
+      renderQuestion();
+    }
+
+    function previousQuestion() {
+      if (state.index === 0) return;
+      state.index -= 1;
+      renderQuestion();
+    }
+
+    function resetSession(keepOrder = false) {
+      const questions = filteredQuestions();
+      state.order = keepOrder ? questions : shuffle(questions);
+      state.index = 0;
+      state.score = 0;
+      state.answered = 0;
+      state.streak = 0;
+      state.selectedById = {};
+      elements.resultPanel.classList.remove("visible");
+      renderQuestion();
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+      elements.allModeBtn.classList.toggle("active", mode === "all");
+      elements.missedModeBtn.classList.toggle("active", mode === "missed");
+      resetSession();
+    }
+
+    elements.options.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-option]");
+      if (!button) return;
+      answerQuestion(Number(button.dataset.option));
+    });
+
+    elements.nextBtn.addEventListener("click", nextQuestion);
+    elements.prevBtn.addEventListener("click", previousQuestion);
+    elements.resetBtn.addEventListener("click", () => resetSession());
+    elements.shuffleBtn.addEventListener("click", () => resetSession());
+    elements.allModeBtn.addEventListener("click", () => setMode("all"));
+    elements.missedModeBtn.addEventListener("click", () => setMode("missed"));
+    elements.categorySelect.addEventListener("change", () => resetSession());
+    elements.difficultySelect.addEventListener("change", () => resetSession());
+
+    window.addEventListener("keydown", (event) => {
+      if (event.key >= "1" && event.key <= "4") answerQuestion(Number(event.key) - 1);
+      if (event.key === "ArrowRight") nextQuestion();
+      if (event.key === "ArrowLeft") previousQuestion();
+    });
+
+    renderFilters();
+    renderCategoryMap();
+    resetSession();
+  </script>
+</body>
+</html>

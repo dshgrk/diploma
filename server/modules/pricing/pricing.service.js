@@ -1,5 +1,7 @@
+// Файл містить бізнес-логіку серверного модуля pricing та готує дані для API.
 const { calculateStudioPrice } = require("../constructor/constructor-json.service");
 
+// Формує структуру build preview layers для UI, API-відповіді або подальших розрахунків.
 function buildPreviewLayers(jewelryType, selectedValues, configuration) {
   const layers = [];
 
@@ -34,6 +36,7 @@ function buildPreviewLayers(jewelryType, selectedValues, configuration) {
   return layers.sort((left, right) => left.z_index - right.z_index);
 }
 
+// Обчислює calculate design price та повертає стабільний результат для бізнес-логіки.
 async function calculateDesignPrice({ jewelryTypeId, configuration = {}, req = null }) {
   return calculateStudioPrice({ jewelryTypeId, configuration, req });
 }

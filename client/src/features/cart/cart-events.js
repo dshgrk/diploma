@@ -1,28 +1,34 @@
+// Файл містить логіку кошика.
 import { clearGuestCart, readGuestCart } from "./guest-cart";
 
 export const POST_AUTH_REDIRECT_KEY = "aurora-post-auth-redirect";
 export const PENDING_CART_ITEM_KEY = "aurora-pending-cart-item";
 
+// Отримує get cart item count з поточного набору даних або конфігурації.
 export function getCartItemCount(cart) {
   return (cart?.items || []).reduce((sum, item) => sum + Math.max(1, Number(item?.quantity) || 0), 0);
 }
 
+// Синхронізує sync cart count між локальним станом, URL, подіями або сховищем.
 export function syncCartCount(cart) {
   const count = getCartItemCount(cart);
   window.dispatchEvent(new CustomEvent("aurora:cart-updated", { detail: { count, cart } }));
   return count;
 }
 
+// Виконує локальну логіку announce cart addition для модуля кошика.
 export function announceCartAddition(detail = {}) {
   window.dispatchEvent(new CustomEvent("aurora:item-added", { detail }));
 }
 
+// Синхронізує set post auth redirect між локальним станом, URL, подіями або сховищем.
 export function setPostAuthRedirect(path) {
   try {
     window.sessionStorage.setItem(POST_AUTH_REDIRECT_KEY, path);
   } catch {}
 }
 
+// Виконує локальну логіку consume post auth redirect для модуля кошика.
 export function consumePostAuthRedirect() {
   try {
     const next = window.sessionStorage.getItem(POST_AUTH_REDIRECT_KEY);
@@ -34,12 +40,14 @@ export function consumePostAuthRedirect() {
   }
 }
 
+// Зберігає зміни save pending cart item та синхронізує їх із постійним сховищем.
 export function savePendingCartItem(payload) {
   try {
     window.sessionStorage.setItem(PENDING_CART_ITEM_KEY, JSON.stringify(payload));
   } catch {}
 }
 
+// Виконує локальну логіку consume pending cart item для модуля кошика.
 export function consumePendingCartItem() {
   try {
     const raw = window.sessionStorage.getItem(PENDING_CART_ITEM_KEY);
@@ -51,6 +59,7 @@ export function consumePendingCartItem() {
   }
 }
 
+// Виконує локальну логіку merge guest cart into account cart для модуля кошика.
 export async function mergeGuestCartIntoAccountCart(cartApi) {
   const guestCart = readGuestCart();
   if (!guestCart.items.length) return null;

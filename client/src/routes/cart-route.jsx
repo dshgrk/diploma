@@ -1,3 +1,4 @@
+// Файл описує React-сторінку cart-route та її локальну UI-логіку.
 import React, { useEffect, useMemo, useState } from "react";
 import { ChevronRight, Trash2 } from "lucide-react";
 import { authApi, cartApi, constructorApi } from "../api";
@@ -13,6 +14,7 @@ import { formatCurrency } from "../utils";
 import { AuroraBackground, Footer, Header, LOCALE_FORMATS, usePublicLocale } from "./public-shell.jsx";
 import "../styles.css";
 
+// Виконує локальну логіку t для модуля сторінки cart-route.
 function t(locale, copy, key) {
   return publicText(CART_COPY, locale, key) || copy[key] || key;
 }
@@ -31,6 +33,7 @@ export default function CartRoute() {
   useEffect(() => {
     let active = true;
 
+    // Завантажує дані load cart state з API або локального джерела.
     async function loadCartState() {
       try {
         const session = await authApi.getSession();
@@ -97,6 +100,7 @@ export default function CartRoute() {
     [constructorConfig]
   );
 
+  // Оновлює існуючі дані update quantity без зміни решти стану.
   async function updateQuantity(item, quantity) {
     const nextQuantity = sanitizeQuantityInput(quantity, MAX_CART_ITEM_QUANTITY);
     setBusyItemId(item.id);
@@ -113,6 +117,7 @@ export default function CartRoute() {
     }
   }
 
+  // Видаляє або деактивує запис remove item згідно з правилами модуля.
   async function removeItem(item) {
     setBusyItemId(item.id);
     try {
@@ -129,6 +134,7 @@ export default function CartRoute() {
     }
   }
 
+  // Обробляє дію користувача або системну подію для handle proceed checkout.
   function handleProceedCheckout(event) {
     if (!isAuthenticated) {
       event.preventDefault();

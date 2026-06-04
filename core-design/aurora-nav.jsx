@@ -1,3 +1,4 @@
+// Файл містить дизайн-макет aurora-nav для демонстрації інтерфейсу Aurora Atelier.
 // aurora-nav.jsx — shared i18n, data, Nav, Footer
 
 const I18N = {
@@ -414,6 +415,7 @@ function IconCart({ size = 20, color = 'currentColor' }) {
     </svg>
   );
 }
+// Компонент рендерить блок icon user у дизайн-макеті.
 function IconUser({ size = 20 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
@@ -421,6 +423,7 @@ function IconUser({ size = 20 }) {
     </svg>
   );
 }
+// Компонент рендерить блок icon menu у дизайн-макеті.
 function IconMenu({ size = 20 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
@@ -428,6 +431,7 @@ function IconMenu({ size = 20 }) {
     </svg>
   );
 }
+// Компонент рендерить блок icon x у дизайн-макеті.
 function IconX({ size = 20 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
@@ -435,6 +439,7 @@ function IconX({ size = 20 }) {
     </svg>
   );
 }
+// Компонент рендерить блок icon check у дизайн-макеті.
 function IconCheck({ size = 16 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">

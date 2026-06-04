@@ -1,3 +1,5 @@
+// Файл містить логіку адмін-панелі.
+// Виконує локальну логіку empty product form для модуля адмін-панелі.
 export function emptyProductForm(jewelryTypes = []) {
   return {
     jewelry_type_id: String(jewelryTypes[0]?.id || ""),
@@ -27,6 +29,7 @@ export function emptyProductForm(jewelryTypes = []) {
   };
 }
 
+// Виконує локальну логіку product to form для модуля адмін-панелі.
 export function productToForm(product) {
   return {
     jewelry_type_id: String(product.jewelry_type_id || ""),
@@ -56,6 +59,7 @@ export function productToForm(product) {
   };
 }
 
+// Зчитує дані для read file as data url з URL, localStorage, файлу або вхідного payload.
 export function readFileAsDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();

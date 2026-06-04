@@ -1,3 +1,4 @@
+// Файл описує React-сторінку auth-route та її локальну UI-логіку.
 import React, { useEffect, useState } from "react";
 import { Award, Check, Shield, Sparkles, Truck } from "lucide-react";
 import { authApi, cartApi } from "../api";
@@ -113,10 +114,12 @@ const COPY = {
   }
 };
 
+// Виконує локальну логіку text для модуля сторінки auth-route.
 function text(locale, key) {
   return COPY[locale]?.[key] || COPY.en[key] || key;
 }
 
+// Зчитує дані для read guest cart з URL, localStorage, файлу або вхідного payload.
 function readGuestCart() {
   try {
     const raw = window.localStorage.getItem(GUEST_CART_STORAGE_KEY);
@@ -127,17 +130,20 @@ function readGuestCart() {
   }
 }
 
+// Виконує локальну логіку clear guest cart для модуля сторінки auth-route.
 function clearGuestCart() {
   window.localStorage.removeItem(GUEST_CART_STORAGE_KEY);
   window.dispatchEvent(new CustomEvent("aurora:cart-updated", { detail: { count: 0 } }));
 }
 
+// Синхронізує sync cart count між локальним станом, URL, подіями або сховищем.
 function syncCartCount(cart) {
   const count = (cart?.items || []).reduce((sum, item) => sum + Number(item.quantity || 0), 0);
   window.dispatchEvent(new CustomEvent("aurora:cart-updated", { detail: { count } }));
   return count;
 }
 
+// Виконує локальну логіку merge guest cart into account cart для модуля сторінки auth-route.
 async function mergeGuestCartIntoAccountCart() {
   const guestCart = readGuestCart();
   if (!guestCart.items.length) return null;
@@ -159,6 +165,7 @@ async function mergeGuestCartIntoAccountCart() {
   return lastCart;
 }
 
+// Виконує локальну логіку consume pending cart item для модуля сторінки auth-route.
 function consumePendingCartItem() {
   try {
     const raw = window.sessionStorage.getItem(PENDING_CART_ITEM_KEY);
@@ -170,6 +177,7 @@ function consumePendingCartItem() {
   }
 }
 
+// Виконує локальну логіку consume post auth redirect для модуля сторінки auth-route.
 function consumePostAuthRedirect() {
   try {
     const next = window.sessionStorage.getItem(POST_AUTH_REDIRECT_KEY);
@@ -180,6 +188,7 @@ function consumePostAuthRedirect() {
   }
 }
 
+// Компонент рендерить блок auth page і отримує потрібні дані через props або локальний state.
 function AuthPage({ locale }) {
   const [mode, setMode] = useState("login");
   const [name, setName] = useState("");
@@ -242,6 +251,7 @@ function AuthPage({ locale }) {
     if (!googleConfig.enabled || !googleConfig.client_id || isVerifyStep) return undefined;
     let cancelled = false;
 
+    // Готує JSX або HTML-представлення для render google button.
     function renderGoogleButton() {
       if (cancelled || !googleButtonRef.current || !window.google?.accounts?.id) return;
       googleButtonRef.current.innerHTML = "";
@@ -287,6 +297,7 @@ function AuthPage({ locale }) {
     };
   }, [googleConfig, isVerifyStep]);
 
+  // Виконує локальну логіку finalize after auth для модуля сторінки auth-route.
   async function finalizeAfterAuth() {
     const mergedCart = await mergeGuestCartIntoAccountCart();
     const pendingCartItem = consumePendingCartItem();
@@ -307,6 +318,7 @@ function AuthPage({ locale }) {
     window.location.href = "/orders";
   }
 
+  // Обробляє дію користувача або системну подію для handle submit.
   async function handleSubmit(event) {
     event.preventDefault();
     setError("");
@@ -368,6 +380,7 @@ function AuthPage({ locale }) {
     }
   }
 
+  // Виконує локальну логіку switch mode для модуля сторінки auth-route.
   function switchMode(next) {
     setMode(next);
     setError("");
@@ -375,6 +388,7 @@ function AuthPage({ locale }) {
     setFieldErrors({});
   }
 
+  // Виконує локальну логіку resend code для модуля сторінки auth-route.
   async function resendCode() {
     setError("");
     setNotice("");
@@ -390,6 +404,7 @@ function AuthPage({ locale }) {
     }
   }
 
+  // Виконує локальну логіку reset verification step для модуля сторінки auth-route.
   function resetVerificationStep() {
     setPendingVerificationEmail("");
     setVerificationCode("");

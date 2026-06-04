@@ -1,3 +1,4 @@
+// Файл описує React-сторінку account-route та її локальну UI-логіку.
 import React, { useEffect, useState } from "react";
 import { accountApi } from "../api";
 import { formatOrderDate, getPendantChainDisplay } from "../features/orders/order-format";
@@ -9,10 +10,12 @@ import { AuroraBackground, Footer, Header, LOCALE_FORMATS, usePublicLocale } fro
 import "../styles.css";
 import "../styles/orders-account.css";
 
+// Виконує локальну логіку t для модуля сторінки account-route.
 function t(locale, key) {
   return publicText(ORDERS_COPY, locale, key);
 }
 
+// Компонент рендерить блок account order line і отримує потрібні дані через props або локальний state.
 function AccountOrderLine({ item, order, locale, localeFormat }) {
   const chainDisplay = getPendantChainDisplay(item, locale, {}, { includeLabel: false });
   return (

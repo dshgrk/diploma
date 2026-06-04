@@ -1,10 +1,13 @@
+// Файл містить дизайн-макет aurora-flows для демонстрації інтерфейсу Aurora Atelier.
 // aurora-flows.jsx — Cart, Checkout, Auth, Orders, Admin pages
 
 // ── CartPage ─────────────────────────────────────────────────────────────────
 function CartPage({ lang, cart, setCart, setPage }) {
   const t = window.useT(lang);
 
+  // Допоміжна функція виконує дію remove у дизайн-макеті.
   function remove(idx) { setCart(c => c.filter((_, i) => i !== idx)); }
+  // Допоміжна функція виконує дію update qty у дизайн-макеті.
   function updateQty(idx, delta) {
     setCart(c => c.map((item, i) => i === idx ? { ...item, qty: Math.max(1, (item.qty || 1) + delta) } : item));
   }
@@ -120,6 +123,7 @@ function CheckoutPage({ lang, cart, setCart, setPage, setIsLoggedIn }) {
 
   const total = cart.reduce((s, item) => s + item.price * (item.qty || 1), 0);
 
+  // Допоміжна функція виконує дію validate у дизайн-макеті.
   function validate() {
     const e = {};
     if (!form.name.trim()) e.name = lang === 'uk' ? "Вкажіть ім'я" : 'Enter name';
@@ -131,6 +135,7 @@ function CheckoutPage({ lang, cart, setCart, setPage, setIsLoggedIn }) {
     return e;
   }
 
+  // Допоміжна функція виконує дію handle submit у дизайн-макеті.
   function handleSubmit(e) {
     e.preventDefault();
     const errs = validate();
@@ -252,6 +257,7 @@ function AuthPage({ lang, setPage, setIsLoggedIn }) {
   const [errors, setErrors] = React.useState({});
   const [loading, setLoading] = React.useState(false);
 
+  // Допоміжна функція виконує дію handle submit у дизайн-макеті.
   function handleSubmit(e) {
     e.preventDefault();
     const errs = {};

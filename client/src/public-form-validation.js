@@ -1,3 +1,4 @@
+// Файл містить логіку public-form-validation.
 export const PUBLIC_FIELD_LIMITS = {
   nameMax: 120,
   addressMin: 5,
@@ -9,6 +10,7 @@ export const PUBLIC_FIELD_LIMITS = {
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const UA_PHONE_PATTERN = /^\+380\d{9}$/;
 
+// Виконує локальну логіку messages для модуля public-form-validation.
 function messages(locale) {
   if (locale === "uk") {
     return {
@@ -51,14 +53,17 @@ function messages(locale) {
   };
 }
 
+// Нормалізує normalize email, щоб API та UI працювали з однаковим форматом даних.
 export function normalizeEmail(value) {
   return String(value || "").trim().toLowerCase();
 }
 
+// Перевіряє is valid email і повертає результат або кидає помилку валідації.
 export function isValidEmail(value) {
   return EMAIL_PATTERN.test(normalizeEmail(value));
 }
 
+// Виконує локальну логіку sanitize phone draft для модуля public-form-validation.
 export function sanitizePhoneDraft(value) {
   const raw = String(value || "");
   let cleaned = "";
@@ -74,6 +79,7 @@ export function sanitizePhoneDraft(value) {
   return cleaned;
 }
 
+// Нормалізує normalize ukrainian phone, щоб API та UI працювали з однаковим форматом даних.
 export function normalizeUkrainianPhone(value) {
   const compact = sanitizePhoneDraft(value);
   if (/^0\d{9}$/.test(compact)) return `+38${compact}`;
@@ -81,22 +87,27 @@ export function normalizeUkrainianPhone(value) {
   return compact;
 }
 
+// Перевіряє is valid ukrainian phone і повертає результат або кидає помилку валідації.
 export function isValidUkrainianPhone(value) {
   return UA_PHONE_PATTERN.test(normalizeUkrainianPhone(value));
 }
 
+// Нормалізує normalize plain text, щоб API та UI працювали з однаковим форматом даних.
 export function normalizePlainText(value) {
   return String(value || "").replace(/\s+/g, " ").trim();
 }
 
+// Нормалізує normalize engraving text, щоб API та UI працювали з однаковим форматом даних.
 export function normalizeEngravingText(value) {
   return String(value || "").trim();
 }
 
+// Виконує локальну логіку sanitize verification code для модуля public-form-validation.
 export function sanitizeVerificationCode(value) {
   return String(value || "").replace(/\D/g, "").slice(0, PUBLIC_FIELD_LIMITS.verificationCodeLength);
 }
 
+// Виконує локальну логіку sanitize quantity input для модуля public-form-validation.
 export function sanitizeQuantityInput(value, max) {
   const trimmed = String(value || "").trim();
   const match = trimmed.match(/^\d+/);
@@ -105,10 +116,12 @@ export function sanitizeQuantityInput(value, max) {
   return Math.min(max, Math.max(1, safe));
 }
 
+// Нормалізує normalize catalog price input, щоб API та UI працювали з однаковим форматом даних.
 export function normalizeCatalogPriceInput(value) {
   return String(value || "").replace(/[^\d]/g, "");
 }
 
+// Перевіряє validate catalog price range і повертає результат або кидає помилку валідації.
 export function validateCatalogPriceRange({ priceMin, priceMax }, locale) {
   const copy = messages(locale);
   const min = priceMin === "" ? null : Number(priceMin);
@@ -125,6 +138,7 @@ export function validateCatalogPriceRange({ priceMin, priceMax }, locale) {
   return { isValid: true, error: "" };
 }
 
+// Перевіряє validate auth form і повертає результат або кидає помилку валідації.
 export function validateAuthForm({ mode, name, email, password }, locale) {
   const copy = messages(locale);
   const errors = {};
@@ -148,6 +162,7 @@ export function validateAuthForm({ mode, name, email, password }, locale) {
   return { values, errors };
 }
 
+// Перевіряє validate verification code і повертає результат або кидає помилку валідації.
 export function validateVerificationCode(value, locale) {
   const copy = messages(locale);
   const normalized = sanitizeVerificationCode(value);
@@ -158,6 +173,7 @@ export function validateVerificationCode(value, locale) {
   return { value: normalized, error: "" };
 }
 
+// Перевіряє validate checkout form і повертає результат або кидає помилку валідації.
 export function validateCheckoutForm(form, locale) {
   const copy = messages(locale);
   const values = {
@@ -187,6 +203,7 @@ export function validateCheckoutForm(form, locale) {
   return { values, errors };
 }
 
+// Виконує локальну логіку extract validation errors для модуля public-form-validation.
 export function extractValidationErrors(error) {
   return error?.payload?.error?.details && typeof error.payload.error.details === "object"
     ? error.payload.error.details

@@ -1,3 +1,4 @@
+// Файл містить невеликі серверні helper'и, які перевикористовуються в різних модулях.
 const { createHttpError } = require("./http-error");
 
 const READY_CHAIN_PRICES_UAH = {
@@ -51,6 +52,7 @@ const CHAIN_OPTION_LENGTHS = {
 
 const VALID_CHAIN_METALS = new Set(Object.keys(READY_CHAIN_PRICES_UAH));
 
+// Нормалізує normalize pendant type, щоб API та UI працювали з однаковим форматом даних.
 function normalizePendantType(productOrType) {
   const rawValue =
     typeof productOrType === "string"
@@ -59,6 +61,7 @@ function normalizePendantType(productOrType) {
   return String(rawValue || "").trim().toLowerCase() === "pendant";
 }
 
+// Нормалізує normalize chain option, щоб API та UI працювали з однаковим форматом даних.
 function normalizeChainOption(rawValue) {
   const normalized = String(rawValue || "none").trim().toLowerCase();
   if (!normalized || normalized === "none") return "none";
@@ -68,15 +71,18 @@ function normalizeChainOption(rawValue) {
   return null;
 }
 
+// Виконує локальну логіку extract requested chain option для модуля серверних утиліт.
 function extractRequestedChainOption(configuration = {}) {
   return configuration?.chainOption ?? configuration?.chain_option ?? configuration?.chain?.option ?? "none";
 }
 
+// Нормалізує normalize catalog chain metal, щоб API та UI працювали з однаковим форматом даних.
 function normalizeCatalogChainMetal(rawMetal) {
   const normalized = String(rawMetal || "").trim();
   return VALID_CHAIN_METALS.has(normalized) ? normalized : null;
 }
 
+// Нормалізує normalize constructor chain metal, щоб API та UI працювали з однаковим форматом даних.
 function normalizeConstructorChainMetal(materialCode) {
   const normalized = String(materialCode || "").trim().toLowerCase();
   if (!normalized) return null;
@@ -86,6 +92,7 @@ function normalizeConstructorChainMetal(materialCode) {
   return null;
 }
 
+// Формує структуру build pendant chain selection для UI, API-відповіді або подальших розрахунків.
 function buildPendantChainSelection(chainOption, chainMetal, priceMap = READY_CHAIN_PRICES_UAH) {
   const normalizedOption = normalizeChainOption(chainOption);
   if (!normalizedOption) {
@@ -120,16 +127,19 @@ function buildPendantChainSelection(chainOption, chainMetal, priceMap = READY_CH
   };
 }
 
+// Визначає потрібне значення resolve ready product chain configuration за поточним контекстом або вхідними параметрами.
 function resolveReadyProductChainConfiguration(product, configuration = {}) {
   if (!normalizePendantType(product)) return null;
   return buildPendantChainSelection(extractRequestedChainOption(configuration), normalizeCatalogChainMetal(product?.filter_metal), READY_CHAIN_PRICES_UAH);
 }
 
+// Визначає потрібне значення resolve custom design chain configuration за поточним контекстом або вхідними параметрами.
 function resolveCustomDesignChainConfiguration(jewelryType, configuration = {}) {
   if (!normalizePendantType(jewelryType)) return null;
   return buildPendantChainSelection(extractRequestedChainOption(configuration), normalizeConstructorChainMetal(configuration?.material), CONSTRUCTOR_CHAIN_PRICES_UAH);
 }
 
+// Обчислює calculate ready product unit price та повертає стабільний результат для бізнес-логіки.
 function calculateReadyProductUnitPrice(product, configuration = {}) {
   const basePrice = Number(product?.price || 0);
   return basePrice + Number(configuration?.chain?.price || 0);

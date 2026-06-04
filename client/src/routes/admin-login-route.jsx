@@ -1,3 +1,4 @@
+// Файл описує React-сторінку admin-login-route та її локальну UI-логіку.
 import React, { useState } from "react";
 import { authApi } from "../api";
 import { BRAND_LOGO_MARK, FALLBACK_PRODUCT_IMAGE } from "../content";
@@ -10,6 +11,7 @@ export default function AdminLoginRoute() {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Обробляє дію користувача або системну подію для handle submit.
   async function handleSubmit(event) {
     event.preventDefault();
     setError("");

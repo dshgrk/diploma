@@ -1,3 +1,4 @@
+// Файл описує React-сторінку public-shell та її локальну UI-логіку.
 ﻿import React, { useEffect, useState } from "react";
 import { Menu, ShoppingBag, User, X } from "lucide-react";
 import { authApi, cartApi } from "../api";
@@ -27,11 +28,13 @@ export const LOCALE_FORMATS = {
   en: "en-US"
 };
 
+// Отримує get initial locale з поточного набору даних або конфігурації.
 export function getInitialLocale() {
   const stored = window.localStorage.getItem(LOCAL_STORAGE_KEY);
   return stored === "en" ? "en" : "uk";
 }
 
+// Зчитує дані для read guest cart count з URL, localStorage, файлу або вхідного payload.
 function readGuestCartCount() {
   try {
     const raw = window.localStorage.getItem(GUEST_CART_STORAGE_KEY);
@@ -42,6 +45,7 @@ function readGuestCartCount() {
   }
 }
 
+// Хук керує станом та side-effect'ами для use public locale.
 export function usePublicLocale() {
   const [locale, setLocale] = useState(getInitialLocale);
 
@@ -56,6 +60,7 @@ export function usePublicLocale() {
   };
 }
 
+// Компонент рендерить блок aurora background і отримує потрібні дані через props або локальний state.
 export function AuroraBackground() {
   return (
     <div id="aurora-bg" aria-hidden="true">
@@ -69,6 +74,7 @@ export function AuroraBackground() {
   );
 }
 
+// Компонент рендерить блок header і отримує потрібні дані через props або локальний state.
 export function Header({ locale, onToggleLocale }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -81,6 +87,7 @@ export function Header({ locale, onToggleLocale }) {
   const labels = NAV_LABELS[locale] || NAV_LABELS.en;
 
   useEffect(() => {
+    // Обробляє дію користувача або системну подію для on scroll.
     function onScroll() {
       if (scrollFrameRef.current) return;
       scrollFrameRef.current = window.requestAnimationFrame(() => {
@@ -103,6 +110,7 @@ export function Header({ locale, onToggleLocale }) {
 
   useEffect(() => {
     let active = true;
+    // Виконує локальну логіку refresh session для модуля сторінки public-shell.
     async function refreshSession() {
       try {
         const session = await authApi.getSession();
@@ -122,6 +130,7 @@ export function Header({ locale, onToggleLocale }) {
 
   useEffect(() => {
     let active = true;
+    // Виконує локальну логіку refresh cart count для модуля сторінки public-shell.
     async function refreshCartCount() {
       try {
         const cart = await cartApi.getCart();
@@ -132,12 +141,14 @@ export function Header({ locale, onToggleLocale }) {
       }
     }
 
+    // Обробляє дію користувача або системну подію для handle cart updated.
     function handleCartUpdated(event) {
       if (!active) return;
       const nextCount = Number(event?.detail?.count);
       setCartCount(Number.isFinite(nextCount) ? nextCount : 0);
     }
 
+    // Обробляє дію користувача або системну подію для handle item added.
     function handleItemAdded() {
       if (!active) return;
       setCartCelebrating(false);
@@ -211,6 +222,7 @@ export function Header({ locale, onToggleLocale }) {
   );
 }
 
+// Компонент рендерить блок footer і отримує потрібні дані через props або локальний state.
 export function Footer({ locale }) {
   const copy = referenceCopy(locale);
   const navigationTitle = locale === "uk" ? "Навігація" : "Navigation";

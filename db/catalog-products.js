@@ -1,3 +1,4 @@
+// Файл містить логіку catalog-products.
 const TYPE_LABELS = {
   ring: { uk: "Каблучка", en: "Ring", filter: "Ring" },
   bracelet: { uk: "Браслет", en: "Bracelet", filter: "Bracelet" },
@@ -79,6 +80,7 @@ const STYLE_PRICE_PREMIUM = {
   pear: 950
 };
 
+// Виконує локальну логіку parse stone size для модуля catalog-products.
 function parseStoneSize(value) {
   const normalized = String(value || "").trim().toLowerCase();
   const number = Number.parseFloat(normalized.replace(",", "."));
@@ -88,10 +90,12 @@ function parseStoneSize(value) {
   return number * 260;
 }
 
+// Обчислює round price та повертає стабільний результат для бізнес-логіки.
 function roundPrice(value) {
   return Math.round(value / 10) * 10;
 }
 
+// Обчислює compute price та повертає стабільний результат для бізнес-логіки.
 function computePrice(definition) {
   const base = TYPE_BASE_PRICE[definition.type] || 3500;
   const metal = METAL_PRICE_PREMIUM[definition.metal] || 0;
@@ -101,6 +105,7 @@ function computePrice(definition) {
   return roundPrice(base + metal + stone + size + style);
 }
 
+// Створює новий запис або чернетку для create product.
 function createProduct(definition) {
   const typeMeta = TYPE_LABELS[definition.type];
   const metalMeta = METAL_COPY[definition.metal];

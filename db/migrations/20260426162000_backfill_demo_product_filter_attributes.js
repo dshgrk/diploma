@@ -1,3 +1,5 @@
+// Файл описує зміну схеми SQLite через Knex migration.
+// Виконує локальну логіку up для модуля міграції бази даних.
 exports.up = async function up(knex) {
   const updates = [
     {
@@ -63,6 +65,7 @@ exports.up = async function up(knex) {
   }
 };
 
+// Виконує локальну логіку down для модуля міграції бази даних.
 exports.down = async function down(knex) {
   await knex("products")
     .whereIn("slug", ["quiet-pearl-ring", "moon-bracelet", "white-diamond-earrings", "silver-heart-pendant"])

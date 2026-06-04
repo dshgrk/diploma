@@ -1,3 +1,4 @@
+// Файл містить логіку адмін-конструктора.
 export const STUDIO_WORKSPACE_SECTIONS = [
   { key: "jewelry", label: "Прикраси", description: "Форми, варіанти, слоти й попередній перегляд." },
   { key: "stones", label: "Камені", description: "Повна бібліотека всіх доступних каменів." },
@@ -12,6 +13,7 @@ export const STUDIO_JEWELRY_TYPE_OPTIONS = [
   ["earrings", "Сережки"]
 ];
 
+// Формує структуру build studio workspace breadcrumbs для UI, API-відповіді або подальших розрахунків.
 export function buildStudioWorkspaceBreadcrumbs({
   section,
   jewelryStep,

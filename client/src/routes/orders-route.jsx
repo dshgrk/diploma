@@ -1,3 +1,4 @@
+// Файл описує React-сторінку orders-route та її локальну UI-логіку.
 import React, { useEffect, useState } from "react";
 import { ordersApi } from "../api";
 import { formatOrderDate } from "../features/orders/order-format";
@@ -8,6 +9,7 @@ import { AuroraBackground, Footer, Header, LOCALE_FORMATS, usePublicLocale } fro
 import "../styles.css";
 import "../styles/orders-account.css";
 
+// Виконує локальну логіку t для модуля сторінки orders-route.
 function t(locale, key) {
   return publicText(ORDERS_COPY, locale, key);
 }

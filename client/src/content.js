@@ -1,3 +1,4 @@
+// Файл містить логіку content.
 export const BRAND_LOGO = "/assets/images/aurora-atelier-logo-horizontal-1024x244.png";
 export const BRAND_LOGO_MARK = "/assets/images/aurora-atelier-logo-mark-512x512.png";
 
@@ -725,6 +726,7 @@ export const CONSTRUCTOR_STONE_MEDIA = {
   heart_charm: "/assets/images/product-heart.png"
 };
 
+// Виконує локальну логіку compact catalog filters для модуля content.
 export function compactCatalogFilters(filters) {
   return Object.fromEntries(Object.entries(filters).filter(([, value]) => Boolean(value)));
 }
@@ -808,11 +810,13 @@ const FILTER_VALUE_TRANSLATIONS = {
   en: {}
 };
 
+// Виконує локальну логіку localize product filter value для модуля content.
 export function localizeProductFilterValue(value, locale = "uk") {
   if (!value) return value;
   return FILTER_VALUE_TRANSLATIONS[locale]?.[value] || value;
 }
 
+// Нормалізує normalize catalog filter change, щоб API та UI працювали з однаковим форматом даних.
 export function normalizeCatalogFilterChange(currentFilters, key, value) {
   const nextFilters = { ...currentFilters, [key]: value };
   if (!value) delete nextFilters[key];
@@ -828,6 +832,7 @@ export function normalizeCatalogFilterChange(currentFilters, key, value) {
   return compactCatalogFilters(nextFilters);
 }
 
+// Виконує локальну логіку product attribute entries для модуля content.
 export function productAttributeEntries(filters = {}, locale = "uk") {
   const safeFilters = filters || {};
   const labels = FILTER_LABELS[locale] || FILTER_LABELS.en;
@@ -854,14 +859,17 @@ export function productAttributeEntries(filters = {}, locale = "uk") {
   return entries.filter(([, value]) => Boolean(value));
 }
 
+// Виконує локальну логіку product attribute values для модуля content.
 export function productAttributeValues(filters = {}, locale = "uk") {
   return productAttributeEntries(filters, locale).map(([, value]) => value);
 }
 
+// Виконує локальну логіку reference copy для модуля content.
 export function referenceCopy(locale) {
   return REFERENCE_COPY[locale] || REFERENCE_COPY.en;
 }
 
+// Виконує локальну логіку product display image для модуля content.
 export function productDisplayImage(product, index = 0) {
   return (
     product?.thumbnail_url ||
@@ -872,6 +880,7 @@ export function productDisplayImage(product, index = 0) {
   );
 }
 
+// Виконує локальну логіку product localized name для модуля content.
 export function productLocalizedName(product, locale = "uk") {
   if (locale === "en") {
     return product?.name_en || product?.name || product?.name_uk || "";
@@ -879,6 +888,7 @@ export function productLocalizedName(product, locale = "uk") {
   return product?.name_uk || product?.name || product?.name_en || "";
 }
 
+// Виконує локальну логіку product localized description для модуля content.
 export function productLocalizedDescription(product, locale = "uk") {
   if (locale === "en") {
     return product?.description_en || product?.description || product?.description_uk || "";
@@ -886,6 +896,7 @@ export function productLocalizedDescription(product, locale = "uk") {
   return product?.description_uk || product?.description || product?.description_en || "";
 }
 
+// Виконує локальну логіку product type label для модуля content.
 export function productTypeLabel(product, locale) {
   const labels = {
     uk: {

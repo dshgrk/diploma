@@ -1,3 +1,4 @@
+// Файл описує React-сторінку admin-order-detail-route та її локальну UI-логіку.
 import React, { useEffect, useState } from "react";
 import { adminOrdersApi } from "../api";
 import { AdminShell } from "../features/admin/admin-shell.jsx";
@@ -13,6 +14,7 @@ import "../styles.css";
 
 const ADMIN_LOCALE = "uk-UA";
 
+// Отримує get order id from path з поточного набору даних або конфігурації.
 function getOrderIdFromPath() {
   return window.location.pathname.split("/").filter(Boolean).at(-1);
 }
@@ -24,6 +26,7 @@ export default function AdminOrderDetailRoute() {
   const [error, setError] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
 
+  // Завантажує дані load order з API або локального джерела.
   async function loadOrder() {
     try {
       const result = await adminOrdersApi.getOrder(orderId);
@@ -42,6 +45,7 @@ export default function AdminOrderDetailRoute() {
     loadOrder();
   }, [orderId]);
 
+  // Оновлює існуючі дані update status без зміни решти стану.
   async function updateStatus(nextStatus) {
     setIsUpdating(true);
     try {

@@ -1,3 +1,4 @@
+// Файл описує React-сторінку order-detail-route та її локальну UI-логіку.
 import React, { useEffect, useMemo, useState } from "react";
 import { CreditCard } from "lucide-react";
 import { constructorApi, ordersApi } from "../api";
@@ -10,10 +11,12 @@ import { AuroraBackground, Footer, Header, LOCALE_FORMATS, usePublicLocale } fro
 import "../styles.css";
 import "../styles/orders-account.css";
 
+// Виконує локальну логіку t для модуля сторінки order-detail-route.
 function t(locale, key) {
   return publicText(ORDERS_COPY, locale, key);
 }
 
+// Компонент рендерить блок order detail item card і отримує потрібні дані через props або локальний state.
 function OrderDetailItemCard({ item, order, locale, localeFormat, constructorConfig, typeById }) {
   const type = typeById[String(item.jewelry_type_id)] || null;
   const chainDisplay = getPendantChainDisplay(item, locale, typeById);

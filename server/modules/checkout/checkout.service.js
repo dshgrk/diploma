@@ -1,3 +1,4 @@
+// Файл містить бізнес-логіку серверного модуля checkout та готує дані для API.
 const crypto = require("crypto");
 const { db } = require("../../db/knex");
 const { ORDER_STATUSES } = require("../../constants/order-statuses");
@@ -14,6 +15,7 @@ const { buildActiveCartKey, getOrCreateActiveCart, serializeCart } = require("..
 const { recordPromoCodeRedemption } = require("../promotions/promo-codes.service");
 const { sendOrderStatusNotification } = require("../notifications/notifications.service");
 
+// Перевіряє validate checkout payload і повертає результат або кидає помилку валідації.
 function validateCheckoutPayload(payload) {
   const errors = {};
   const normalized = {
@@ -56,6 +58,7 @@ function validateCheckoutPayload(payload) {
   return normalized;
 }
 
+// Створює новий запис або чернетку для create checkout order.
 async function createCheckoutOrder(userId, payload, req) {
   const validatedPayload = validateCheckoutPayload(payload);
   const locale = resolveLocale(req);
