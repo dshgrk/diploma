@@ -1,0 +1,1 @@
+import{j as r}from"./vendor-react-Cam-V6TZ.js";import{L as t}from"./legal-page-Cs0qU_aK.js";import"./public-shell-CsVbdTkr.js";import"./styles-BzojL6dD.js";import"./index-BfEqPLpk.js";function a(){return r.jsx(t,{pageKey:"returns"})}export{a as default};
