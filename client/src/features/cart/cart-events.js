@@ -28,6 +28,19 @@ export function setPostAuthRedirect(path) {
   } catch {}
 }
 
+// Будує поточний локальний шлях сторінки для безпечного повернення після auth-flow.
+export function getCurrentLocationPath() {
+  if (typeof window === "undefined" || !window.location) return "/";
+  const { pathname = "/", search = "", hash = "" } = window.location;
+  return `${pathname || "/"}${search || ""}${hash || ""}` || "/";
+}
+
+// Перенаправляє до auth і запам'ятовує, куди потрібно повернутися після входу.
+export function redirectToAuth(returnPath = getCurrentLocationPath()) {
+  setPostAuthRedirect(returnPath || "/");
+  window.location.href = "/auth";
+}
+
 // Виконує локальну логіку consume post auth redirect для модуля кошика.
 export function consumePostAuthRedirect() {
   try {

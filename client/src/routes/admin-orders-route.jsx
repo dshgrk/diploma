@@ -8,7 +8,7 @@ import {
   adminPaymentStateLabel,
   adminStatusClassName
 } from "../i18n/admin-copy";
-import { formatCurrency } from "../utils";
+import { formatCurrency, formatCustomerName } from "../utils";
 import "../styles.css";
 
 const ADMIN_LOCALE = "uk-UA";
@@ -94,7 +94,7 @@ export default function AdminOrdersRoute() {
               <tr key={order.id}>
                 <td className="admin-order-id">{order.order_number}</td>
                 <td>
-                  <strong>{order.customer_name}</strong>
+                  <strong>{formatCustomerName(order.customer_name, order.email)}</strong>
                   <span>{order.email}</span>
                 </td>
                 <td><span className={adminStatusClassName(order.status, order.overdue)}>{adminOrderStatusLabel(order.status)}</span></td>

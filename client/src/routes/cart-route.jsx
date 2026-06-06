@@ -5,7 +5,7 @@ import { authApi, cartApi, constructorApi } from "../api";
 import { referenceCopy } from "../content";
 import { getReadyProductSizeLabel, getReadyProductSizeTitle } from "../ready-product";
 import { MAX_CART_ITEM_QUANTITY, readGuestCart, removeGuestCartItem, updateGuestCartItem } from "../features/cart/guest-cart";
-import { setPostAuthRedirect, syncCartCount } from "../features/cart/cart-events";
+import { redirectToAuth, syncCartCount } from "../features/cart/cart-events";
 import { CartItemPreview } from "../features/orders/order-preview.jsx";
 import { findTypeOptionLabel, getPendantChainDisplay } from "../features/orders/order-format";
 import { CART_COPY, publicText } from "../i18n/public-copy";
@@ -138,8 +138,7 @@ export default function CartRoute() {
   function handleProceedCheckout(event) {
     if (!isAuthenticated) {
       event.preventDefault();
-      setPostAuthRedirect("/checkout");
-      window.location.href = "/auth";
+      redirectToAuth("/checkout");
     }
   }
 

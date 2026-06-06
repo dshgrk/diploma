@@ -2,6 +2,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Check, CreditCard, Lock, ShieldCheck } from "lucide-react";
 import { ordersApi } from "../api";
+import { redirectToAuth } from "../features/cart/cart-events";
 import { PAYMENT_COPY, publicText } from "../i18n/public-copy";
 import { formatCurrency } from "../utils";
 import { AuroraBackground, Footer, Header, LOCALE_FORMATS, usePublicLocale } from "./public-shell.jsx";
@@ -56,7 +57,7 @@ export default function PaymentRoute() {
       .catch((error) => {
         if (!active) return;
         if (error.status === 401 || error.message.toLowerCase().includes("auth")) {
-          window.location.href = "/auth";
+          redirectToAuth();
           return;
         }
         setLoadError(error.message);

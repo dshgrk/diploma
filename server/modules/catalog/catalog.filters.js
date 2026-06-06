@@ -35,6 +35,53 @@ const FILTER_QUERY_ALIASES = {
   braceletLength: ["braceletLength"]
 };
 
+const CATALOG_FILTERS = {
+  type: ["Ring", "Bracelet", "Pendant", "Earrings"],
+  metal: ["Gold", "Silver", "Rose Gold", "Steel"],
+  stoneType: [
+    "Diamond",
+    "Emerald",
+    "Sapphire",
+    "None",
+    "Pearl",
+    "Topaz",
+    "Opal",
+    "Garnet",
+    "Citrine",
+    "Morganite",
+    "Zircon",
+    "Quartz",
+    "Rose Quartz",
+    "Spinel",
+    "Aquamarine",
+    "Tourmaline",
+    "Moonstone"
+  ],
+  stoneShape: ["Round", "Oval", "Princess", "Pear", "Marquise", "Cushion", "Baguette", "Heart", "Emerald Cut", "Trillion"],
+  stoneColor: ["White", "Green", "Blue", "Cream", "Clear", "Honey", "Champagne", "Blush", "Burgundy", "Smoke", "Aqua", "Yellow", "Ice"],
+  stoneSize: [
+    "0.5 ct",
+    "0.6 ct",
+    "0.7 ct",
+    "0.8 ct",
+    "0.9 ct",
+    "1 ct",
+    "1.0 ct",
+    "1.1 ct",
+    "1.2 ct",
+    "1.3 ct",
+    "1.4 ct",
+    "1.5 ct",
+    "1.6 ct",
+    "2 ct",
+    "5 mm",
+    "6 mm"
+  ],
+  ringSize: ["16", "17", "18", "19"],
+  ringType: ["Classic", "Fashion", "Statement", "Minimal", "Evening", "Romantic", "Signature"],
+  braceletLength: ["16 cm", "17 cm", "18 cm", "19 cm"]
+};
+
 const ALLOWED_TYPES = new Set(["Ring", "Bracelet", "Pendant", "Earrings"]);
 const ALLOWED_SORTS = new Set(["default", "price_asc", "price_desc", "newest"]);
 
@@ -118,6 +165,7 @@ function serializeProductFilters(record) {
 }
 
 module.exports = {
+  CATALOG_FILTERS,
   FILTER_COLUMN_BY_KEY,
   normalizeCatalogFilters,
   normalizeCatalogPrice,

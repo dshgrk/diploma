@@ -379,4 +379,104 @@ describe("api flows", () => {
     expect(detailsResponse.body.data.id).toBe(firstOrderId);
     expect(Array.isArray(detailsResponse.body.data.items)).toBe(true);
   });
+
+  test("admin can create a ready product with real catalog filter values and derived type", async () => {
+    const app = createApp();
+    const agent = request.agent(app);
+
+    await agent.post("/api/admin/login").send({
+      email: "admin@aurora.local",
+      password: "password123"
+    });
+
+    const response = await agent.post("/api/admin/catalog/products").send({
+      jewelry_type_id: 2,
+      type: "Ring",
+      sku: "AUR-TEST-BRACELET",
+      slug: "aur-test-bracelet",
+      name_uk: "Тестовий браслет",
+      name_en: "Test bracelet",
+      description_uk: "Опис тестового браслета",
+      description_en: "Description for the test bracelet",
+      price: 12500,
+      currency: "UAH",
+      is_active: true,
+      image_asset_path: "",
+      image_alt_uk: "Тестовий браслет",
+      image_alt_en: "Test bracelet",
+      metal: "Rose Gold",
+      stoneType: "Pearl",
+      stoneShape: "Marquise",
+      stoneColor: "Champagne",
+      stoneSize: "1.2 ct",
+      braceletLength: "18 cm",
+      ringSize: "17",
+      ringType: "Romantic"
+    });
+
+    expect(response.status).toBe(201);
+    expect(response.body.success).toBe(true);
+    expect(response.body.data.jewelry_type_id).toBe(2);
+    expect(response.body.data.filters.type).toBe("Bracelet");
+    expect(response.body.data.filters.stoneType).toBe("Pearl");
+    expect(response.body.data.filters.stoneShape).toBe("Marquise");
+    expect(response.body.data.filters.stoneColor).toBe("Champagne");
+    expect(response.body.data.filters.stoneSize).toBe("1.2 ct");
+    expect(response.body.data.filters.braceletLength).toBe("18 cm");
+    expect(response.body.data.filters.ringSize).toBeNull();
+    expect(response.body.data.filters.ringType).toBeNull();
+  });
+
+  test("admin can update an existing ready product with real seeded values without conflicting type state", async () => {
+    const app = createApp();
+    const agent = request.agent(app);
+
+    await agent.post("/api/admin/login").send({
+      email: "admin@aurora.local",
+      password: "password123"
+    });
+
+    const listResponse = await agent.get("/api/admin/catalog/products");
+    expect(listResponse.status).toBe(200);
+
+    const ringProduct = listResponse.body.data.find((product) => product.jewelry_type_code === "ring");
+    expect(ringProduct).toBeTruthy();
+
+    const response = await agent.patch(`/api/admin/catalog/products/${ringProduct.id}`).send({
+      jewelry_type_id: ringProduct.jewelry_type_id,
+      type: "Pendant",
+      sku: ringProduct.sku,
+      slug: ringProduct.slug,
+      name_uk: ringProduct.name_uk,
+      name_en: ringProduct.name_en,
+      description_uk: ringProduct.description_uk,
+      description_en: ringProduct.description_en,
+      price: ringProduct.price,
+      currency: ringProduct.currency,
+      is_active: ringProduct.is_active,
+      image_asset_path: ringProduct.image?.asset_path || "",
+      image_alt_uk: ringProduct.image?.alt_uk || ringProduct.name_uk,
+      image_alt_en: ringProduct.image?.alt_en || ringProduct.name_en,
+      metal: "Gold",
+      stoneType: "Moonstone",
+      stoneShape: "Emerald Cut",
+      stoneColor: "Ice",
+      stoneSize: "1.1 ct",
+      ringSize: "18",
+      ringType: "Signature",
+      braceletLength: "19 cm"
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.data.id).toBe(ringProduct.id);
+    expect(response.body.data.filters.type).toBe("Ring");
+    expect(response.body.data.filters.stoneType).toBe("Moonstone");
+    expect(response.body.data.filters.stoneShape).toBe("Emerald Cut");
+    expect(response.body.data.filters.stoneColor).toBe("Ice");
+    expect(response.body.data.filters.stoneSize).toBe("1.1 ct");
+    expect(response.body.data.filters.ringSize).toBe("18");
+    expect(response.body.data.filters.ringType).toBe("Signature");
+    expect(response.body.data.filters.braceletLength).toBeNull();
+  });
 });

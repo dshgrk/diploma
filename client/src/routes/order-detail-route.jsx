@@ -2,11 +2,12 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { CreditCard } from "lucide-react";
 import { constructorApi, ordersApi } from "../api";
+import { redirectToAuth } from "../features/cart/cart-events";
 import { CartItemPreview } from "../features/orders/order-preview.jsx";
 import { findTypeOptionLabel, formatOrderDate, getPendantChainDisplay } from "../features/orders/order-format";
 import { orderStatusClassName, orderStatusLabel } from "../features/orders/order-status.js";
 import { ORDERS_COPY, publicText } from "../i18n/public-copy";
-import { formatCurrency } from "../utils";
+import { formatCurrency, formatCustomerName } from "../utils";
 import { AuroraBackground, Footer, Header, LOCALE_FORMATS, usePublicLocale } from "./public-shell.jsx";
 import "../styles.css";
 import "../styles/orders-account.css";
@@ -90,7 +91,7 @@ export default function OrderDetailRoute() {
       .catch((error) => {
         if (!active) return;
         if (error.status === 401 || error.message.toLowerCase().includes("auth")) {
-          window.location.href = "/auth";
+          redirectToAuth();
           return;
         }
         setLoadError(error.message);
@@ -242,7 +243,7 @@ export default function OrderDetailRoute() {
                     <div className="order-detail-customer-grid">
                       <div>
                         <span>{locale === "uk" ? "Одержувач" : "Recipient"}</span>
-                        <strong>{order.customer_name}</strong>
+                        <strong>{formatCustomerName(order.customer_name, order.email)}</strong>
                       </div>
                       <div>
                         <span>Email</span>

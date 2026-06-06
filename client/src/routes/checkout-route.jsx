@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Check, ChevronRight } from "lucide-react";
 import { authApi, cartApi, ordersApi } from "../api";
-import { setPostAuthRedirect } from "../features/cart/cart-events";
+import { redirectToAuth } from "../features/cart/cart-events";
 import { getReadyProductSizeLabel } from "../ready-product";
 import {
   extractValidationErrors,
@@ -48,8 +48,7 @@ export default function CheckoutRoute() {
       try {
         const session = await authApi.getSession();
         if (!session?.authenticated || !session.user) {
-          setPostAuthRedirect("/checkout");
-          window.location.href = "/auth";
+          redirectToAuth();
           return;
         }
 
@@ -66,8 +65,7 @@ export default function CheckoutRoute() {
       } catch (error) {
         if (!active) return;
         if (error.status === 401 || error.message.toLowerCase().includes("auth")) {
-          setPostAuthRedirect("/checkout");
-          window.location.href = "/auth";
+          redirectToAuth();
           return;
         }
         setLoadError(error.message);

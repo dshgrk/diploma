@@ -54,6 +54,23 @@
   text-transform: uppercase;
 }
 
+.admin-products-toolbar {
+  display: grid;
+  gap: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.admin-products-search input {
+  width: 100%;
+  min-height: 48px;
+}
+
+.admin-products-type-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
 .admin-products-collection {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

@@ -1,6 +1,7 @@
 // Файл описує React-сторінку account-route та її локальну UI-логіку.
 import React, { useEffect, useState } from "react";
 import { accountApi } from "../api";
+import { redirectToAuth } from "../features/cart/cart-events";
 import { formatOrderDate, getPendantChainDisplay } from "../features/orders/order-format";
 import { orderStatusClassName, orderStatusLabel } from "../features/orders/order-status.js";
 import { getReadyProductSizeLabel } from "../ready-product";
@@ -90,7 +91,7 @@ export default function AccountRoute() {
       .catch((error) => {
         if (!active) return;
         if (error.status === 401 || error.message.toLowerCase().includes("auth")) {
-          window.location.href = "/auth";
+          redirectToAuth();
           return;
         }
         setLoadError(error.message);

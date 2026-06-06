@@ -9,7 +9,7 @@ import {
   adminStatusClassName,
   adminTypeCodeLabel
 } from "../i18n/admin-copy";
-import { formatCurrency } from "../utils";
+import { formatCurrency, formatCustomerName } from "../utils";
 import "../styles.css";
 
 const ADMIN_LOCALE = "uk-UA";
@@ -66,7 +66,7 @@ export default function AdminOrderDetailRoute() {
       {!order ? <div className="empty-state-react"><h2>{ADMIN_UI.orderDetail.loading}</h2></div> : (
         <div className="admin-detail-grid">
           <section className="admin-panel">
-            <h2>{order.customer_name}</h2>
+            <h2>{formatCustomerName(order.customer_name, order.email)}</h2>
             <p>{order.email} · {order.phone}</p>
             <p>{order.delivery_method}: {order.delivery_address}</p>
             <strong>{formatCurrency(order.total_amount, order.currency, ADMIN_LOCALE)}</strong>

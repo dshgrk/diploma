@@ -8,6 +8,13 @@ const { CATALOG_FILTERS, serializeProductFilters } = require("../catalog/catalog
 const { readConstructorLayouts, writeConstructorLayouts } = require("../constructor/layouts.store");
 const { listProductMeta, upsertProductMeta, listAssets } = require("../constructor/constructor-json.service");
 
+const TYPE_FILTER_BY_JEWELRY_CODE = {
+  ring: "Ring",
+  bracelet: "Bracelet",
+  pendant: "Pendant",
+  earrings: "Earrings"
+};
+
 // Перетворює значення на число з fallback для адмін-каталогу.
 function toNumber(value, field) {
   const number = Number(value);
@@ -44,8 +51,8 @@ function normalizeFilterValue(payload, key) {
 }
 
 // Нормалізує normalize product filters, щоб API та UI працювали з однаковим форматом даних.
-function normalizeProductFilters(payload) {
-  const type = normalizeFilterValue(payload, "type");
+function normalizeProductFilters(payload, forcedType = "") {
+  const type = forcedType || normalizeFilterValue(payload, "type");
   return {
     filter_type: type,
     filter_metal: normalizeFilterValue(payload, "metal"),
@@ -190,8 +197,7 @@ function validateProductPayload(payload) {
     is_active: normalizeBoolean(payload.is_active),
     image_asset_path: String(payload.image_asset_path || "").trim(),
     image_alt_uk: String(payload.image_alt_uk || payload.name_uk || "").trim(),
-    image_alt_en: String(payload.image_alt_en || payload.name_en || "").trim(),
-    filters: normalizeProductFilters(payload)
+    image_alt_en: String(payload.image_alt_en || payload.name_en || "").trim()
   };
 }
 
@@ -199,6 +205,7 @@ function validateProductPayload(payload) {
 async function assertJewelryTypeExists(id) {
   const type = await db("jewelry_types").where({ id }).first();
   if (!type) throw createHttpError(422, "VALIDATION_ERROR", "Jewelry type does not exist", { jewelry_type_id: "Jewelry type does not exist" });
+  return type;
 }
 
 // Замінює головне зображення товару й підтримує тільки один primary image.
@@ -221,7 +228,8 @@ async function replacePrimaryImage(productId, payload) {
 // Створює новий запис або чернетку для create product.
 async function createProduct(payload) {
   const data = validateProductPayload(payload);
-  await assertJewelryTypeExists(data.jewelry_type_id);
+  const jewelryType = await assertJewelryTypeExists(data.jewelry_type_id);
+  data.filters = normalizeProductFilters(payload, TYPE_FILTER_BY_JEWELRY_CODE[jewelryType.code] || "");
   data.sku = data.sku || `AUR-${Date.now()}`;
   data.slug = await ensureUniqueSlug(slugify(data.slug || data.name_en || data.name_uk));
 
@@ -249,7 +257,8 @@ async function updateProduct(id, payload) {
   if (!product) throw createHttpError(404, "PRODUCT_NOT_FOUND", "Product not found");
 
   const data = validateProductPayload(payload);
-  await assertJewelryTypeExists(data.jewelry_type_id);
+  const jewelryType = await assertJewelryTypeExists(data.jewelry_type_id);
+  data.filters = normalizeProductFilters(payload, TYPE_FILTER_BY_JEWELRY_CODE[jewelryType.code] || "");
   data.sku = data.sku || `AUR-${id}`;
   data.slug = await ensureUniqueSlug(slugify(data.slug || data.name_en || data.name_uk), id);
   await db("products").where({ id }).update({

@@ -1,6 +1,6 @@
-// Файл описує React-сторінку admin-products-route та її локальну UI-логіку.
 import React, { useEffect, useState } from "react";
 import { adminCatalogApi } from "../api";
+import { FALLBACK_PRODUCT_IMAGE } from "../content";
 import { AdminShell } from "../features/admin/admin-shell";
 import { emptyProductForm, productToForm, readFileAsDataUrl } from "../features/admin/product-form";
 import {
@@ -11,10 +11,9 @@ import {
   adminProductFilterValueLabel,
   adminTypeCodeLabel
 } from "../i18n/admin-copy";
-import { FALLBACK_PRODUCT_IMAGE } from "../content";
-import { formatCurrency } from "../utils";
 import "../styles.css";
 import "../styles/admin-products.css";
+import { formatCurrency } from "../utils";
 
 const ADMIN_LOCALE = "uk-UA";
 const ADMIN_PRODUCT_ARCHIVED_LABEL = "Архів";
@@ -40,6 +39,13 @@ const ADMIN_PRODUCTS_TYPE_TEMPLATE_HELP = "Після зміни типу фор
 const ADMIN_PRODUCTS_NO_EXTRA_FILTERS = "Без додаткових фільтрів";
 const ADMIN_PRODUCTS_PUBLISHING_HELP = "Збереження не змінює логіку каталогу і працює через поточний адміністративний потік.";
 const ADMIN_PRODUCTS_PRIMARY_IMAGE_LABEL = "Основне зображення";
+const ADMIN_PRODUCTS_SEARCH_PLACEHOLDER = "Пошук за назвою, SKU або слагом";
+const ADMIN_PRODUCTS_ALL_TYPES_LABEL = "Усі";
+const ADMIN_PRODUCTS_RESULTS_LABEL = "Знайдено";
+const ADMIN_PRODUCTS_TYPE_FILTER_ARIA = "Фільтр за типом";
+const ADMIN_PRODUCTS_CATALOG_SUMMARY_ARIA = "Підсумок каталогу";
+const ADMIN_PRODUCTS_LIST_ARIA = "Готові товари";
+const ADMIN_PRODUCTS_FILTER_TAGS_ARIA = "Фільтри товару";
 
 const PRODUCT_FILTER_FIELDS_BY_TYPE = {
   Ring: ["type", "metal", "stoneType", "stoneShape", "stoneColor", "stoneSize", "ringSize", "ringType"],
@@ -54,6 +60,14 @@ const TYPE_DEFAULT_BY_CODE = {
   pendant: "Pendant",
   earrings: "Earrings"
 };
+
+const CATALOG_TYPE_TABS = [
+  { value: "", label: ADMIN_PRODUCTS_ALL_TYPES_LABEL },
+  { value: "Ring", label: adminProductFilterValueLabel("type", "Ring") },
+  { value: "Bracelet", label: adminProductFilterValueLabel("type", "Bracelet") },
+  { value: "Earrings", label: adminProductFilterValueLabel("type", "Earrings") },
+  { value: "Pendant", label: adminProductFilterValueLabel("type", "Pendant") }
+];
 
 const FILTER_FIELD_KEYS = Object.keys(ADMIN_PRODUCT_FILTERS);
 
@@ -134,6 +148,14 @@ function buildEditorSummary(selectedProduct, form, jewelryTypes) {
   };
 }
 
+function matchesCatalogSearch(product, query) {
+  const normalizedQuery = String(query || "").trim().toLowerCase();
+  if (!normalizedQuery) return true;
+
+  return [product?.name_uk, product?.name_en, product?.sku, product?.slug]
+    .some((value) => String(value || "").toLowerCase().includes(normalizedQuery));
+}
+
 export default function AdminProductsRoute() {
   const [products, setProducts] = useState([]);
   const [jewelryTypes, setJewelryTypes] = useState([]);
@@ -143,6 +165,8 @@ export default function AdminProductsRoute() {
   const [notice, setNotice] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [catalogSearch, setCatalogSearch] = useState("");
+  const [catalogTypeFilter, setCatalogTypeFilter] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -186,10 +210,6 @@ export default function AdminProductsRoute() {
         return sanitizeFiltersForType({ ...current, jewelry_type_id: value }, nextType);
       }
 
-      if (key === "type") {
-        return sanitizeFiltersForType(current, value);
-      }
-
       return { ...current, [key]: value };
     });
   }
@@ -222,18 +242,22 @@ export default function AdminProductsRoute() {
     }
   }
 
+  const resolvedFilterType = form.type || getDefaultFilterType(jewelryTypes, form.jewelry_type_id);
+
   async function handleSaveProduct() {
     setIsSaving(true);
     setError("");
     setNotice("");
 
     try {
+      const normalizedForm = sanitizeFiltersForType(form, resolvedFilterType);
       const payload = {
-        ...form,
-        jewelry_type_id: Number(form.jewelry_type_id),
-        price: Number(form.price || 0),
-        asset_id: form.asset_id ? Number(form.asset_id) : null,
-        variant_id: form.variant_id ? Number(form.variant_id) : null
+        ...normalizedForm,
+        type: resolvedFilterType,
+        jewelry_type_id: Number(normalizedForm.jewelry_type_id),
+        price: Number(normalizedForm.price || 0),
+        asset_id: normalizedForm.asset_id ? Number(normalizedForm.asset_id) : null,
+        variant_id: normalizedForm.variant_id ? Number(normalizedForm.variant_id) : null
       };
 
       const saved = selectedProductId === "new"
@@ -268,10 +292,14 @@ export default function AdminProductsRoute() {
 
   const selectedProduct = products.find((item) => String(item.id) === String(selectedProductId)) || null;
   const activeProductsCount = products.filter((product) => product.is_active).length;
-  const resolvedFilterType = form.type || getDefaultFilterType(jewelryTypes, form.jewelry_type_id);
   const visibleFilterKeys = PRODUCT_FILTER_FIELDS_BY_TYPE[resolvedFilterType] || ["type"];
   const filterOptions = buildFilterOptions(products);
   const editorSummary = buildEditorSummary(selectedProduct, form, jewelryTypes);
+  const filteredProducts = products.filter((product) => {
+    const productType = product?.filters?.type || getDefaultFilterType(jewelryTypes, product?.jewelry_type_id);
+    if (catalogTypeFilter && productType !== catalogTypeFilter) return false;
+    return matchesCatalogSearch(product, catalogSearch);
+  });
 
   return (
     <AdminShell title={ADMIN_UI.products.title} subtitle={ADMIN_UI.products.subtitle}>
@@ -287,9 +315,10 @@ export default function AdminProductsRoute() {
             </div>
 
             <div className="admin-inline-actions admin-products-panel-actions">
-              <div className="admin-products-summary" aria-label="Підсумок каталогу">
+              <div className="admin-products-summary" aria-label={ADMIN_PRODUCTS_CATALOG_SUMMARY_ARIA}>
                 <span>{products.length} позицій</span>
                 <span>{activeProductsCount} активних</span>
+                <span>{ADMIN_PRODUCTS_RESULTS_LABEL}: {filteredProducts.length}</span>
               </div>
               <button type="button" className="small-button" onClick={() => setSelectedProductId("new")}>
                 {ADMIN_UI.products.new}
@@ -297,10 +326,37 @@ export default function AdminProductsRoute() {
             </div>
           </div>
 
-          <div className="admin-products-collection" role="list" aria-label="Готові товари">
-            {products.length === 0 ? (
+          <div className="admin-products-toolbar">
+            <label className="admin-products-search">
+              <span className="sr-only">{ADMIN_PRODUCTS_SEARCH_PLACEHOLDER}</span>
+              <input
+                type="search"
+                value={catalogSearch}
+                onChange={(event) => setCatalogSearch(event.target.value)}
+                placeholder={ADMIN_PRODUCTS_SEARCH_PLACEHOLDER}
+              />
+            </label>
+
+            <div className="admin-products-type-tabs" role="tablist" aria-label={ADMIN_PRODUCTS_TYPE_FILTER_ARIA}>
+              {CATALOG_TYPE_TABS.map((tab) => (
+                <button
+                  key={tab.value || "all"}
+                  type="button"
+                  role="tab"
+                  aria-selected={catalogTypeFilter === tab.value}
+                  className={`small-button${catalogTypeFilter === tab.value ? " is-active" : ""}`}
+                  onClick={() => setCatalogTypeFilter(tab.value)}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="admin-products-collection" role="list" aria-label={ADMIN_PRODUCTS_LIST_ARIA}>
+            {filteredProducts.length === 0 ? (
               <div className="admin-products-empty-state">{ADMIN_PRODUCTS_EMPTY_LABEL}</div>
-            ) : products.map((product) => {
+            ) : filteredProducts.map((product) => {
               const isSelected = String(selectedProductId) === String(product.id);
               const productName = adminLocalizedEntry(product.name_uk, product.name_en, "Без назви");
               const productType = adminLocalizedEntry(
@@ -343,7 +399,7 @@ export default function AdminProductsRoute() {
                       {formatCurrency(Number(product.price || 0), product.currency || "UAH", ADMIN_LOCALE)}
                     </div>
 
-                    <div className="admin-products-card-tags" aria-label="Фільтри товару">
+                    <div className="admin-products-card-tags" aria-label={ADMIN_PRODUCTS_FILTER_TAGS_ARIA}>
                       {filterTags.length > 0 ? filterTags.map((tag) => (
                         <span key={tag.key}>{tag.label}</span>
                       )) : <span>{ADMIN_PRODUCTS_NO_EXTRA_FILTERS}</span>}
@@ -414,17 +470,6 @@ export default function AdminProductsRoute() {
                       {jewelryTypes.map((type) => (
                         <option key={type.id} value={type.id}>
                           {adminLocalizedEntry(type.name_uk, type.name_en, adminTypeCodeLabel(type.code))}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-
-                  <label>
-                    <span>{adminProductFilterLabel("type")}</span>
-                    <select value={resolvedFilterType} onChange={(event) => updateField("type", event.target.value)}>
-                      {filterOptions.type.map((value) => (
-                        <option key={value} value={value}>
-                          {adminProductFilterValueLabel("type", value)}
                         </option>
                       ))}
                     </select>

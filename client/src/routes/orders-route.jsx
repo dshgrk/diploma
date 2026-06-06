@@ -1,6 +1,7 @@
 // Файл описує React-сторінку orders-route та її локальну UI-логіку.
 import React, { useEffect, useState } from "react";
 import { ordersApi } from "../api";
+import { redirectToAuth } from "../features/cart/cart-events";
 import { formatOrderDate } from "../features/orders/order-format";
 import { orderStatusClassName, orderStatusLabel } from "../features/orders/order-status.js";
 import { ORDERS_COPY, publicText } from "../i18n/public-copy";
@@ -30,7 +31,7 @@ export default function OrdersRoute() {
       .catch((error) => {
         if (!active) return;
         if (error.status === 401 || error.message.toLowerCase().includes("auth")) {
-          window.location.href = "/auth";
+          redirectToAuth();
           return;
         }
         setLoadError(error.message);

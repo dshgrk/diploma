@@ -1,4 +1,3 @@
-// Файл містить логіку словників локалізації.
 export const ADMIN_UI = {
   shell: {
     navAria: "Навігація адмінки",
@@ -91,19 +90,16 @@ export const ADMIN_ORDER_STATUS_COPY = {
   completed: "Завершено"
 };
 
-// Виконує локальну логіку admin order status label для модуля словників локалізації.
 export function adminOrderStatusLabel(status) {
   return ADMIN_ORDER_STATUS_COPY[status] || status || "—";
 }
 
-// Виконує локальну логіку admin payment state label для модуля словників локалізації.
 export function adminPaymentStateLabel(state) {
   if (state === "paid") return "Оплачено";
   if (state === "unpaid") return "Не оплачено";
   return state || "—";
 }
 
-// Виконує локальну логіку admin status class name для модуля словників локалізації.
 export function adminStatusClassName(status, overdue = false) {
   if (overdue) return "status-pill overdue";
   if (status === "confirmed") return "status-pill confirmed";
@@ -119,7 +115,6 @@ const ADMIN_TYPE_CODE_LABELS = {
   earrings: "Сережки"
 };
 
-// Виконує локальну логіку admin type code label для модуля словників локалізації.
 export function adminTypeCodeLabel(code) {
   return ADMIN_TYPE_CODE_LABELS[code] || code || "";
 }
@@ -127,12 +122,30 @@ export function adminTypeCodeLabel(code) {
 export const ADMIN_PRODUCT_FILTERS = {
   type: ["Ring", "Bracelet", "Pendant", "Earrings"],
   metal: ["Gold", "Silver", "Rose Gold", "Steel"],
-  stoneType: ["Diamond", "Emerald", "Sapphire", "None"],
-  stoneShape: ["Round", "Oval", "Princess"],
-  stoneColor: ["White", "Green", "Blue"],
-  stoneSize: ["0.5 ct", "1 ct", "2 ct"],
+  stoneType: [
+    "Diamond",
+    "Emerald",
+    "Sapphire",
+    "None",
+    "Pearl",
+    "Topaz",
+    "Opal",
+    "Garnet",
+    "Citrine",
+    "Morganite",
+    "Zircon",
+    "Quartz",
+    "Rose Quartz",
+    "Spinel",
+    "Aquamarine",
+    "Tourmaline",
+    "Moonstone"
+  ],
+  stoneShape: ["Round", "Oval", "Princess", "Pear", "Marquise", "Cushion", "Baguette", "Heart", "Emerald Cut", "Trillion"],
+  stoneColor: ["White", "Green", "Blue", "Cream", "Clear", "Honey", "Champagne", "Blush", "Burgundy", "Smoke", "Aqua", "Yellow", "Ice"],
+  stoneSize: ["0.5 ct", "0.6 ct", "0.7 ct", "0.8 ct", "0.9 ct", "1 ct", "1.0 ct", "1.1 ct", "1.2 ct", "1.3 ct", "1.4 ct", "1.5 ct", "1.6 ct", "2 ct", "5 mm", "6 mm"],
   ringSize: ["16", "17", "18", "19"],
-  ringType: ["Classic", "Fashion", "Statement"],
+  ringType: ["Classic", "Fashion", "Statement", "Minimal", "Evening", "Romantic", "Signature"],
   braceletLength: ["16 cm", "17 cm", "18 cm", "19 cm"]
 };
 
@@ -165,36 +178,67 @@ const ADMIN_PRODUCT_FILTER_VALUE_LABELS = {
     Diamond: "Діамант",
     Emerald: "Смарагд",
     Sapphire: "Сапфір",
-    None: "Без каменю"
+    None: "Без каменю",
+    Pearl: "Перлина",
+    Topaz: "Топаз",
+    Opal: "Опал",
+    Garnet: "Гранат",
+    Citrine: "Цитрин",
+    Morganite: "Морганіт",
+    Zircon: "Циркон",
+    Quartz: "Кварц",
+    "Rose Quartz": "Рожевий кварц",
+    Spinel: "Шпінель",
+    Aquamarine: "Аквамарин",
+    Tourmaline: "Турмалін",
+    Moonstone: "Місячний камінь"
   },
   stoneShape: {
     Round: "Круг",
     Oval: "Овал",
-    Princess: "Принцеса"
+    Princess: "Принцеса",
+    Pear: "Груша",
+    Marquise: "Маркіз",
+    Cushion: "Подушка",
+    Baguette: "Багет",
+    Heart: "Серце",
+    "Emerald Cut": "Огранювання емеральд",
+    Trillion: "Трильйон"
   },
   stoneColor: {
     White: "Білий",
     Green: "Зелений",
-    Blue: "Синій"
+    Blue: "Синій",
+    Cream: "Кремовий",
+    Clear: "Прозорий",
+    Honey: "Медовий",
+    Champagne: "Шампань",
+    Blush: "Ніжно-рожевий",
+    Burgundy: "Бордовий",
+    Smoke: "Димчастий",
+    Aqua: "Аква",
+    Yellow: "Жовтий",
+    Ice: "Кришталевий"
   },
   ringType: {
     Classic: "Класична",
     Fashion: "Модна",
-    Statement: "Акцентна"
+    Statement: "Акцентна",
+    Minimal: "Мінімалістична",
+    Evening: "Вечірня",
+    Romantic: "Романтична",
+    Signature: "Фірмова"
   }
 };
 
-// Виконує локальну логіку admin product filter label для модуля словників локалізації.
 export function adminProductFilterLabel(key) {
   return ADMIN_PRODUCT_FILTER_LABELS[key] || key;
 }
 
-// Виконує локальну логіку admin product filter value label для модуля словників локалізації.
 export function adminProductFilterValueLabel(key, value) {
   return ADMIN_PRODUCT_FILTER_VALUE_LABELS[key]?.[value] || value;
 }
 
-// Виконує локальну логіку admin localized entry для модуля словників локалізації.
 export function adminLocalizedEntry(primary, fallback, finalValue = "") {
   return primary || fallback || finalValue;
 }
