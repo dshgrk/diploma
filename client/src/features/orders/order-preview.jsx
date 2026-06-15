@@ -77,15 +77,17 @@ export function CartItemPreview({ item, constructorConfig }) {
   const { variant, slots, selections } = resolveOrderPreviewData(item, constructorConfig);
   const stonesByCode = buildStoneCodeMap(constructorConfig?.stones || []);
   const previewImage = resolveOrderPreviewImage(item, variant);
-  const canRenderPreview = Boolean(variant || previewImage);
+  const shouldUseLivePreview = Boolean(variant);
+  const shouldUseStaticPreview = !shouldUseLivePreview && Boolean(previewImage);
+  const canRenderPreview = shouldUseLivePreview || shouldUseStaticPreview;
 
   return (
     <div className="cart-item-preview-shell cart-item-preview-custom">
-      {previewImage ? (
+      {shouldUseStaticPreview ? (
         <img className="cart-ready-image cart-custom-preview-image" src={previewImage} alt={item.title || ""} loading="lazy" decoding="async" />
       ) : null}
-      {variant ? (
-        <div className="cart-custom-preview-overlay" aria-hidden={previewImage ? "true" : undefined}>
+      {shouldUseLivePreview ? (
+        <div className="cart-custom-preview-overlay">
           <JewelryPreview
             variant={variant}
             slots={slots}

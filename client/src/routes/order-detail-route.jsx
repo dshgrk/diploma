@@ -208,9 +208,27 @@ export default function OrderDetailRoute() {
                   <section className="order-detail-card order-detail-summary-card">
                     <span className="badge subtle">{locale === "uk" ? "Резюме замовлення" : "Order summary"}</span>
                     <h2>{locale === "uk" ? "Готово до виготовлення" : "Ready for production"}</h2>
-                    <div className="order-detail-total-box">
-                      <span>{locale === "uk" ? "Підсумкова сума" : "Final total"}</span>
-                      <strong>{formatCurrency(order.total_amount, order.currency, localeFormat)}</strong>
+                    <div className="price-breakdown-card">
+                      <div className="price-breakdown-row">
+                        <span>{t(locale, "subtotal")}</span>
+                        <strong>{formatCurrency(order.subtotal_amount, order.currency, localeFormat)}</strong>
+                      </div>
+                      {order.promo_code ? (
+                        <div className="price-breakdown-promo">
+                          <span className="badge subtle">{t(locale, "promoCode")}</span>
+                          <strong>{order.promo_code}</strong>
+                        </div>
+                      ) : null}
+                      {order.discount_amount > 0 ? (
+                        <div className="price-breakdown-row is-discount">
+                          <span>{t(locale, "discount")}</span>
+                          <strong>-{formatCurrency(order.discount_amount, order.currency, localeFormat)}</strong>
+                        </div>
+                      ) : null}
+                      <div className="order-detail-total-box">
+                        <span>{t(locale, "finalTotal")}</span>
+                        <strong>{formatCurrency(order.total_amount, order.currency, localeFormat)}</strong>
+                      </div>
                     </div>
                     <div className="order-detail-meta-grid">
                       <div>

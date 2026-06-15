@@ -31,6 +31,9 @@ export default function CheckoutRoute() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [createdOrder, setCreatedOrder] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [promoCodeInput, setPromoCodeInput] = useState("");
+  const [promoBusy, setPromoBusy] = useState(false);
+  const [promoError, setPromoError] = useState("");
   const [form, setForm] = useState({
     customer_name: "",
     email: "",
@@ -85,6 +88,11 @@ export default function CheckoutRoute() {
     return () => window.clearTimeout(timer);
   }, [toast]);
 
+  useEffect(() => {
+    if (!cart?.applied_promo?.code) return;
+    setPromoCodeInput(cart.applied_promo.code);
+  }, [cart?.applied_promo?.code]);
+
   // Оновлює існуючі дані update form без зміни решти стану.
   function updateForm(event) {
     const { name, type, checked, value } = event.target;
@@ -93,6 +101,45 @@ export default function CheckoutRoute() {
       [name]: type === "checkbox" ? checked : value
     }));
     setFieldErrors((current) => ({ ...current, [name]: "" }));
+  }
+
+  function readApiErrorMessage(error) {
+    return error?.payload?.error?.message || error?.message || "Request failed";
+  }
+
+  async function submitPromoCode() {
+    const normalizedCode = String(promoCodeInput || "").trim();
+    if (!normalizedCode) {
+      setPromoError(t(locale, "promoCode"));
+      return;
+    }
+
+    setPromoBusy(true);
+    setPromoError("");
+    try {
+      const updated = await cartApi.applyPromoCode(normalizedCode);
+      setCart(updated);
+      setPromoCodeInput(updated?.applied_promo?.code || normalizedCode.toUpperCase());
+      setToast(t(locale, "promoApplySuccess"));
+    } catch (error) {
+      setPromoError(readApiErrorMessage(error));
+    } finally {
+      setPromoBusy(false);
+    }
+  }
+
+  async function clearPromoCode() {
+    setPromoBusy(true);
+    setPromoError("");
+    try {
+      const updated = await cartApi.removePromoCode();
+      setCart(updated);
+      setPromoCodeInput("");
+    } catch (error) {
+      setPromoError(readApiErrorMessage(error));
+    } finally {
+      setPromoBusy(false);
+    }
   }
 
   // Обробляє дію користувача або системну подію для handle checkout.
@@ -281,9 +328,78 @@ export default function CheckoutRoute() {
               <aside className="checkout-summary-panel">
                 <span className="badge">{t(locale, "orderSummary")}</span>
                 <h2>{t(locale, "reservedAfterPrepayment")}</h2>
-                <div className="checkout-total">
-                  <span>{t(locale, "total")}</span>
-                  <strong>{formatCurrency(cart.subtotal_amount, cart.currency, localeFormat)}</strong>
+                <div className="promo-form checkout-summary-promo">
+                  <div className="checkout-promo-controls">
+                    <label className="constructor-field" htmlFor="checkout-promo-code">
+                      <span>{t(locale, "promoCode")}</span>
+                      <input
+                        id="checkout-promo-code"
+                        type="text"
+                        autoComplete="off"
+                        placeholder=""
+                        value={promoCodeInput}
+                        disabled={promoBusy}
+                        onChange={(event) => {
+                          setPromoCodeInput(event.target.value.toUpperCase());
+                          if (promoError) setPromoError("");
+                        }}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter") {
+                            event.preventDefault();
+                            submitPromoCode();
+                          }
+                        }}
+                      />
+                    </label>
+                    <button
+                      className="button button-outline"
+                      type="button"
+                      disabled={promoBusy}
+                      onClick={submitPromoCode}
+                    >
+                      {t(locale, "applyPromo")}
+                    </button>
+                  </div>
+                  {cart.applied_promo ? (
+                    <div className="cart-promo-active" role="status">
+                      <div>
+                        <span className="badge subtle">{t(locale, "promoActive")}</span>
+                        <strong>{cart.applied_promo.code}</strong>
+                        <p>{cart.applied_promo.description || t(locale, "promoDescriptionFallback")}</p>
+                      </div>
+                      <button
+                        type="button"
+                        className="cart-promo-remove"
+                        disabled={promoBusy}
+                        onClick={clearPromoCode}
+                      >
+                        {t(locale, "promoRemove")}
+                      </button>
+                    </div>
+                  ) : null}
+                  {promoError ? <p className="cart-promo-error">{promoError}</p> : null}
+                </div>
+                <div className="price-breakdown-card">
+                  <div className="price-breakdown-row">
+                    <span>{t(locale, "subtotal")}</span>
+                    <strong>{formatCurrency(cart.subtotal_amount, cart.currency, localeFormat)}</strong>
+                  </div>
+                  {cart.applied_promo ? (
+                    <div className="price-breakdown-promo">
+                      <span className="badge subtle">{t(locale, "promoCode")}</span>
+                      <strong>{cart.applied_promo.code}</strong>
+                    </div>
+                  ) : null}
+                  {cart.discount_amount > 0 ? (
+                    <div className="price-breakdown-row is-discount">
+                      <span>{t(locale, "discount")}</span>
+                      <strong>-{formatCurrency(cart.discount_amount, cart.currency, localeFormat)}</strong>
+                    </div>
+                  ) : null}
+                  <div className="checkout-total">
+                    <span>{t(locale, "total")}</span>
+                    <strong>{formatCurrency(cart.total_amount, cart.currency, localeFormat)}</strong>
+                  </div>
                 </div>
 
                 <div className="checkout-items">

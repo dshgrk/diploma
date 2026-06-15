@@ -63,6 +63,26 @@ function ActiveOrderCard({ order, locale, localeFormat }) {
           <strong>{formatCurrency(order.total_amount, order.currency, localeFormat)}</strong>
         </div>
       </div>
+      {(order.discount_amount > 0 || order.promo_code) ? (
+        <div className="price-breakdown-card">
+          <div className="price-breakdown-row">
+            <span>{t(locale, "subtotal")}</span>
+            <strong>{formatCurrency(order.subtotal_amount, order.currency, localeFormat)}</strong>
+          </div>
+          {order.promo_code ? (
+            <div className="price-breakdown-promo">
+              <span className="badge subtle">{t(locale, "promoCode")}</span>
+              <strong>{order.promo_code}</strong>
+            </div>
+          ) : null}
+          {order.discount_amount > 0 ? (
+            <div className="price-breakdown-row is-discount">
+              <span>{t(locale, "discount")}</span>
+              <strong>-{formatCurrency(order.discount_amount, order.currency, localeFormat)}</strong>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
       <div className="account-order-items">
         {order.items.map((item) => (
           <AccountOrderLine key={item.id} item={item} order={order} locale={locale} localeFormat={localeFormat} />
@@ -207,6 +227,26 @@ export default function AccountRoute() {
                           <span>{t(locale, "orderTotal")}</span>
                           <strong>{formatCurrency(order.total_amount, order.currency, localeFormat)}</strong>
                         </div>
+                        {(order.discount_amount > 0 || order.promo_code) ? (
+                          <div className="price-breakdown-card">
+                            <div className="price-breakdown-row">
+                              <span>{t(locale, "subtotal")}</span>
+                              <strong>{formatCurrency(order.subtotal_amount, order.currency, localeFormat)}</strong>
+                            </div>
+                            {order.promo_code ? (
+                              <div className="price-breakdown-promo">
+                                <span className="badge subtle">{t(locale, "promoCode")}</span>
+                                <strong>{order.promo_code}</strong>
+                              </div>
+                            ) : null}
+                            {order.discount_amount > 0 ? (
+                              <div className="price-breakdown-row is-discount">
+                                <span>{t(locale, "discount")}</span>
+                                <strong>-{formatCurrency(order.discount_amount, order.currency, localeFormat)}</strong>
+                              </div>
+                            ) : null}
+                          </div>
+                        ) : null}
                         <div className="account-order-items">
                           {order.items.map((item) => (
                             <AccountOrderLine key={item.id} item={item} order={order} locale={locale} localeFormat={localeFormat} />

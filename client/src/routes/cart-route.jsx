@@ -311,10 +311,29 @@ export default function CartRoute() {
               <aside className="cart-summary-panel">
                 <span className="badge">{t(locale, copy, "reservationSummary")}</span>
                 <h2>{t(locale, copy, "readyCheckout")}</h2>
-                <div className="cart-summary-total">
-                  <span>{t(locale, copy, "subtotal")}</span>
-                  <strong>{formatCurrency(cart.subtotal_amount, cart.currency, localeFormat)}</strong>
+                <div className="cart-summary-card">
+                  <div className="cart-summary-row">
+                    <span>{t(locale, copy, "subtotal")}</span>
+                    <strong>{formatCurrency(cart.subtotal_amount, cart.currency, localeFormat)}</strong>
+                  </div>
+                  {cart.applied_promo ? (
+                    <div className="price-breakdown-promo">
+                      <span className="badge subtle">{t(locale, copy, "promoCode")}</span>
+                      <strong>{cart.applied_promo.code}</strong>
+                    </div>
+                  ) : null}
+                  {cart.discount_amount > 0 ? (
+                    <div className="cart-summary-row is-discount">
+                      <span>{t(locale, copy, "discount")}</span>
+                      <strong>-{formatCurrency(cart.discount_amount, cart.currency, localeFormat)}</strong>
+                    </div>
+                  ) : null}
+                  <div className="cart-summary-total">
+                    <span>{t(locale, copy, "total")}</span>
+                    <strong>{formatCurrency(cart.total_amount, cart.currency, localeFormat)}</strong>
+                  </div>
                 </div>
+
                 <a className="button cart-checkout-button" href="/checkout" onClick={handleProceedCheckout}>
                   {t(locale, copy, "proceedCheckout")}
                   <ChevronRight aria-hidden="true" />

@@ -1,0 +1,279 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1100" viewBox="0 0 1800 1100">
+  <style>
+    .title { font: 700 28px "Times New Roman", serif; fill: #111; }
+    .group { fill: none; stroke: #555; stroke-width: 2; stroke-dasharray: 8 6; }
+    .group-title { font: 700 20px Arial, sans-serif; fill: #111; }
+    .entity { fill: #fff; stroke: #111; stroke-width: 2; }
+    .entity-title { font: 700 16px Arial, sans-serif; fill: #111; }
+    .field { font: 15px Arial, sans-serif; fill: #111; }
+    .rel { stroke: #111; stroke-width: 2.2; fill: none; }
+    .label { font: 15px Arial, sans-serif; fill: #111; }
+  </style>
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#111"/>
+    </marker>
+  </defs>
+
+  <text x="900" y="42" text-anchor="middle" class="title">Рисунок 2.2 – Логічна ER-модель реляційної частини бази даних Aurora Atelier</text>
+
+  <!-- Groups -->
+  <rect x="30" y="60" width="520" height="420" rx="16" class="group"/>
+  <text x="290" y="95" text-anchor="middle" class="group-title">1) Користувачі та автентифікація</text>
+
+  <rect x="580" y="60" width="730" height="420" rx="16" class="group"/>
+  <text x="945" y="95" text-anchor="middle" class="group-title">2) Каталог</text>
+
+  <rect x="230" y="500" width="900" height="230" rx="16" class="group"/>
+  <text x="680" y="535" text-anchor="middle" class="group-title">3) Кошик</text>
+
+  <rect x="30" y="760" width="1460" height="300" rx="16" class="group"/>
+  <text x="760" y="795" text-anchor="middle" class="group-title">4) Замовлення та оплата</text>
+
+  <rect x="1330" y="60" width="440" height="670" rx="16" class="group"/>
+  <text x="1550" y="95" text-anchor="middle" class="group-title">5) Промокоди</text>
+
+  <!-- Entities -->
+  <!-- Auth -->
+  <g transform="translate(70,110)">
+    <rect width="140" height="160" class="entity"/>
+    <line x1="0" y1="34" x2="140" y2="34" class="rel"/>
+    <text x="70" y="22" text-anchor="middle" class="entity-title">users</text>
+    <text x="14" y="62" class="field">PK</text><text x="44" y="62" class="field">id</text>
+    <text x="44" y="92" class="field">role</text>
+    <text x="44" y="122" class="field">email</text>
+    <text x="44" y="152" class="field">auth_provider</text>
+  </g>
+
+  <g transform="translate(360,110)">
+    <rect width="170" height="175" class="entity"/>
+    <line x1="0" y1="34" x2="170" y2="34" class="rel"/>
+    <text x="85" y="22" text-anchor="middle" class="entity-title">sessions</text>
+    <text x="14" y="62" class="field">PK</text><text x="44" y="62" class="field">id</text>
+    <text x="14" y="92" class="field">FK</text><text x="44" y="92" class="field">user_id</text>
+    <text x="44" y="122" class="field">token_hash</text>
+    <text x="44" y="152" class="field">expires_at</text>
+  </g>
+
+  <g transform="translate(360,330)">
+    <rect width="190" height="190" class="entity"/>
+    <line x1="0" y1="34" x2="190" y2="34" class="rel"/>
+    <text x="95" y="22" text-anchor="middle" class="entity-title">email_verification_codes</text>
+    <text x="14" y="62" class="field">PK</text><text x="44" y="62" class="field">id</text>
+    <text x="14" y="92" class="field">FK</text><text x="44" y="92" class="field">user_id</text>
+    <text x="44" y="122" class="field">email</text>
+    <text x="44" y="152" class="field">code_hash</text>
+    <text x="44" y="182" class="field">expires_at</text>
+  </g>
+
+  <!-- Catalog -->
+  <g transform="translate(610,110)">
+    <rect width="160" height="160" class="entity"/>
+    <line x1="0" y1="34" x2="160" y2="34" class="rel"/>
+    <text x="80" y="22" text-anchor="middle" class="entity-title">jewelry_types</text>
+    <text x="14" y="62" class="field">PK</text><text x="44" y="62" class="field">id</text>
+    <text x="44" y="92" class="field">code</text>
+    <text x="44" y="122" class="field">name_uk</text>
+    <text x="44" y="152" class="field">base_price</text>
+  </g>
+
+  <g transform="translate(860,100)">
+    <rect width="180" height="210" class="entity"/>
+    <line x1="0" y1="34" x2="180" y2="34" class="rel"/>
+    <text x="90" y="22" text-anchor="middle" class="entity-title">products</text>
+    <text x="14" y="62" class="field">PK</text><text x="44" y="62" class="field">id</text>
+    <text x="14" y="92" class="field">FK</text><text x="44" y="92" class="field">jewelry_type_id</text>
+    <text x="44" y="122" class="field">sku</text>
+    <text x="44" y="152" class="field">slug</text>
+    <text x="44" y="182" class="field">price</text>
+    <text x="44" y="212" class="field">is_active</text>
+  </g>
+
+  <g transform="translate(1110,110)">
+    <rect width="160" height="160" class="entity"/>
+    <line x1="0" y1="34" x2="160" y2="34" class="rel"/>
+    <text x="80" y="22" text-anchor="middle" class="entity-title">product_images</text>
+    <text x="14" y="62" class="field">PK</text><text x="44" y="62" class="field">id</text>
+    <text x="14" y="92" class="field">FK</text><text x="44" y="92" class="field">product_id</text>
+    <text x="44" y="122" class="field">asset_path</text>
+    <text x="44" y="152" class="field">is_primary</text>
+  </g>
+
+  <!-- Cart -->
+  <g transform="translate(330,565)">
+    <rect width="170" height="160" class="entity"/>
+    <line x1="0" y1="34" x2="170" y2="34" class="rel"/>
+    <text x="85" y="22" text-anchor="middle" class="entity-title">carts</text>
+    <text x="14" y="62" class="field">PK</text><text x="44" y="62" class="field">id</text>
+    <text x="14" y="92" class="field">FK</text><text x="44" y="92" class="field">user_id</text>
+    <text x="14" y="122" class="field">FK</text><text x="44" y="122" class="field">promo_code_id</text>
+    <text x="44" y="152" class="field">status</text>
+  </g>
+
+  <g transform="translate(650,555)">
+    <rect width="210" height="180" class="entity"/>
+    <line x1="0" y1="34" x2="210" y2="34" class="rel"/>
+    <text x="105" y="22" text-anchor="middle" class="entity-title">cart_items</text>
+    <text x="14" y="62" class="field">PK</text><text x="44" y="62" class="field">id</text>
+    <text x="14" y="92" class="field">FK</text><text x="44" y="92" class="field">cart_id</text>
+    <text x="44" y="122" class="field">item_type</text>
+    <text x="14" y="152" class="field">FK</text><text x="44" y="152" class="field">product_id</text>
+    <text x="14" y="182" class="field">FK</text><text x="44" y="182" class="field">jewelry_type_id</text>
+  </g>
+
+  <!-- Orders -->
+  <g transform="translate(180,820)">
+    <rect width="210" height="200" class="entity"/>
+    <line x1="0" y1="34" x2="210" y2="34" class="rel"/>
+    <text x="105" y="22" text-anchor="middle" class="entity-title">orders</text>
+    <text x="14" y="62" class="field">PK</text><text x="44" y="62" class="field">id</text>
+    <text x="14" y="92" class="field">FK</text><text x="44" y="92" class="field">user_id</text>
+    <text x="14" y="122" class="field">FK</text><text x="44" y="122" class="field">promo_code_id</text>
+    <text x="44" y="152" class="field">order_number</text>
+    <text x="44" y="182" class="field">status</text>
+    <text x="44" y="212" class="field">total_amount</text>
+  </g>
+
+  <g transform="translate(600,820)">
+    <rect width="230" height="210" class="entity"/>
+    <line x1="0" y1="34" x2="230" y2="34" class="rel"/>
+    <text x="115" y="22" text-anchor="middle" class="entity-title">order_items</text>
+    <text x="14" y="62" class="field">PK</text><text x="44" y="62" class="field">id</text>
+    <text x="14" y="92" class="field">FK</text><text x="44" y="92" class="field">order_id</text>
+    <text x="44" y="122" class="field">item_type</text>
+    <text x="14" y="152" class="field">FK</text><text x="44" y="152" class="field">product_id</text>
+    <text x="14" y="182" class="field">FK</text><text x="44" y="182" class="field">jewelry_type_id</text>
+    <text x="44" y="212" class="field">line_total</text>
+  </g>
+
+  <g transform="translate(980,840)">
+    <rect width="180" height="160" class="entity"/>
+    <line x1="0" y1="34" x2="180" y2="34" class="rel"/>
+    <text x="90" y="22" text-anchor="middle" class="entity-title">order_status_history</text>
+    <text x="14" y="62" class="field">PK</text><text x="44" y="62" class="field">id</text>
+    <text x="14" y="92" class="field">FK</text><text x="44" y="92" class="field">order_id</text>
+    <text x="14" y="122" class="field">FK</text><text x="44" y="122" class="field">changed_by_user_id</text>
+    <text x="44" y="152" class="field">new_status</text>
+  </g>
+
+  <g transform="translate(1230,840)">
+    <rect width="160" height="160" class="entity"/>
+    <line x1="0" y1="34" x2="160" y2="34" class="rel"/>
+    <text x="80" y="22" text-anchor="middle" class="entity-title">payments</text>
+    <text x="14" y="62" class="field">PK</text><text x="44" y="62" class="field">id</text>
+    <text x="14" y="92" class="field">FK</text><text x="44" y="92" class="field">order_id</text>
+    <text x="44" y="122" class="field">provider</text>
+    <text x="44" y="152" class="field">status</text>
+    <text x="44" y="182" class="field">amount</text>
+  </g>
+
+  <g transform="translate(1430,840)">
+    <rect width="190" height="160" class="entity"/>
+    <line x1="0" y1="34" x2="190" y2="34" class="rel"/>
+    <text x="95" y="22" text-anchor="middle" class="entity-title">notification_logs</text>
+    <text x="14" y="62" class="field">PK</text><text x="44" y="62" class="field">id</text>
+    <text x="14" y="92" class="field">FK</text><text x="44" y="92" class="field">order_id</text>
+    <text x="44" y="122" class="field">channel</text>
+    <text x="44" y="152" class="field">status</text>
+  </g>
+
+  <!-- Promo -->
+  <g transform="translate(1460,110)">
+    <rect width="170" height="160" class="entity"/>
+    <line x1="0" y1="34" x2="170" y2="34" class="rel"/>
+    <text x="85" y="22" text-anchor="middle" class="entity-title">promo_codes</text>
+    <text x="14" y="62" class="field">PK</text><text x="44" y="62" class="field">id</text>
+    <text x="44" y="92" class="field">code</text>
+    <text x="44" y="122" class="field">discount_type</text>
+    <text x="44" y="152" class="field">discount_value</text>
+  </g>
+
+  <g transform="translate(1430,410)">
+    <rect width="230" height="210" class="entity"/>
+    <line x1="0" y1="34" x2="230" y2="34" class="rel"/>
+    <text x="115" y="22" text-anchor="middle" class="entity-title">promo_code_redemptions</text>
+    <text x="14" y="62" class="field">PK</text><text x="44" y="62" class="field">id</text>
+    <text x="14" y="92" class="field">FK</text><text x="44" y="92" class="field">promo_code_id</text>
+    <text x="14" y="122" class="field">FK</text><text x="44" y="122" class="field">user_id</text>
+    <text x="14" y="152" class="field">FK</text><text x="44" y="152" class="field">cart_id</text>
+    <text x="14" y="182" class="field">FK</text><text x="44" y="182" class="field">order_id</text>
+    <text x="44" y="212" class="field">discount_amount</text>
+  </g>
+
+  <!-- Relationships -->
+  <!-- users -->
+  <path d="M210,190 L360,190" class="rel" marker-end="url(#arrow)"/>
+  <text x="285" y="182" class="label">1:M</text>
+
+  <path d="M210,245 L290,245 L290,390 L360,390" class="rel" marker-end="url(#arrow)"/>
+  <text x="292" y="330" class="label">1:M</text>
+
+  <path d="M120,270 L120,600 L330,600" class="rel" marker-end="url(#arrow)"/>
+  <text x="215" y="592" class="label">1:M</text>
+
+  <path d="M95,270 L95,860 L180,860" class="rel" marker-end="url(#arrow)"/>
+  <text x="105" y="810" class="label">1:M</text>
+
+  <path d="M145,270 L145,410 L1430,410" class="rel" marker-end="url(#arrow)"/>
+  <text x="785" y="400" class="label">1:M</text>
+
+  <path d="M170,270 L170,920 L980,920" class="rel" marker-end="url(#arrow)"/>
+  <text x="205" y="902" class="label">1:M</text>
+
+  <!-- catalog -->
+  <path d="M770,180 L860,180" class="rel" marker-end="url(#arrow)"/>
+  <text x="810" y="172" class="label">1:M</text>
+
+  <path d="M1040,180 L1110,180" class="rel" marker-end="url(#arrow)"/>
+  <text x="1070" y="172" class="label">1:M</text>
+
+  <path d="M690,270 L690,555" class="rel" marker-end="url(#arrow)"/>
+  <text x="702" y="420" class="label">1:M</text>
+  <text x="706" y="440" class="label">(custom_design)</text>
+
+  <path d="M950,310 L950,555 L860,555" class="rel" marker-end="url(#arrow)"/>
+  <text x="898" y="520" class="label">1:M</text>
+  <text x="882" y="540" class="label">(ready_product)</text>
+
+  <path d="M950,310 L950,820 L830,820" class="rel" marker-end="url(#arrow)"/>
+  <text x="842" y="700" class="label">1:M</text>
+  <text x="826" y="720" class="label">(ready_product)</text>
+
+  <path d="M690,270 L690,820 L600,820" class="rel" marker-end="url(#arrow)"/>
+  <text x="602" y="700" class="label">1:M</text>
+  <text x="586" y="720" class="label">(custom_design)</text>
+
+  <!-- cart -->
+  <path d="M500,645 L650,645" class="rel" marker-end="url(#arrow)"/>
+  <text x="570" y="637" class="label">1:M</text>
+
+  <!-- orders -->
+  <path d="M390,900 L600,900" class="rel" marker-end="url(#arrow)"/>
+  <text x="487" y="892" class="label">1:M</text>
+
+  <path d="M390,940 L980,940" class="rel" marker-end="url(#arrow)"/>
+  <text x="675" y="932" class="label">1:M</text>
+
+  <path d="M390,970 L1230,970" class="rel" marker-end="url(#arrow)"/>
+  <text x="802" y="962" class="label">1:M</text>
+
+  <path d="M390,1000 L1430,1000" class="rel" marker-end="url(#arrow)"/>
+  <text x="902" y="992" class="label">1:M</text>
+
+  <!-- promo -->
+  <path d="M1545,270 L1545,410" class="rel" marker-end="url(#arrow)"/>
+  <text x="1557" y="345" class="label">1:M</text>
+
+  <path d="M1460,205 L500,205 L500,630" class="rel" marker-end="url(#arrow)"/>
+  <text x="1320" y="197" class="label">1:M</text>
+
+  <path d="M1660,205 L1700,205 L1700,900 L390,900" class="rel" marker-end="url(#arrow)"/>
+  <text x="1670" y="197" class="label">1:M</text>
+
+  <path d="M1430,515 L860,515 L860,620" class="rel" marker-end="url(#arrow)"/>
+  <text x="1130" y="507" class="label">1:M</text>
+
+  <path d="M1430,560 L1330,560 L1330,955 L390,955" class="rel" marker-end="url(#arrow)"/>
+  <text x="1350" y="552" class="label">1:0..1</text>
+</svg>

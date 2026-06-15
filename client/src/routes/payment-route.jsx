@@ -295,9 +295,27 @@ export default function PaymentRoute() {
                 <aside className="checkout-summary-panel payment-summary-panel">
                   <span className="badge">{t(locale, "paymentSummary")}</span>
                   <h2>{order.order_number}</h2>
-                  <div className="checkout-total payment-total-highlight">
-                    <span>{t(locale, "amountToPay")}</span>
-                    <strong>{orderTotal}</strong>
+                  <div className="price-breakdown-card">
+                    <div className="price-breakdown-row">
+                      <span>{t(locale, "subtotal")}</span>
+                      <strong>{formatCurrency(order.subtotal_amount, order.currency, localeFormat)}</strong>
+                    </div>
+                    {order.promo_code ? (
+                      <div className="price-breakdown-promo">
+                        <span className="badge subtle">{t(locale, "promoCode")}</span>
+                        <strong>{order.promo_code}</strong>
+                      </div>
+                    ) : null}
+                    {order.discount_amount > 0 ? (
+                      <div className="price-breakdown-row is-discount">
+                        <span>{t(locale, "discount")}</span>
+                        <strong>-{formatCurrency(order.discount_amount, order.currency, localeFormat)}</strong>
+                      </div>
+                    ) : null}
+                    <div className="checkout-total payment-total-highlight">
+                      <span>{t(locale, "amountToPay")}</span>
+                      <strong>{orderTotal}</strong>
+                    </div>
                   </div>
                   <div className="checkout-items">
                     {order.items.map((item) => (

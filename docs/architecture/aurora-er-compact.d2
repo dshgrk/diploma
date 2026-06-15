@@ -1,0 +1,65 @@
+direction: right
+
+title: "Рисунок 2.2 – Логічна ER-модель реляційної частини бази даних Aurora Atelier"
+
+auth: {
+  label: "Користувачі та автентифікація"
+  users: "users\nPK id\nrole\nemail\nauth_provider"
+  sessions: "sessions\nPK id\nFK user_id\ntoken_hash\nexpires_at"
+  email_verification_codes: "email_verification_codes\nPK id\nFK user_id\nemail\ncode_hash\nexpires_at"
+}
+
+catalog: {
+  label: "Каталог"
+  jewelry_types: "jewelry_types\nPK id\ncode\nname_uk\nbase_price"
+  products: "products\nPK id\nFK jewelry_type_id\nsku\nslug\nprice\nis_active"
+  product_images: "product_images\nPK id\nFK product_id\nasset_path\nis_primary"
+}
+
+cart_block: {
+  label: "Кошик"
+  carts: "carts\nPK id\nFK user_id\nFK promo_code_id\nstatus"
+  cart_items: "cart_items\nPK id\nFK cart_id\nitem_type\nFK product_id\nFK jewelry_type_id"
+}
+
+orders_block: {
+  label: "Замовлення та оплата"
+  orders: "orders\nPK id\nFK user_id\nFK promo_code_id\norder_number\nstatus\ntotal_amount"
+  order_items: "order_items\nPK id\nFK order_id\nitem_type\nFK product_id\nFK jewelry_type_id\nline_total"
+  order_status_history: "order_status_history\nPK id\nFK order_id\nFK changed_by_user_id\nnew_status"
+  payments: "payments\nPK id\nFK order_id\nprovider\nstatus\namount"
+  notification_logs: "notification_logs\nPK id\nFK order_id\nchannel\nstatus"
+}
+
+promo_block: {
+  label: "Промокоди"
+  promo_codes: "promo_codes\nPK id\ncode\ndiscount_type\ndiscount_value"
+  promo_code_redemptions: "promo_code_redemptions\nPK id\nFK promo_code_id\nFK user_id\nFK cart_id\nFK order_id\ndiscount_amount"
+}
+
+auth.users -> auth.sessions: "1:M"
+auth.users -> auth.email_verification_codes: "1:M"
+auth.users -> cart_block.carts: "1:M"
+auth.users -> orders_block.orders: "1:M"
+auth.users -> orders_block.order_status_history: "1:M"
+auth.users -> promo_block.promo_code_redemptions: "1:M"
+
+catalog.jewelry_types -> catalog.products: "1:M"
+catalog.products -> catalog.product_images: "1:M"
+
+cart_block.carts -> cart_block.cart_items: "1:M"
+catalog.products -> cart_block.cart_items: "ready_product"
+catalog.jewelry_types -> cart_block.cart_items: "custom_design"
+
+orders_block.orders -> orders_block.order_items: "1:M"
+orders_block.orders -> orders_block.order_status_history: "1:M"
+orders_block.orders -> orders_block.payments: "1:M"
+orders_block.orders -> orders_block.notification_logs: "1:M"
+catalog.products -> orders_block.order_items: "ready_product"
+catalog.jewelry_types -> orders_block.order_items: "custom_design"
+
+promo_block.promo_codes -> cart_block.carts: "1:M"
+promo_block.promo_codes -> orders_block.orders: "1:M"
+promo_block.promo_codes -> promo_block.promo_code_redemptions: "1:M"
+cart_block.carts -> promo_block.promo_code_redemptions: "1:M"
+orders_block.orders -> promo_block.promo_code_redemptions: "1:0..1"

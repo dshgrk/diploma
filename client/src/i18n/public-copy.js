@@ -1,11 +1,13 @@
 // Файл містить логіку словників локалізації.
 export const CART_COPY = {
   uk: {
+    applyPromo: "Застосувати",
     addCustomDesign: "Додати персональний дизайн",
     almostThere: "Майже готово",
     cartDidNotLoad: "Кошик не завантажився",
     cartIntro: "Перегляньте обрані вироби, змініть кількість і переходьте до безпечного оформлення.",
     configuredDesign: "Налаштований дизайн",
+    discount: "Знижка",
     emptyCartText: "Оберіть готовий виріб або створіть персональний дизайн перед оформленням.",
     emptyCartTitle: "Ваше замовлення ще порожнє",
     exploreCollection: "Дивитися колекцію",
@@ -16,21 +18,32 @@ export const CART_COPY = {
     personalDesign: "Персональний дизайн",
     preparingCart: "Готуємо ваше замовлення.",
     proceedCheckout: "Перейти до безпечного оформлення",
+    promoActive: "Промокод активний",
+    promoApplySuccess: "Промокод застосовано.",
+    promoCode: "Промокод",
+    promoDescriptionFallback: "Знижка буде застосована до цього замовлення.",
+    promoHint: "Якщо у вас є промокод, введіть його перед оформленням.",
+    promoPlaceholder: "Наприклад, WELCOME10",
+    promoRemove: "Прибрати",
+    promoRequiresAuth: "Промокод можна застосувати після входу в акаунт.",
     qty: "К-сть",
     readyCheckout: "Готово до оформлення",
     remove: "Видалити",
     reservationSummary: "Резюме резерву",
     selectedPieces: "Обрані вироби",
     subtotal: "Проміжна сума",
+    total: "Разом",
     viewPiece: "Переглянути виріб",
     yourCart: "Ваш кошик"
   },
   en: {
+    applyPromo: "Apply",
     addCustomDesign: "Add custom design",
     almostThere: "Almost there",
     cartDidNotLoad: "Cart did not load",
     cartIntro: "Review selected pieces, adjust quantities and continue into secure checkout.",
     configuredDesign: "Configured design",
+    discount: "Discount",
     emptyCartText: "Choose a finished piece or create a custom design before checkout.",
     emptyCartTitle: "Your order edit is still empty",
     exploreCollection: "Explore collection",
@@ -41,12 +54,21 @@ export const CART_COPY = {
     personalDesign: "Personal design",
     preparingCart: "Preparing your order edit.",
     proceedCheckout: "Proceed to secure checkout",
+    promoActive: "Promo code active",
+    promoApplySuccess: "Promo code applied.",
+    promoCode: "Promo code",
+    promoDescriptionFallback: "The discount will be applied to this order.",
+    promoHint: "If you have a promo code, apply it before checkout.",
+    promoPlaceholder: "For example, WELCOME10",
+    promoRemove: "Remove",
+    promoRequiresAuth: "Sign in to apply a promo code.",
     qty: "Qty",
     readyCheckout: "Ready for checkout",
     remove: "Remove",
     reservationSummary: "Reservation summary",
     selectedPieces: "Selected pieces",
     subtotal: "Subtotal",
+    total: "Total",
     viewPiece: "View piece",
     yourCart: "Your cart"
   }
@@ -58,6 +80,7 @@ export const CHECKOUT_COPY = {
     acceptOfferLink: "Публічну оферту",
     acceptOfferTail: " та погоджуюся з умовами оформлення, оплати, доставки й повернення замовлення.",
     addBeforeCheckout: "Додайте виріб перед оформленням.",
+    applyPromo: "Застосувати промокод",
     addressPlaceholder: "Місто, відділення або повна адреса",
     checkout: "Оформлення",
     checkoutDidNotLoad: "Оформлення не завантажилося",
@@ -71,6 +94,7 @@ export const CHECKOUT_COPY = {
     creatingOrder: "Створюємо резерв...",
     customDesignNotice:
       "Зверніть увагу: персоналізована прикраса виготовляється індивідуально за обраними параметрами. Будь ласка, перевірте матеріал, камінь, розмір і гравіювання перед підтвердженням замовлення.",
+    discount: "Знижка",
     deliveryAddress: "Адреса доставки",
     deliveryMethod: "Спосіб доставки",
     email: "Email",
@@ -84,6 +108,13 @@ export const CHECKOUT_COPY = {
     paymentCopy: "Ми одразу створюємо резерв, після чого ви підтверджуєте оплату в наступному кроці.",
     phone: "Телефон",
     preparingReservation: "Готуємо безпечний резерв.",
+    promoActive: "Промокод активний",
+    promoApplySuccess: "Промокод застосовано.",
+    promoCode: "Промокод",
+    promoDescriptionFallback: "Знижка буде застосована до цього замовлення.",
+    promoHint: "Додайте промокод перед підтвердженням резерву, якщо він у вас є.",
+    promoPlaceholder: "Наприклад, WELCOME10",
+    promoRemove: "Прибрати",
     reservedAfterPrepayment: "Резюме оплати",
     returnToCollection: "Повернутися до колекції",
     secureCheckout: "Безпечне оформлення",
@@ -91,6 +122,7 @@ export const CHECKOUT_COPY = {
     stepAtelierStarts: "Ательє починає роботу",
     stepOrderCreated: "Резерв створюється",
     stepPaymentConfirmed: "Ви підтверджуєте оплату",
+    subtotal: "Проміжна сума",
     total: "Разом"
   },
   en: {
@@ -98,6 +130,7 @@ export const CHECKOUT_COPY = {
     acceptOfferLink: "Public offer",
     acceptOfferTail: " and agree to the terms of checkout, payment, delivery, and returns.",
     addBeforeCheckout: "Add a piece before opening checkout.",
+    applyPromo: "Apply promo code",
     addressPlaceholder: "City, branch or full address",
     checkout: "Checkout",
     checkoutDidNotLoad: "Checkout did not load",
@@ -111,6 +144,7 @@ export const CHECKOUT_COPY = {
     creatingOrder: "Creating reservation...",
     customDesignNotice:
       "Please note: a personalized piece is produced individually according to the selected parameters. Please review the material, stone, size, and engraving before confirming your order.",
+    discount: "Discount",
     deliveryAddress: "Delivery address",
     deliveryMethod: "Delivery method",
     email: "Email",
@@ -124,6 +158,13 @@ export const CHECKOUT_COPY = {
     paymentCopy: "We create your reservation immediately, then you confirm payment in the next step.",
     phone: "Phone",
     preparingReservation: "Preparing secure reservation.",
+    promoActive: "Promo code active",
+    promoApplySuccess: "Promo code applied.",
+    promoCode: "Promo code",
+    promoDescriptionFallback: "The discount will be applied to this order.",
+    promoHint: "Add your promo code before confirming the reservation if you have one.",
+    promoPlaceholder: "For example, WELCOME10",
+    promoRemove: "Remove",
     reservedAfterPrepayment: "Payment summary",
     returnToCollection: "Return to collection",
     secureCheckout: "Secure checkout",
@@ -131,12 +172,14 @@ export const CHECKOUT_COPY = {
     stepAtelierStarts: "Atelier starts work",
     stepOrderCreated: "Reservation is created",
     stepPaymentConfirmed: "You confirm payment",
+    subtotal: "Subtotal",
     total: "Total"
   }
 };
 
 export const ORDERS_COPY = {
   uk: {
+    discount: "Знижка",
     atelierHistory: "Історія ательє",
     awaitingPayment: "Очікує оплату",
     chooseFirstPiece: "Обрати перший виріб",
@@ -153,6 +196,9 @@ export const ORDERS_COPY = {
     orderDossier: "Досьє замовлення",
     orderItems: "Вироби в цьому замовленні",
     orderOnSchedule: "Виробничий статус у графіку.",
+    promoCode: "Промокод",
+    subtotal: "Проміжна сума",
+    finalTotal: "Підсумкова сума",
     orderTotal: "Сума замовлення",
     ordersDidNotLoad: "Замовлення не завантажилися",
     ordersIntro: "Відстежуйте кожен резерв від оплати до завершення в ательє.",
@@ -163,6 +209,7 @@ export const ORDERS_COPY = {
     purchaseHistory: "Історія покупок"
   },
   en: {
+    discount: "Discount",
     atelierHistory: "Atelier history",
     awaitingPayment: "Awaiting payment",
     chooseFirstPiece: "Choose first piece",
@@ -179,6 +226,9 @@ export const ORDERS_COPY = {
     orderDossier: "Order dossier",
     orderItems: "Pieces in this order",
     orderOnSchedule: "Production status is on schedule.",
+    promoCode: "Promo code",
+    subtotal: "Subtotal",
+    finalTotal: "Final total",
     orderTotal: "Order total",
     ordersDidNotLoad: "Orders did not load",
     ordersIntro: "Follow every reservation from payment to atelier completion.",
@@ -197,6 +247,7 @@ export const PAYMENT_COPY = {
     cardNumber: "Номер картки",
     cvc: "CVC",
     cvcInvalid: "Введіть 3 цифри CVC",
+    discount: "Знижка",
     expiryDate: "Термін дії",
     loadingPayment: "Завантажуємо оплату",
     orderAlreadyPaid: "Це замовлення вже підтверджено.",
@@ -211,8 +262,10 @@ export const PAYMENT_COPY = {
     paymentSummary: "Резюме замовлення",
     paymentTitle: "Підтвердіть оплату замовлення",
     preparingPayment: "Готуємо деталі замовлення для підтвердження.",
+    promoCode: "Промокод",
     returnToOrder: "Перейти до замовлення",
-    securePayment: "Безпечна оплата"
+    securePayment: "Безпечна оплата",
+    subtotal: "Проміжна сума"
   },
   en: {
     amountToPay: "Amount to pay",
@@ -220,6 +273,7 @@ export const PAYMENT_COPY = {
     cardNumber: "Card number",
     cvc: "CVC",
     cvcInvalid: "Enter the 3-digit CVC",
+    discount: "Discount",
     expiryDate: "Expiry date",
     loadingPayment: "Loading payment",
     orderAlreadyPaid: "This order is already confirmed.",
@@ -234,8 +288,10 @@ export const PAYMENT_COPY = {
     paymentSummary: "Order summary",
     paymentTitle: "Confirm order payment",
     preparingPayment: "Preparing order details for confirmation.",
+    promoCode: "Promo code",
     returnToOrder: "Open order",
-    securePayment: "Secure payment"
+    securePayment: "Secure payment",
+    subtotal: "Subtotal"
   }
 };
 

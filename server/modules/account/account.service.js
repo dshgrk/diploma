@@ -12,6 +12,7 @@ function orderSummary(order, items = [], updatedAt = null, locale = "uk") {
     id: order.id,
     order_number: order.order_number,
     status: order.status,
+    promo_code: order.promo_code_snapshot || null,
     total_amount: Number(order.total_amount || 0),
     subtotal_amount: Number(order.subtotal_amount || 0),
     discount_amount: Number(order.discount_amount || 0),

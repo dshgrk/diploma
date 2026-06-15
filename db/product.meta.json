@@ -9,6 +9,16 @@
       "product_id": 1,
       "variant_id": null,
       "asset_id": null
+    },
+    {
+      "product_id": 2,
+      "variant_id": null,
+      "asset_id": null
+    },
+    {
+      "product_id": 7,
+      "variant_id": null,
+      "asset_id": null
     }
   ]
 }
