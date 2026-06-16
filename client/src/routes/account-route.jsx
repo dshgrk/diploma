@@ -88,7 +88,7 @@ function ActiveOrderCard({ order, locale, localeFormat }) {
           <AccountOrderLine key={item.id} item={item} order={order} locale={locale} localeFormat={localeFormat} />
         ))}
       </div>
-      <a className="button button-ghost" href={`/orders/${order.id}`}>
+      <a className="button button-ghost" href={`/account/orders/${order.id}`}>
         {locale === "uk" ? "Відкрити досьє замовлення" : "Open order dossier"}
       </a>
     </article>
@@ -175,6 +175,16 @@ export default function AccountRoute() {
                     </span>
                     <span className="status-pill pending">{user?.auth_provider === "google" ? "Google" : "Local"}</span>
                   </div>
+                  <div className="account-orders-entry">
+                    <div className="account-orders-entry-copy">
+                      <span className="badge subtle">{t(locale, "purchaseHistory")}</span>
+                      <strong>{t(locale, "accountBridgeTitle")}</strong>
+                      <p>{t(locale, "accountBridgeText")}</p>
+                    </div>
+                    <a className="button-ghost account-orders-entry-link" href="/account/orders">
+                      {t(locale, "viewAllOrders")}
+                    </a>
+                  </div>
                 </section>
 
                 <section className="account-current-order-card">
@@ -252,7 +262,7 @@ export default function AccountRoute() {
                             <AccountOrderLine key={item.id} item={item} order={order} locale={locale} localeFormat={localeFormat} />
                           ))}
                         </div>
-                        <a className="small-button" href={`/orders/${order.id}`}>
+                        <a className="small-button" href={`/account/orders/${order.id}`}>
                           {locale === "uk" ? "Дивитися досьє" : "View dossier"}
                         </a>
                       </article>

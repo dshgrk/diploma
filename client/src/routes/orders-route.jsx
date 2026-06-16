@@ -22,6 +22,12 @@ export default function OrdersRoute() {
   const [loadError, setLoadError] = useState("");
 
   useEffect(() => {
+    if (window.location.pathname === "/orders") {
+      window.history.replaceState({}, "", "/account/orders");
+    }
+  }, []);
+
+  useEffect(() => {
     let active = true;
     ordersApi
       .getMyOrders()
@@ -49,6 +55,9 @@ export default function OrdersRoute() {
         <main>
         <section className="orders-react-hero">
           <div className="container orders-react-heading">
+            <a className="orders-back-link" href="/account">
+              {t(locale, "backToAccount")}
+            </a>
             <span className="badge">{t(locale, "purchaseHistory")}</span>
             <h1>{t(locale, "myOrders")}</h1>
             <p>{t(locale, "ordersIntro")}</p>
@@ -90,7 +99,7 @@ export default function OrdersRoute() {
           <section className="orders-list-section">
             <div className="container orders-list-grid">
               {orders.map((order) => (
-                <a className="order-card-react" href={`/orders/${order.id}`} key={order.id}>
+                <a className="order-card-react" href={`/account/orders/${order.id}`} key={order.id}>
                   <div className="order-card-top">
                     <div>
                       <strong>{order.order_number}</strong>

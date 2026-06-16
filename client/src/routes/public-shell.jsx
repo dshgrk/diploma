@@ -253,7 +253,7 @@ export function Footer({ locale }) {
           </div>
           <div className="site-footer-column">
             <h4 className="site-footer-title">{accountTitle}</h4>
-            <a className="site-footer-link" href="/orders">{ordersTitle}</a>
+            <a className="site-footer-link" href="/account/orders">{ordersTitle}</a>
             <a className="site-footer-link" href="/account">{accountTitle}</a>
           </div>
           <div className="site-footer-column">

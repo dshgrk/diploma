@@ -153,6 +153,7 @@ async function serializeCart(cartId, options = {}) {
     userId: options.userId || cart.user_id,
     subtotalAmount,
     trx,
+    locale,
     throwOnInvalid: options.throwOnInvalidPromo === true
   });
 

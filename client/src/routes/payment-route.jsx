@@ -215,7 +215,7 @@ export default function PaymentRoute() {
                       </div>
                       <strong>{order.order_number}</strong>
                       <p>{t(locale, "orderAlreadyPaid")}</p>
-                      <a className="button checkout-submit" href={`/orders/${order.id}`}>
+                      <a className="button checkout-submit" href={`/account/orders/${order.id}`}>
                         {t(locale, "returnToOrder")}
                         <Check aria-hidden="true" />
                       </a>

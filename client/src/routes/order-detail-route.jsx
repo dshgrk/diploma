@@ -82,6 +82,12 @@ export default function OrderDetailRoute() {
   const [loadError, setLoadError] = useState("");
 
   useEffect(() => {
+    if (/^\/orders\/\d+$/.test(window.location.pathname)) {
+      window.history.replaceState({}, "", `/account/orders/${orderId}`);
+    }
+  }, [orderId]);
+
+  useEffect(() => {
     let active = true;
     ordersApi
       .getOrder(orderId)
@@ -149,6 +155,9 @@ export default function OrderDetailRoute() {
             <section className="order-detail-hero">
               <div className="container order-detail-head">
                 <div className="order-detail-head-copy">
+                  <a className="orders-back-link" href="/account/orders">
+                    {t(locale, "backToOrders")}
+                  </a>
                   <span className="badge">{t(locale, "orderDossier")}</span>
                   <h1>{order.order_number}</h1>
                   <p>{locale === "uk" ? "Статус, склад замовлення та персональні деталі зібрані в одному спокійному досьє." : "Status, order composition, and personal details gathered in one calm dossier."}</p>

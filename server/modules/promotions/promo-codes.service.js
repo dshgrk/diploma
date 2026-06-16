@@ -3,13 +3,33 @@ const { db } = require("../../db/knex");
 const { createHttpError } = require("../../utils/http-error");
 const { roundCurrency } = require("../../utils/money");
 
+const PROMO_DESCRIPTION_BY_CODE = {
+  WELCOME10: {
+    uk: "Вітальна знижка на перше замовлення в ательє",
+    en: "Welcome discount for the first atelier order"
+  },
+  AURORA200: {
+    uk: "Фіксована знижка для більших замовлень",
+    en: "Fixed discount for larger orders"
+  }
+};
+
 // Нормалізує normalize promo code, щоб API та UI працювали з однаковим форматом даних.
 function normalizePromoCode(code) {
   return String(code || "").trim().toUpperCase();
 }
 
+// Визначає потрібне значення resolve promo description за поточним контекстом або вхідними параметрами.
+function resolvePromoDescription(row, locale = "uk") {
+  if (!row) return null;
+
+  const normalizedLocale = locale === "en" ? "en" : "uk";
+  const localized = PROMO_DESCRIPTION_BY_CODE[row.code]?.[normalizedLocale];
+  return localized || row.description || null;
+}
+
 // Виконує локальну логіку map promo code для модуля серверного модуля promotions.
-function mapPromoCode(row) {
+function mapPromoCode(row, locale = "uk") {
   if (!row) return null;
 
   return {
@@ -23,27 +43,27 @@ function mapPromoCode(row) {
     redemption_count: Number(row.redemption_count || 0),
     starts_at: row.starts_at,
     expires_at: row.expires_at,
-    description: row.description,
+    description: resolvePromoDescription(row, locale),
     is_active: Boolean(row.is_active)
   };
 }
 
 // Отримує get promo code by code з поточного набору даних або конфігурації.
-async function getPromoCodeByCode(code, trx = db) {
+async function getPromoCodeByCode(code, trx = db, locale = "uk") {
   const normalizedCode = normalizePromoCode(code);
   if (!normalizedCode) {
     return null;
   }
 
   const promo = await trx("promo_codes").where({ code: normalizedCode }).first();
-  return mapPromoCode(promo);
+  return mapPromoCode(promo, locale);
 }
 
 // Отримує get promo code by id з поточного набору даних або конфігурації.
-async function getPromoCodeById(promoCodeId, trx = db) {
+async function getPromoCodeById(promoCodeId, trx = db, locale = "uk") {
   if (!promoCodeId) return null;
   const promo = await trx("promo_codes").where({ id: promoCodeId }).first();
-  return mapPromoCode(promo);
+  return mapPromoCode(promo, locale);
 }
 
 // Обчислює calculate promo discount та повертає стабільний результат для бізнес-логіки.
@@ -114,7 +134,7 @@ async function validatePromoCodeForCart({ promoCode, userId, subtotalAmount, trx
 }
 
 // Визначає потрібне значення resolve applied promo за поточним контекстом або вхідними параметрами.
-async function resolveAppliedPromo({ promoCodeId, userId, subtotalAmount, trx = db, throwOnInvalid = false }) {
+async function resolveAppliedPromo({ promoCodeId, userId, subtotalAmount, trx = db, throwOnInvalid = false, locale = "uk" }) {
   if (!promoCodeId) {
     return {
       applied_promo: null,
@@ -122,7 +142,7 @@ async function resolveAppliedPromo({ promoCodeId, userId, subtotalAmount, trx = 
     };
   }
 
-  const promoCode = await getPromoCodeById(promoCodeId, trx);
+  const promoCode = await getPromoCodeById(promoCodeId, trx, locale);
   if (!promoCode) {
     if (throwOnInvalid) {
       throw createHttpError(404, "PROMO_CODE_NOT_FOUND", "Promo code was not found");

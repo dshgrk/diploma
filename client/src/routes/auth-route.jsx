@@ -315,7 +315,7 @@ function AuthPage({ locale }) {
       window.location.href = "/cart";
       return;
     }
-    window.location.href = "/orders";
+    window.location.href = "/account/orders";
   }
 
   // Обробляє дію користувача або системну подію для handle submit.

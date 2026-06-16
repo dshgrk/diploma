@@ -179,9 +179,13 @@ export const CHECKOUT_COPY = {
 
 export const ORDERS_COPY = {
   uk: {
+    accountBridgeText: "Перейдіть до повної історії замовлень, щоб переглянути всі резерви та завершені вироби в одному списку.",
+    accountBridgeTitle: "Повна історія замовлень",
+    backToOrders: "Назад до замовлень",
     discount: "Знижка",
     atelierHistory: "Історія ательє",
     awaitingPayment: "Очікує оплату",
+    backToAccount: "Назад до акаунта",
     chooseFirstPiece: "Обрати перший виріб",
     completed: "Завершено",
     confirmed: "Підтверджено",
@@ -206,12 +210,17 @@ export const ORDERS_COPY = {
     payOrder: "Сплатити замовлення",
     preparingDossier: "Готуємо досьє ательє.",
     preparingHistory: "Готуємо історію ательє.",
-    purchaseHistory: "Історія покупок"
+    purchaseHistory: "Історія покупок",
+    viewAllOrders: "Переглянути всі замовлення"
   },
   en: {
+    accountBridgeText: "Open the full order history to review every reservation and completed piece in one place.",
+    accountBridgeTitle: "Full order history",
+    backToOrders: "Back to orders",
     discount: "Discount",
     atelierHistory: "Atelier history",
     awaitingPayment: "Awaiting payment",
+    backToAccount: "Back to account",
     chooseFirstPiece: "Choose first piece",
     completed: "Completed",
     confirmed: "Confirmed",
@@ -236,7 +245,8 @@ export const ORDERS_COPY = {
     payOrder: "Pay for order",
     preparingDossier: "Preparing the atelier dossier.",
     preparingHistory: "Preparing atelier history.",
-    purchaseHistory: "Purchase history"
+    purchaseHistory: "Purchase history",
+    viewAllOrders: "View all orders"
   }
 };
 

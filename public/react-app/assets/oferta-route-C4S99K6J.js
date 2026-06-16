@@ -1,1 +1,0 @@
-import{j as t}from"./vendor-react-Cam-V6TZ.js";import{L as r}from"./legal-page-VFlQZBcT.js";import"./public-shell-OvFLIK-O.js";import"./styles-DHQkNmKf.js";import"./index-BanhcuZB.js";function i(){return t.jsx(r,{pageKey:"oferta"})}export{i as default};

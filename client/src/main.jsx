@@ -34,6 +34,8 @@ const ROUTE_DEFINITIONS = [
   { matches: (pathname) => pathname === "/checkout", component: CheckoutRoute },
   { matches: (pathname) => pathname === "/constructor", component: ConstructorRoute },
   { matches: (pathname) => pathname === "/oferta", component: OfertaRoute },
+  { matches: (pathname) => pathname === "/account/orders", component: OrdersRoute },
+  { matches: (pathname) => /^\/account\/orders\/\d+$/.test(pathname), component: OrderDetailRoute },
   { matches: (pathname) => pathname === "/orders", component: OrdersRoute },
   { matches: (pathname) => /^\/orders\/\d+$/.test(pathname), component: OrderDetailRoute },
   { matches: (pathname) => /^\/payment\/\d+$/.test(pathname), component: PaymentRoute },
