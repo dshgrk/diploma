@@ -94,7 +94,8 @@
 }
 
 .account-orders-entry,
-.account-orders-entry-copy {
+.account-orders-entry-copy,
+.account-logout-block {
   display: grid;
   gap: 0.75rem;
 }
@@ -126,10 +127,24 @@
   width: fit-content;
 }
 
+.account-logout-button {
+  width: fit-content;
+}
+
+.account-logout-button[disabled] {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.account-logout-error {
+  margin: 0;
+  color: #9e4639;
+  line-height: 1.5;
+}
+
 .account-panel-head,
 .order-detail-head,
 .order-detail-status-stack,
-.order-card-top,
 .order-card-total {
   display: flex;
   justify-content: space-between;
@@ -238,8 +253,25 @@
   box-shadow: 0 14px 36px rgba(10, 14, 12, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.84);
 }
 
+.order-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 0.9rem;
+}
+
 .order-card-top > div {
+  display: grid;
+  flex: 1 1 auto;
   gap: 0.28rem;
+  min-width: 0;
+}
+
+.order-card-top > div strong {
+  display: block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .order-card-top p,
@@ -253,13 +285,20 @@
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  width: fit-content;
+  flex: 0 0 auto;
+  width: auto;
+  max-width: min(8.5rem, 42%);
   padding: 0.32rem 0.7rem;
   border-radius: 999px;
   font-size: 0.74rem;
   font-weight: 700;
   letter-spacing: 0.06em;
+  line-height: 1.35;
+  text-align: center;
   text-transform: uppercase;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  justify-content: center;
   background: rgba(174, 138, 87, 0.12);
   color: var(--gold-strong);
 }
@@ -282,6 +321,12 @@
 .status-pill.completed {
   background: rgba(74, 132, 118, 0.16);
   color: #2e6a5e;
+}
+
+.status-pill.completed,
+.status-pill.confirmed {
+  max-width: none;
+  white-space: nowrap;
 }
 
 .status-pill.overdue {
@@ -491,6 +536,14 @@
 }
 
 @media (max-width: 720px) {
+  .order-card-top {
+    flex-direction: column;
+  }
+
+  .status-pill {
+    max-width: 100%;
+  }
+
   .order-detail-item-main {
     grid-template-columns: 1fr;
   }

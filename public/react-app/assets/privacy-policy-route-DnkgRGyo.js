@@ -1,0 +1,1 @@
+import{j as o}from"./vendor-react-Cam-V6TZ.js";import{L as r}from"./legal-page-D6YBMt3V.js";import"./public-shell-DV_oYWa7.js";import"./styles-DHQkNmKf.js";import"./index-DQTAtWyq.js";function m(){return o.jsx(r,{pageKey:"privacyPolicy"})}export{m as default};

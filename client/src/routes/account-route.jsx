@@ -1,6 +1,6 @@
 // Файл описує React-сторінку account-route та її локальну UI-логіку.
 import React, { useEffect, useState } from "react";
-import { accountApi } from "../api";
+import { accountApi, authApi } from "../api";
 import { redirectToAuth } from "../features/cart/cart-events";
 import { formatOrderDate, getPendantChainDisplay } from "../features/orders/order-format";
 import { orderStatusClassName, orderStatusLabel } from "../features/orders/order-status.js";
@@ -14,6 +14,18 @@ import "../styles/orders-account.css";
 // Виконує локальну логіку t для модуля сторінки account-route.
 function t(locale, key) {
   return publicText(ORDERS_COPY, locale, key);
+}
+
+function logoutText(locale) {
+  return locale === "uk" ? "Вийти з акаунту" : "Sign out";
+}
+
+function loggingOutText(locale) {
+  return locale === "uk" ? "Виходимо..." : "Signing out...";
+}
+
+function logoutErrorText(locale) {
+  return locale === "uk" ? "Не вдалося вийти з акаунту" : "Could not sign out";
 }
 
 // Компонент рендерить блок account order line і отримує потрібні дані через props або локальний state.
@@ -100,6 +112,8 @@ export default function AccountRoute() {
   const localeFormat = LOCALE_FORMATS[locale] || LOCALE_FORMATS.uk;
   const [dashboard, setDashboard] = useState(null);
   const [loadError, setLoadError] = useState("");
+  const [logoutPending, setLogoutPending] = useState(false);
+  const [logoutError, setLogoutError] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -120,6 +134,19 @@ export default function AccountRoute() {
       active = false;
     };
   }, [locale]);
+
+  async function handleLogout() {
+    if (logoutPending) return;
+    setLogoutPending(true);
+    setLogoutError("");
+    try {
+      await authApi.logout();
+      window.location.assign("/auth");
+    } catch (error) {
+      setLogoutError(error.message || logoutErrorText(locale));
+      setLogoutPending(false);
+    }
+  }
 
   const user = dashboard?.user || null;
   const activeOrders = dashboard?.active_orders || [];
@@ -184,6 +211,12 @@ export default function AccountRoute() {
                     <a className="button-ghost account-orders-entry-link" href="/account/orders">
                       {t(locale, "viewAllOrders")}
                     </a>
+                  </div>
+                  <div className="account-logout-block">
+                    <button className="button account-logout-button" type="button" onClick={handleLogout} disabled={logoutPending}>
+                      {logoutPending ? loggingOutText(locale) : logoutText(locale)}
+                    </button>
+                    {logoutError ? <p className="account-logout-error">{logoutError}</p> : null}
                   </div>
                 </section>
 
